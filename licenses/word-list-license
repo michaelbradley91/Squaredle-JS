@@ -1,0 +1,654 @@
+The known good word list was provided by this website:
+https://wortschatz.uni-leipzig.de/de/download/
+
+Which requests this paper is cited:
+http://www.lrec-conf.org/proceedings/lrec2012/pdf/327_Paper.pdf
+
+The word list was extracted by analysing the frequency of words and comparing it aganist another
+word list "12dicts" website:
+https://wyrdplay.org/12dicts.html
+
+The download contains the following text which includes the copyright:
+
+====================================================================================================================
+Automatically Generated Inflection Database (AGID)
+
+August 19, 2000
+Revision 2
+
+Copyright 2000 by Kevin Atkinson <kevina@users.sourceforge.net>
+
+The file "infl.txt" is an automatically created database of the
+inflected forms of words from an insanely large word list.
+
+The latest version can be found at http://aspell.sourceforge.net/wl/.
+
+Entries are in the following form.
+
+<word> <pos>: <inflected forms>
+
+Where <pos> is V for verb, N for noun, or A or adjective or adverb.
+If <pos> is followed by a ? that means that the part-of-speech was not
+in the part-of-speech database however the inflected forms of the word
+where found in the word list.
+
+The inflected forms are in the following order for verbs (except for
+the verb "be"):
+  <past tense>  [<past participle>]  <-ing form>  <plural form>
+and for adjective or adverbs:
+  <-er form>  <-est form>
+There are two spaces between each form.
+
+A word in parentheses mean that it is considered a less preferred form
+of the previous inflection.  Two parentheses means that the word is
+even less preferred, etc.  A / between two words means that the two
+words are considered almost equal variants or that is is difficult to
+tell which one is the primary form.  They are ordered by preference
+however sometime this distinction is so slight it is meaningless.  A
+"|" between words means that both inflections are used depending on
+the meaning of the word.  If the distinction between the two forms can
+be described in a word than that word is found after the word in
+braces, for example:
+
+  hang V: hung {suspend} | hanged {execute}  hanging  hangs
+
+Notice how there is two spaces between the past tense, -ing form and
+plural form but not between the alternate forms of the past tense.  In
+general, if the "|" symbol would be needed more than once the words
+the entry is split up into multiple lines like so:
+
+  <word> [{explanation}] <POS>: <inflected forms>
+
+However, the past particle as past tense form are considered a single
+form. Thus, a "|" may appear more than once when the word contains
+both a past participial and past tense form.
+
+A /? between words means that both inflections were found in the word
+list but the script was not sure which one to use.  A ~ after a word
+means that there is a slight chance that it is the plural of a word.
+A ! after a word indicates that the word is likely an inflections of a
+similar word (generally one ending in e) and not the current word.  A
+? after a word means that the word was not in the word list but if it
+was it would be considered an inflected form of the base word.
+
+Fell free to send me corrections to correct any of these questionable
+words.  I am mostly interested in the preferred form of the word in
+the case of /? or words marked with a ~ that are actually valid.
+
+Words are in mixed case but all accents have been scripted thus words
+like caf  are instead cafe.
+
+The file "variant" contains a list of alternate inflections.
+
+The file "irregular" contains extra information where a noun or verb
+has irregular inflected forms.
+
+The file "dontuse" contains a list of words not to consider an
+inflected form of a word if more than one inflected form of a word is
+found.
+
+The files "prefixes" and "suffixes" contains a list of common prefixes
+and suffixes respectfully.  These files are used by the script to
+produce inflected forms for words that end in a word in the
+"irregular" file. If the beginning appears in the word list or the
+prefixes file and the ending appears in the irregular file I also
+consider <prefix>+<irregular inflections>.  If the prefix is 3 letters
+or more OR appears in the prefixes file and the suffix is 4 letters or
+more OR appears in the suffixes file I consider it the most likely
+choice, otherwise I consider it as a possible candidate but not the
+most likely choice.
+
+The file "make-infl" is the actual Perl script used to create the
+data base.
+
+CHANGES:
+
+From Revision 1 to 2 (August 18, 2000)
+
+  Classified variants as either almost equal, also used, or
+  secondary.
+
+  The / is now used to indicate equal variants.  "/?" is now used to
+  mean what "/" used to be.
+
+  Lots of additional rules added which greatly improved the results.
+
+COPYRIGHT AND SOURCE:
+
+The final product is under the following copyright, as well as any
+copyrights mentioned below.
+
+  Copyright 2000 by Kevin Atkinson
+
+  Permission to use, copy, modify, distribute and sell this database,
+  the associated scripts, the output created form the scripts and its
+  documentation for any purpose is hereby granted without fee,
+  provided that the above copyright notice appears in all copies and
+  that both that copyright notice and this permission notice appear in
+  supporting documentation. Kevin Atkinson makes no representations
+  about the suitability of this array for any purpose. It is provided
+  "as is" without express or implied warranty.
+
+The part-of-speech database used is created form the Moby
+part-of-speech database which is in the public domain:
+
+    The Moby lexicon project is complete and has
+    been place into the public domain. Use, sell,
+    rework, excerpt and use in any way on any platform.
+    
+    Placing this material on internal or public servers is
+    also encouraged. The compiler is not aware of any
+    export restrictions so freely distribute world-wide.
+    
+    You can verify the public domain status by contacting
+    
+    Grady Ward
+    3449 Martha Ct.
+    Arcata, CA  95521-4884
+    
+    grady@netcom.com
+    grady@northcoast.com
+
+and the WordNet database which is under the following copyright:
+
+    This software and database is being provided to you, the LICENSEE, by
+    Princeton University under the following license.  By obtaining, using  
+    and/or copying this software and database, you agree that you have  
+    read, understood, and will comply with these terms and conditions.:  
+  
+    Permission to use, copy, modify and distribute this software and
+    database and its documentation for any purpose and without fee or
+    royalty is hereby granted, provided that you agree to comply with  
+    the following copyright notice and statements, including the disclaimer,  
+    and that the same appear on ALL copies of the software, database and  
+    documentation, including modifications that you make for internal  
+    use or for distribution.  
+  
+    WordNet 1.6 Copyright 1997 by Princeton University.  All rights reserved.  
+  
+    THIS SOFTWARE AND DATABASE IS PROVIDED "AS IS" AND PRINCETON  
+    UNIVERSITY MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR  
+    IMPLIED.  BY WAY OF EXAMPLE, BUT NOT LIMITATION, PRINCETON  
+    UNIVERSITY MAKES NO REPRESENTATIONS OR WARRANTIES OF MERCHANT-  
+    ABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE USE  
+    OF THE LICENSED SOFTWARE, DATABASE OR DOCUMENTATION WILL NOT  
+    INFRINGE ANY THIRD PARTY PATENTS, COPYRIGHTS, TRADEMARKS OR  
+    OTHER RIGHTS.
+  
+    The name of Princeton University or Princeton may not be used in  
+    advertising or publicity pertaining to distribution of the software  
+    and/or database.  Title to copyright in this software, database and  
+    any associated documentation shall at all times remain with  
+    Princeton University and LICENSEE agrees to preserve same.  
+
+The word list used is a combination of several word list:
+
+1) Most of the word lists from the Moby Words package:
+
+     10196pla.ces 113809of.fic 21986na.mes 256772co.mpo 354984si.ngl
+     3897male.nam 4160offi.cia 4946fema.len 6213acro.nym 74550com.mon
+   
+   The Moby Word package, like the Part-Of-Speech database is in the
+   public domain.
+
+2) The ENABLE2K word lists which is in the public domain:
+
+     The ENABLE master word list, WORD.LST, is herewith formally
+     released into the Public Domain. Anyone is free to use it or
+     distribute it in any manner they see fit. No fee or registration
+     is required for its use nor are "contributions" solicited (if you
+     feel you absolutely must contribute something for your own peace
+     of mind, the authors of the ENABLE list ask that you make a
+     donation on their behalf to your favorite charity). This word
+     list is our gift to the Scrabble community, as an alternate to
+     "official" word lists. Game designers may feel free to
+     incorporate the WORD.LST into their games. Please mention the
+     source and credit us as originators of the list. Note that if
+     you, as a game designer, use the WORD.LST in your product, you
+     may still copyright and protect your product, but you may *not*
+     legally copyright or in any way restrict redistribution of the
+     WORD.LST portion of your product. This *may* under law restrict
+     your rights to restrict your users' rights, but that is only
+     fair.
+
+3) All of the word lists in the ENABLE2K Supplemnt which consists of:
+
+     2DICTS.LST  ALSO.LST   LETTERS.LST  OSPDADD.LST  UCACR.LST
+     ABLE.LST    LCACR.LST  NOPOS.LST    PLURALS.LST  UPPER.LST
+
+   All of these word lists are also in the public domain.
+
+4) The list of signature words from the YAWL package which is in the
+   public domain.
+
+5) The UK Advanced Cryptics Dictionary which in under the following
+   copyright:
+
+     Copyright (c) J Ross Beresford 1993-1999. All Rights Reserved.
+
+     The following restriction is placed on the use of this
+     publication: if The UK Advanced Cryptics Dictionary is used
+     in a software package or redistributed in any form, the
+     copyright notice must be prominently displayed and the text
+     of this document must be included verbatim.
+
+     There are no other restrictions: I would like to see the
+     list distributed as widely as possible.
+
+6) Some extra words found in the Part-Of-Speech database that was not
+   found in any of the above word list.
+
+7) Words found in the Jargon File Word List package, available at
+   http://aspell.sourceforge.net/wl/, which is in the Public Domain.
+
+8) And finally some extra words that I added myself.  These words can be
+   found in the file "extra-words"
+
+The "dontuse", "irregular", and "variant" file was created by me
+(Kevin Atkinson) from numerous sources.
+
+====================================================================================================================
+
+Finally words were removed which appeared in this list:
+https://github.com/now4real/forbidden-words/blob/main/eng.txt
+
+Protected under the Creative Commons Attribution License v4 copied below:
+
+====================================================================================================================
+
+Attribution 4.0 International
+
+=======================================================================
+
+Creative Commons Corporation ("Creative Commons") is not a law firm and
+does not provide legal services or legal advice. Distribution of
+Creative Commons public licenses does not create a lawyer-client or
+other relationship. Creative Commons makes its licenses and related
+information available on an "as-is" basis. Creative Commons gives no
+warranties regarding its licenses, any material licensed under their
+terms and conditions, or any related information. Creative Commons
+disclaims all liability for damages resulting from their use to the
+fullest extent possible.
+
+Using Creative Commons Public Licenses
+
+Creative Commons public licenses provide a standard set of terms and
+conditions that creators and other rights holders may use to share
+original works of authorship and other material subject to copyright
+and certain other rights specified in the public license below. The
+following considerations are for informational purposes only, are not
+exhaustive, and do not form part of our licenses.
+
+     Considerations for licensors: Our public licenses are
+     intended for use by those authorized to give the public
+     permission to use material in ways otherwise restricted by
+     copyright and certain other rights. Our licenses are
+     irrevocable. Licensors should read and understand the terms
+     and conditions of the license they choose before applying it.
+     Licensors should also secure all rights necessary before
+     applying our licenses so that the public can reuse the
+     material as expected. Licensors should clearly mark any
+     material not subject to the license. This includes other CC-
+     licensed material, or material used under an exception or
+     limitation to copyright. More considerations for licensors:
+	wiki.creativecommons.org/Considerations_for_licensors
+
+     Considerations for the public: By using one of our public
+     licenses, a licensor grants the public permission to use the
+     licensed material under specified terms and conditions. If
+     the licensor's permission is not necessary for any reason--for
+     example, because of any applicable exception or limitation to
+     copyright--then that use is not regulated by the license. Our
+     licenses grant only permissions under copyright and certain
+     other rights that a licensor has authority to grant. Use of
+     the licensed material may still be restricted for other
+     reasons, including because others have copyright or other
+     rights in the material. A licensor may make special requests,
+     such as asking that all changes be marked or described.
+     Although not required by our licenses, you are encouraged to
+     respect those requests where reasonable. More_considerations
+     for the public:
+	wiki.creativecommons.org/Considerations_for_licensees
+
+=======================================================================
+
+Creative Commons Attribution 4.0 International Public License
+
+By exercising the Licensed Rights (defined below), You accept and agree
+to be bound by the terms and conditions of this Creative Commons
+Attribution 4.0 International Public License ("Public License"). To the
+extent this Public License may be interpreted as a contract, You are
+granted the Licensed Rights in consideration of Your acceptance of
+these terms and conditions, and the Licensor grants You such rights in
+consideration of benefits the Licensor receives from making the
+Licensed Material available under these terms and conditions.
+
+
+Section 1 -- Definitions.
+
+  a. Adapted Material means material subject to Copyright and Similar
+     Rights that is derived from or based upon the Licensed Material
+     and in which the Licensed Material is translated, altered,
+     arranged, transformed, or otherwise modified in a manner requiring
+     permission under the Copyright and Similar Rights held by the
+     Licensor. For purposes of this Public License, where the Licensed
+     Material is a musical work, performance, or sound recording,
+     Adapted Material is always produced where the Licensed Material is
+     synched in timed relation with a moving image.
+
+  b. Adapter's License means the license You apply to Your Copyright
+     and Similar Rights in Your contributions to Adapted Material in
+     accordance with the terms and conditions of this Public License.
+
+  c. Copyright and Similar Rights means copyright and/or similar rights
+     closely related to copyright including, without limitation,
+     performance, broadcast, sound recording, and Sui Generis Database
+     Rights, without regard to how the rights are labeled or
+     categorized. For purposes of this Public License, the rights
+     specified in Section 2(b)(1)-(2) are not Copyright and Similar
+     Rights.
+
+  d. Effective Technological Measures means those measures that, in the
+     absence of proper authority, may not be circumvented under laws
+     fulfilling obligations under Article 11 of the WIPO Copyright
+     Treaty adopted on December 20, 1996, and/or similar international
+     agreements.
+
+  e. Exceptions and Limitations means fair use, fair dealing, and/or
+     any other exception or limitation to Copyright and Similar Rights
+     that applies to Your use of the Licensed Material.
+
+  f. Licensed Material means the artistic or literary work, database,
+     or other material to which the Licensor applied this Public
+     License.
+
+  g. Licensed Rights means the rights granted to You subject to the
+     terms and conditions of this Public License, which are limited to
+     all Copyright and Similar Rights that apply to Your use of the
+     Licensed Material and that the Licensor has authority to license.
+
+  h. Licensor means the individual(s) or entity(ies) granting rights
+     under this Public License.
+
+  i. Share means to provide material to the public by any means or
+     process that requires permission under the Licensed Rights, such
+     as reproduction, public display, public performance, distribution,
+     dissemination, communication, or importation, and to make material
+     available to the public including in ways that members of the
+     public may access the material from a place and at a time
+     individually chosen by them.
+
+  j. Sui Generis Database Rights means rights other than copyright
+     resulting from Directive 96/9/EC of the European Parliament and of
+     the Council of 11 March 1996 on the legal protection of databases,
+     as amended and/or succeeded, as well as other essentially
+     equivalent rights anywhere in the world.
+
+  k. You means the individual or entity exercising the Licensed Rights
+     under this Public License. Your has a corresponding meaning.
+
+
+Section 2 -- Scope.
+
+  a. License grant.
+
+       1. Subject to the terms and conditions of this Public License,
+          the Licensor hereby grants You a worldwide, royalty-free,
+          non-sublicensable, non-exclusive, irrevocable license to
+          exercise the Licensed Rights in the Licensed Material to:
+
+            a. reproduce and Share the Licensed Material, in whole or
+               in part; and
+
+            b. produce, reproduce, and Share Adapted Material.
+
+       2. Exceptions and Limitations. For the avoidance of doubt, where
+          Exceptions and Limitations apply to Your use, this Public
+          License does not apply, and You do not need to comply with
+          its terms and conditions.
+
+       3. Term. The term of this Public License is specified in Section
+          6(a).
+
+       4. Media and formats; technical modifications allowed. The
+          Licensor authorizes You to exercise the Licensed Rights in
+          all media and formats whether now known or hereafter created,
+          and to make technical modifications necessary to do so. The
+          Licensor waives and/or agrees not to assert any right or
+          authority to forbid You from making technical modifications
+          necessary to exercise the Licensed Rights, including
+          technical modifications necessary to circumvent Effective
+          Technological Measures. For purposes of this Public License,
+          simply making modifications authorized by this Section 2(a)
+          (4) never produces Adapted Material.
+
+       5. Downstream recipients.
+
+            a. Offer from the Licensor -- Licensed Material. Every
+               recipient of the Licensed Material automatically
+               receives an offer from the Licensor to exercise the
+               Licensed Rights under the terms and conditions of this
+               Public License.
+
+            b. No downstream restrictions. You may not offer or impose
+               any additional or different terms or conditions on, or
+               apply any Effective Technological Measures to, the
+               Licensed Material if doing so restricts exercise of the
+               Licensed Rights by any recipient of the Licensed
+               Material.
+
+       6. No endorsement. Nothing in this Public License constitutes or
+          may be construed as permission to assert or imply that You
+          are, or that Your use of the Licensed Material is, connected
+          with, or sponsored, endorsed, or granted official status by,
+          the Licensor or others designated to receive attribution as
+          provided in Section 3(a)(1)(A)(i).
+
+  b. Other rights.
+
+       1. Moral rights, such as the right of integrity, are not
+          licensed under this Public License, nor are publicity,
+          privacy, and/or other similar personality rights; however, to
+          the extent possible, the Licensor waives and/or agrees not to
+          assert any such rights held by the Licensor to the limited
+          extent necessary to allow You to exercise the Licensed
+          Rights, but not otherwise.
+
+       2. Patent and trademark rights are not licensed under this
+          Public License.
+
+       3. To the extent possible, the Licensor waives any right to
+          collect royalties from You for the exercise of the Licensed
+          Rights, whether directly or through a collecting society
+          under any voluntary or waivable statutory or compulsory
+          licensing scheme. In all other cases the Licensor expressly
+          reserves any right to collect such royalties.
+
+
+Section 3 -- License Conditions.
+
+Your exercise of the Licensed Rights is expressly made subject to the
+following conditions.
+
+  a. Attribution.
+
+       1. If You Share the Licensed Material (including in modified
+          form), You must:
+
+            a. retain the following if it is supplied by the Licensor
+               with the Licensed Material:
+
+                 i. identification of the creator(s) of the Licensed
+                    Material and any others designated to receive
+                    attribution, in any reasonable manner requested by
+                    the Licensor (including by pseudonym if
+                    designated);
+
+                ii. a copyright notice;
+
+               iii. a notice that refers to this Public License;
+
+                iv. a notice that refers to the disclaimer of
+                    warranties;
+
+                 v. a URI or hyperlink to the Licensed Material to the
+                    extent reasonably practicable;
+
+            b. indicate if You modified the Licensed Material and
+               retain an indication of any previous modifications; and
+
+            c. indicate the Licensed Material is licensed under this
+               Public License, and include the text of, or the URI or
+               hyperlink to, this Public License.
+
+       2. You may satisfy the conditions in Section 3(a)(1) in any
+          reasonable manner based on the medium, means, and context in
+          which You Share the Licensed Material. For example, it may be
+          reasonable to satisfy the conditions by providing a URI or
+          hyperlink to a resource that includes the required
+          information.
+
+       3. If requested by the Licensor, You must remove any of the
+          information required by Section 3(a)(1)(A) to the extent
+          reasonably practicable.
+
+       4. If You Share Adapted Material You produce, the Adapter's
+          License You apply must not prevent recipients of the Adapted
+          Material from complying with this Public License.
+
+
+Section 4 -- Sui Generis Database Rights.
+
+Where the Licensed Rights include Sui Generis Database Rights that
+apply to Your use of the Licensed Material:
+
+  a. for the avoidance of doubt, Section 2(a)(1) grants You the right
+     to extract, reuse, reproduce, and Share all or a substantial
+     portion of the contents of the database;
+
+  b. if You include all or a substantial portion of the database
+     contents in a database in which You have Sui Generis Database
+     Rights, then the database in which You have Sui Generis Database
+     Rights (but not its individual contents) is Adapted Material; and
+
+  c. You must comply with the conditions in Section 3(a) if You Share
+     all or a substantial portion of the contents of the database.
+
+For the avoidance of doubt, this Section 4 supplements and does not
+replace Your obligations under this Public License where the Licensed
+Rights include other Copyright and Similar Rights.
+
+
+Section 5 -- Disclaimer of Warranties and Limitation of Liability.
+
+  a. UNLESS OTHERWISE SEPARATELY UNDERTAKEN BY THE LICENSOR, TO THE
+     EXTENT POSSIBLE, THE LICENSOR OFFERS THE LICENSED MATERIAL AS-IS
+     AND AS-AVAILABLE, AND MAKES NO REPRESENTATIONS OR WARRANTIES OF
+     ANY KIND CONCERNING THE LICENSED MATERIAL, WHETHER EXPRESS,
+     IMPLIED, STATUTORY, OR OTHER. THIS INCLUDES, WITHOUT LIMITATION,
+     WARRANTIES OF TITLE, MERCHANTABILITY, FITNESS FOR A PARTICULAR
+     PURPOSE, NON-INFRINGEMENT, ABSENCE OF LATENT OR OTHER DEFECTS,
+     ACCURACY, OR THE PRESENCE OR ABSENCE OF ERRORS, WHETHER OR NOT
+     KNOWN OR DISCOVERABLE. WHERE DISCLAIMERS OF WARRANTIES ARE NOT
+     ALLOWED IN FULL OR IN PART, THIS DISCLAIMER MAY NOT APPLY TO YOU.
+
+  b. TO THE EXTENT POSSIBLE, IN NO EVENT WILL THE LICENSOR BE LIABLE
+     TO YOU ON ANY LEGAL THEORY (INCLUDING, WITHOUT LIMITATION,
+     NEGLIGENCE) OR OTHERWISE FOR ANY DIRECT, SPECIAL, INDIRECT,
+     INCIDENTAL, CONSEQUENTIAL, PUNITIVE, EXEMPLARY, OR OTHER LOSSES,
+     COSTS, EXPENSES, OR DAMAGES ARISING OUT OF THIS PUBLIC LICENSE OR
+     USE OF THE LICENSED MATERIAL, EVEN IF THE LICENSOR HAS BEEN
+     ADVISED OF THE POSSIBILITY OF SUCH LOSSES, COSTS, EXPENSES, OR
+     DAMAGES. WHERE A LIMITATION OF LIABILITY IS NOT ALLOWED IN FULL OR
+     IN PART, THIS LIMITATION MAY NOT APPLY TO YOU.
+
+  c. The disclaimer of warranties and limitation of liability provided
+     above shall be interpreted in a manner that, to the extent
+     possible, most closely approximates an absolute disclaimer and
+     waiver of all liability.
+
+
+Section 6 -- Term and Termination.
+
+  a. This Public License applies for the term of the Copyright and
+     Similar Rights licensed here. However, if You fail to comply with
+     this Public License, then Your rights under this Public License
+     terminate automatically.
+
+  b. Where Your right to use the Licensed Material has terminated under
+     Section 6(a), it reinstates:
+
+       1. automatically as of the date the violation is cured, provided
+          it is cured within 30 days of Your discovery of the
+          violation; or
+
+       2. upon express reinstatement by the Licensor.
+
+     For the avoidance of doubt, this Section 6(b) does not affect any
+     right the Licensor may have to seek remedies for Your violations
+     of this Public License.
+
+  c. For the avoidance of doubt, the Licensor may also offer the
+     Licensed Material under separate terms or conditions or stop
+     distributing the Licensed Material at any time; however, doing so
+     will not terminate this Public License.
+
+  d. Sections 1, 5, 6, 7, and 8 survive termination of this Public
+     License.
+
+
+Section 7 -- Other Terms and Conditions.
+
+  a. The Licensor shall not be bound by any additional or different
+     terms or conditions communicated by You unless expressly agreed.
+
+  b. Any arrangements, understandings, or agreements regarding the
+     Licensed Material not stated herein are separate from and
+     independent of the terms and conditions of this Public License.
+
+
+Section 8 -- Interpretation.
+
+  a. For the avoidance of doubt, this Public License does not, and
+     shall not be interpreted to, reduce, limit, restrict, or impose
+     conditions on any use of the Licensed Material that could lawfully
+     be made without permission under this Public License.
+
+  b. To the extent possible, if any provision of this Public License is
+     deemed unenforceable, it shall be automatically reformed to the
+     minimum extent necessary to make it enforceable. If the provision
+     cannot be reformed, it shall be severed from this Public License
+     without affecting the enforceability of the remaining terms and
+     conditions.
+
+  c. No term or condition of this Public License will be waived and no
+     failure to comply consented to unless expressly agreed to by the
+     Licensor.
+
+  d. Nothing in this Public License constitutes or may be interpreted
+     as a limitation upon, or waiver of, any privileges and immunities
+     that apply to the Licensor or You, including from the legal
+     processes of any jurisdiction or authority.
+
+
+=======================================================================
+
+Creative Commons is not a party to its public licenses.
+Notwithstanding, Creative Commons may elect to apply one of its public
+licenses to material it publishes and in those instances will be
+considered the "Licensor." Except for the limited purpose of indicating
+that material is shared under a Creative Commons public license or as
+otherwise permitted by the Creative Commons policies published at
+creativecommons.org/policies, Creative Commons does not authorize the
+use of the trademark "Creative Commons" or any other trademark or logo
+of Creative Commons without its prior written consent including,
+without limitation, in connection with any unauthorized modifications
+to any of its public licenses or any other arrangements,
+understandings, or agreements concerning use of licensed material. For
+the avoidance of doubt, this paragraph does not form part of the public
+licenses.
+
+Creative Commons may be contacted at creativecommons.org.
+====================================================================================================================
+
+Any remaining adjustments are my own

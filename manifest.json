@@ -1,0 +1,40 @@
+{
+    "name": "Squaredle",
+    "short_name": "Squaredle",
+    "description": "Squaredle - find the words inside the square!",
+    "start_url": "/",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "display": "standalone",
+    "icons": [{
+        "src": "/assets/Squaredle192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+    },{
+        "src": "/assets/Squaredle256.png",
+        "sizes": "256x256",
+        "type": "image/png",
+        "purpose": "any"
+    },{
+        "src": "/assets/Squaredle512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any"
+    },{
+        "src": "/assets/Squaredle192-maskable.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "maskable"
+    },{
+        "src": "/assets/Squaredle256-maskable.png",
+        "sizes": "256x256",
+        "type": "image/png",
+        "purpose": "maskable"
+    },{
+        "src": "/assets/Squaredle512-maskable.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+    }]
+}
