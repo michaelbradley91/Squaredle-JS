@@ -2,37 +2,37 @@
     "name": "Squaredle",
     "short_name": "Squaredle",
     "description": "Squaredle - find the words inside the square!",
-    "start_url": "https:/michaelbradley91.github.io/Squaredle-JS/",
+    "start_url": "https://michaelbradley91.github.io/Squaredle-JS",
     "background_color": "#000000",
     "theme_color": "#000000",
     "display": "standalone",
     "icons": [{
-        "src": "https:/michaelbradley91.github.io/Squaredle-JS/assets/Squaredle192.png",
+        "src": "https://michaelbradley91.github.io/Squaredle-JS/assets/Squaredle192.png",
         "sizes": "192x192",
         "type": "image/png",
         "purpose": "any"
     },{
-        "src": "https:/michaelbradley91.github.io/Squaredle-JS/assets/Squaredle256.png",
+        "src": "https://michaelbradley91.github.io/Squaredle-JS/assets/Squaredle256.png",
         "sizes": "256x256",
         "type": "image/png",
         "purpose": "any"
     },{
-        "src": "https:/michaelbradley91.github.io/Squaredle-JS/assets/Squaredle512.png",
+        "src": "https://michaelbradley91.github.io/Squaredle-JS/assets/Squaredle512.png",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "any"
     },{
-        "src": "https:/michaelbradley91.github.io/Squaredle-JS/assets/Squaredle192-maskable.png",
+        "src": "https://michaelbradley91.github.io/Squaredle-JS/assets/Squaredle192-maskable.png",
         "sizes": "192x192",
         "type": "image/png",
         "purpose": "maskable"
     },{
-        "src": "https:/michaelbradley91.github.io/Squaredle-JS/assets/Squaredle256-maskable.png",
+        "src": "https://michaelbradley91.github.io/Squaredle-JS/assets/Squaredle256-maskable.png",
         "sizes": "256x256",
         "type": "image/png",
         "purpose": "maskable"
     },{
-        "src": "https:/michaelbradley91.github.io/Squaredle-JS/assets/Squaredle512-maskable.png",
+        "src": "https://michaelbradley91.github.io/Squaredle-JS/assets/Squaredle512-maskable.png",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "maskable"
