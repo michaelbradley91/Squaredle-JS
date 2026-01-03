@@ -26,6 +26,7 @@ export default class StartScene extends Phaser.Scene {
 
 	handle_resize(game_size: Phaser.Structs.Size)
 	{
+		this.quit_text?.setText('Quit' + window.history.length);
 		// Update camera viewport to match new size  
     	this.cameras.main.setViewport(0, 0, game_size.width, game_size.height); 
 
@@ -87,7 +88,7 @@ export default class StartScene extends Phaser.Scene {
 			color: HIGHLIGHTED_TEXT_COLOR
 		}).setInteractive();
 
-		this.quit_text = this.add.text(0, 0, 'Quit', {
+		this.quit_text = this.add.text(0, 0, 'Quit' + window.history.length, {
 			fontFamily: FONT_FAMILY,
 			fontSize: START_MENU_FONT_SIZE,
 			color: TEXT_COLOR
