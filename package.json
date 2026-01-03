@@ -11,10 +11,12 @@
 	},
 	"devDependencies": {
 		"@types/serviceworker": "^0.0.172",
+		"@types/yoga-layout": "^1.9.7",
 		"eslint": "^9.39.2",
 		"vite": "^7.3.0"
 	},
 	"dependencies": {
-		"phaser": "^3.90.0"
+		"phaser": "^3.90.0",
+		"yoga-layout": "^3.2.1"
 	}
 }

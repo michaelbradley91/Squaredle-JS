@@ -1,9 +1,6 @@
 import Phaser from 'phaser'
 
 import StartScene from './StartScene'
-import LevelSelectScene from './LevelSelectScene';
-import BuildingScene from './BuildingScene';
-import PlayScene from './PlayScene';
 
 const config: Phaser.Types.Core.GameConfig = {
 	type: Phaser.AUTO,

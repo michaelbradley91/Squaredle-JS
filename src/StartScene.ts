@@ -2,6 +2,13 @@ import Phaser from 'phaser'
 import { FONT_FAMILY, HIGHLIGHTED_TEXT_COLOR, START_MENU_FONT_SIZE, TEXT_COLOR } from './constants';
 import { GameState, init_game_state } from './logic';
 import StartScreen from '../assets/StartScreen.png';
+import Yoga, { Node } from 'yoga-layout';
+
+
+const SCREEN_NODE_INDEX = 0;
+const START_NODE_INDEX = 0;
+const QUIT_NODE_INDEX = 1;
+
 
 export default class StartScene extends Phaser.Scene {
 	start_text: Phaser.GameObjects.Text | undefined;
@@ -10,8 +17,69 @@ export default class StartScene extends Phaser.Scene {
 	is_persistent: string = "no"
 	storage_estimate: {usage: number, quota: number} = {usage: 0, quota: 0};
 
+	// Layout nodes
+	layout_nodes: {screen: Node, start: Node, quit: Node} | undefined;
+
 	constructor() {
 		super('start')
+	}
+	
+	reset_layout()
+	{
+		// Build the layout tree if it doesn't exist yet
+		if (!this.game_state.layout.start_scene_root_node)
+		{
+			let node = Yoga.Node.create();
+			this.game_state.layout.start_scene_root_node = node;
+
+			// The screen node is the outer container holding the menu options
+			let screen_node = Yoga.Node.create();
+			screen_node.setWidth("100%");
+			screen_node.setHeight("100%");
+			screen_node.setDisplay(Yoga.DISPLAY_FLEX);
+			screen_node.setFlexDirection(Yoga.FLEX_DIRECTION_COLUMN);
+			screen_node.setJustifyContent(Yoga.JUSTIFY_CENTER);
+			screen_node.setAlignItems(Yoga.ALIGN_CENTER);
+			
+			node.insertChild(screen_node, SCREEN_NODE_INDEX);
+
+			let start_node = Yoga.Node.create();
+			start_node.setHeight(this.start_text?.height || 50);
+			start_node.setWidth(this.start_text?.width || 50);
+			start_node.setMargin(Yoga.EDGE_ALL, 10);
+			screen_node.insertChild(start_node, START_NODE_INDEX);
+
+			let quit_node = Yoga.Node.create();
+			quit_node.setHeight(this.quit_text?.height || 50);
+			quit_node.setWidth(this.quit_text?.width || 50);
+			quit_node.setMargin(Yoga.EDGE_ALL, 10);
+			screen_node.insertChild(quit_node, QUIT_NODE_INDEX);
+		}
+		
+		// For ease of use later, remember the layout nodes
+		if (!this.layout_nodes)
+		{
+			let screen_node = this.game_state.layout.start_scene_root_node.getChild(SCREEN_NODE_INDEX);
+			let start_node = screen_node.getChild(START_NODE_INDEX);
+			let quit_node = screen_node.getChild(QUIT_NODE_INDEX);
+			this.layout_nodes = {screen: screen_node, start: start_node, quit: quit_node};
+		}
+		
+		// Recompute the layout for the current canvas size
+		this.game_state.layout.start_scene_root_node.setWidth(this.game.canvas.width);
+		this.game_state.layout.start_scene_root_node.setHeight(this.game.canvas.height);
+
+		this.layout_nodes.start.setWidth(this.start_text?.width || 50);
+		this.layout_nodes.start.setHeight(this.start_text?.height || 50);
+		
+		this.layout_nodes.quit.setWidth(this.quit_text?.width || 50);
+		this.layout_nodes.quit.setHeight(this.quit_text?.height || 50);
+		
+		this.game_state.layout.start_scene_root_node.calculateLayout(this.game.canvas.width, this.game.canvas.height, Yoga.DIRECTION_LTR);
+
+		// Apply the layout to the menu options
+		this.start_text?.setPosition(this.layout_nodes.start.getComputedLeft(), this.layout_nodes.start.getComputedTop());
+		this.quit_text?.setPosition(this.layout_nodes.quit.getComputedLeft(), this.layout_nodes.quit.getComputedTop());
 	}
 
 	init(data: {game_state: GameState})
@@ -24,23 +92,18 @@ export default class StartScene extends Phaser.Scene {
 		{
 			this.game_state = data.game_state;
 		}
+
+		// Set up the Yoga tree for the start scene
+		this.reset_layout();
 	}
 
 	handle_resize(game_size: Phaser.Structs.Size)
 	{
 		this.quit_text?.setText('Quit' + window.history.length);
 		// Update camera viewport to match new size  
-    	this.cameras.main.setViewport(0, 0, game_size.width, game_size.height); 
+    	this.cameras.main.setViewport(0, 0, game_size.width, game_size.height);
 
-		// Update the position of the menu options based on the new game size
-		if (this.start_text)
-		{
-			this.start_text.setPosition((game_size.width - this.start_text.width) / 2, game_size.height / 2- 50);
-		}
-		if (this.quit_text)
-		{
-			this.quit_text.setPosition((game_size.width - this.quit_text.width) / 2, game_size.height / 2 + 50);
-		}
+		this.reset_layout();
 	}
 
 	preload() {
@@ -170,14 +233,13 @@ export default class StartScene extends Phaser.Scene {
 		this.scale.on('resize', this.handle_resize, this);  
 	
 		// Trigger initial resize to set positions  
-		this.handle_resize(this.scale.gameSize);  
+		this.handle_resize(this.scale.gameSize); 
 	}
 
 	update(time: number, delta: number): void {
 		// Update logic if needed
 		this.start_text?.setText(`Start (${this.is_persistent}) ${this.storage_estimate?.usage} / ${this.storage_estimate?.quota}`);
-		this.start_text?.setPosition((this.game.canvas.width - this.start_text.width) / 2, this.game.canvas.height / 2- 50);
-		this.quit_text?.setPosition((this.game.canvas.width - this.quit_text.width) / 2, this.game.canvas.height / 2 + 50);
+		this.reset_layout();
 	}
 
 	start_game()
