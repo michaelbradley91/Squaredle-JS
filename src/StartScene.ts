@@ -7,6 +7,8 @@ export default class StartScene extends Phaser.Scene {
 	start_text: Phaser.GameObjects.Text | undefined;
 	quit_text: Phaser.GameObjects.Text | undefined;
 	game_state!: GameState;
+	is_persistent: string = "no"
+	storage_estimate: {usage: number, quota: number} = {usage: 0, quota: 0};
 
 	constructor() {
 		super('start')
@@ -33,11 +35,11 @@ export default class StartScene extends Phaser.Scene {
 		// Update the position of the menu options based on the new game size
 		if (this.start_text)
 		{
-			this.start_text.setPosition(game_size.width / 2 - 50, game_size.height / 2 - 50);
+			this.start_text.setPosition((game_size.width - this.start_text.width) / 2, game_size.height / 2- 50);
 		}
 		if (this.quit_text)
 		{
-			this.quit_text.setPosition(game_size.width / 2 - 50, game_size.height / 2 + 50);
+			this.quit_text.setPosition((game_size.width - this.quit_text.width) / 2, game_size.height / 2 + 50);
 		}
 	}
 
@@ -81,7 +83,56 @@ export default class StartScene extends Phaser.Scene {
 		return false;
 	}
 
+	get_storage_estimate() {
+		if (navigator.storage && navigator.storage.estimate) {
+			navigator.storage.estimate()
+				.then(estimate => {
+					console.log(`Using ${estimate.usage} out of ${estimate.quota} bytes.`);
+					this.storage_estimate = {usage: estimate.usage || 0, quota: estimate.quota || 0};
+				})
+				.catch(err => {
+					console.error('Error getting storage estimate:', err);
+				});
+		}
+	}
+
+	request_persistence() {
+        if (navigator.storage && navigator.storage.persist) {
+            navigator.storage.persist()
+                .then(granted => {
+                    if (granted) {
+                        console.log('✅ Persistent storage granted.');
+						this.is_persistent = "yes";
+						this.get_storage_estimate();
+                    } else {
+                        console.warn('❌ Persistent storage denied.');
+						this.is_persistent = "no";
+                    }
+                })
+                .catch(err => {
+                    console.error('Error requesting persistence:', err);
+					this.is_persistent = "error";
+                });
+        }
+    }
+
 	create() {
+		navigator.storage.persisted()
+                .then(isPersisted => {
+                    if (isPersisted) {
+                        console.log('✅ Storage is already persistent.');
+						this.is_persistent = "yes";
+						this.get_storage_estimate();
+                    } else {
+                        console.log('⚠️ Storage is not persistent. Requesting permission...');
+                        this.request_persistence();
+                    }
+                })
+                .catch(err => {
+                    console.error('Error checking persistence:', err);
+					this.is_persistent = "error";
+                });
+
 		this.start_text = this.add.text(0, 0, 'Start', {
 			fontFamily: FONT_FAMILY,
 			fontSize: START_MENU_FONT_SIZE,
@@ -124,6 +175,9 @@ export default class StartScene extends Phaser.Scene {
 
 	update(time: number, delta: number): void {
 		// Update logic if needed
+		this.start_text?.setText(`Start (${this.is_persistent}) ${this.storage_estimate?.usage} / ${this.storage_estimate?.quota}`);
+		this.start_text?.setPosition((this.game.canvas.width - this.start_text.width) / 2, this.game.canvas.height / 2- 50);
+		this.quit_text?.setPosition((this.game.canvas.width - this.quit_text.width) / 2, this.game.canvas.height / 2 + 50);
 	}
 
 	start_game()
