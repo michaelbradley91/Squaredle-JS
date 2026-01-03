@@ -24,6 +24,22 @@ export default class StartScene extends Phaser.Scene {
 		}
 	}
 
+	handle_resize(game_size: Phaser.Structs.Size)
+	{
+		// Update camera viewport to match new size  
+    	this.cameras.main.setViewport(0, 0, game_size.width, game_size.height); 
+
+		// Update the position of the menu options based on the new game size
+		if (this.start_text)
+		{
+			this.start_text.setPosition(game_size.width / 2 - 50, game_size.height / 2 - 50);
+		}
+		if (this.quit_text)
+		{
+			this.quit_text.setPosition(game_size.width / 2 - 50, game_size.height / 2 + 50);
+		}
+	}
+
 	preload() {
 		// this.load.image("present", "assets/Present.png");
 	}
@@ -97,6 +113,12 @@ export default class StartScene extends Phaser.Scene {
 		this.quit_text.on('pointerdown', () => {
 			this.highlight_menu_option(this.quit_text);
 		}, this);
+
+		// Listen for resize events  
+		this.scale.on('resize', this.handle_resize, this);  
+	
+		// Trigger initial resize to set positions  
+		this.handle_resize(this.scale.gameSize);  
 	}
 
 	update(time: number, delta: number): void {
