@@ -81,13 +81,13 @@ export default class StartScene extends Phaser.Scene {
 	}
 
 	create() {
-		this.start_text = this.add.text(197, 184, 'Start', {
+		this.start_text = this.add.text(0, 0, 'Start', {
 			fontFamily: FONT_FAMILY,
 			fontSize: START_MENU_FONT_SIZE,
 			color: HIGHLIGHTED_TEXT_COLOR
 		}).setInteractive();
 
-		this.quit_text = this.add.text(198, 306, 'Quit', {
+		this.quit_text = this.add.text(0, 0, 'Quit', {
 			fontFamily: FONT_FAMILY,
 			fontSize: START_MENU_FONT_SIZE,
 			color: TEXT_COLOR
