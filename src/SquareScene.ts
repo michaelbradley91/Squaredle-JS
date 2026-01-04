@@ -9,6 +9,9 @@ const TOP_MENU_LEFT_MIN_WIDTH = 20;
 const TOP_MENU_RIGHT_MIN_WIDTH = 20;
 const PROGRESS_BAR_MIN_WIDTH = 40;
 const HINTS_CAROUSEL_MIN_WIDTH = 120;
+const TOP_MENU_LEFT_WIDTH = "30%";
+const TOP_MENU_RIGHT_WIDTH = "30%";
+const TOP_MENU_PROGRESS_BAR_WIDTH = "40%";
 
 export default class SquareScene extends Phaser.Scene {
     top_menu_left: Phaser.GameObjects.Rectangle | undefined;
@@ -211,6 +214,11 @@ export default class SquareScene extends Phaser.Scene {
         console.log("Drawn layout with rectangle at: " + this.square?.x + ", " + this.square?.y + " size " + this.square?.width + "x" + this.square?.height);
     }
 
+    get_hints_carousel_min_width()
+    {
+        return Math.max(this.game.canvas.width / 4, HINTS_CAROUSEL_MIN_WIDTH)
+    }
+
     update_layout() {
         /**
          * There will be three different layouts depending on dimensions.
@@ -410,18 +418,18 @@ export default class SquareScene extends Phaser.Scene {
             screen_node.insertChild(top_row_container, 0);
 
             let menu_left_node = Yoga.Node.create();
-            menu_left_node.setWidth("33%");
+            menu_left_node.setWidth(TOP_MENU_LEFT_WIDTH);
             menu_left_node.setMinWidth(TOP_MENU_LEFT_MIN_WIDTH);
             top_row_container.insertChild(menu_left_node, 0);
 
             let progress_bar_node = Yoga.Node.create();
             progress_bar_node.setHeight(PROGRESS_BAR_HEIGHT);
             progress_bar_node.setMinWidth(PROGRESS_BAR_MIN_WIDTH);
-            progress_bar_node.setWidth("34%");
+            progress_bar_node.setWidth(TOP_MENU_PROGRESS_BAR_WIDTH);
             top_row_container.insertChild(progress_bar_node, 1);
 
             let menu_right_node = Yoga.Node.create();
-            menu_right_node.setWidth("33%");
+            menu_right_node.setWidth(TOP_MENU_RIGHT_WIDTH);
             menu_right_node.setMinWidth(TOP_MENU_RIGHT_MIN_WIDTH);
             top_row_container.insertChild(menu_right_node, 2);
 
@@ -439,7 +447,7 @@ export default class SquareScene extends Phaser.Scene {
             screen_node.insertChild(middle_row_container, 2);
 
             let hints_carousel_left_node = Yoga.Node.create();
-            hints_carousel_left_node.setMinWidth(HINTS_CAROUSEL_MIN_WIDTH);
+            hints_carousel_left_node.setMinWidth(this.get_hints_carousel_min_width());
             hints_carousel_left_node.setHeight("100%");
             middle_row_container.insertChild(hints_carousel_left_node, 0);
 
@@ -453,7 +461,7 @@ export default class SquareScene extends Phaser.Scene {
             middle_row_container.insertChild(square_node, 1);
 
             let hints_carousel_right_node = Yoga.Node.create();
-            hints_carousel_right_node.setMinWidth(HINTS_CAROUSEL_MIN_WIDTH);
+            hints_carousel_right_node.setMinWidth(this.get_hints_carousel_min_width());
             hints_carousel_right_node.setHeight("100%");
             middle_row_container.insertChild(hints_carousel_right_node, 2);
 
