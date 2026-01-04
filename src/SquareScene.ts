@@ -68,7 +68,10 @@ export default class SquareScene extends Phaser.Scene {
                 y += parent.getComputedTop();
                 parent = parent.getParent();
             }
-            console.log("Updating rectangle to: " + node.getComputedLeft() + ", " + node.getComputedTop() + " size " + node.getComputedWidth() + "x" + node.getComputedHeight());
+            if (node == this.layout_nodes?.square)
+            {
+                console.log("Drawing square at " + (x + (width / 2)) + "," +  (y + (height / 2)) + " (" + width + "," + height + ")");
+            }
             rectangle.setPosition(x + (width / 2), y + (height / 2));
             rectangle.setSize(width, height);
             rectangle.setVisible(true);
@@ -279,7 +282,7 @@ export default class SquareScene extends Phaser.Scene {
 
             let square_node = Yoga.Node.create();
             square_node.setFlexGrow(1);
-            square_node.setAspectRatio(1);
+            square_node.setWidth("100%");
             square_node.setAlignSelf(Yoga.ALIGN_CENTER);
             screen_node.insertChild(square_node, 3);
 
@@ -353,10 +356,11 @@ export default class SquareScene extends Phaser.Scene {
 
             let square_node = Yoga.Node.create();
             square_node.setFlexGrow(1);
-            // square_node.setAspectRatio(1);
-            square_node.setWidth("100%");
+            square_node.setWidth("auto");
             square_node.setHeight("100%");
             square_node.setAlignSelf(Yoga.ALIGN_CENTER);
+            square_node.setFlexDirection(Yoga.FLEX_DIRECTION_COLUMN);
+            square_node.setJustifyContent(Yoga.JUSTIFY_CENTER);
             middle_row_container.insertChild(square_node, 1);
 
             let hints_carousel_right_node = Yoga.Node.create();
@@ -378,8 +382,6 @@ export default class SquareScene extends Phaser.Scene {
         console.log("Calculating layout for size: " + this.game.canvas.width + "x" + this.game.canvas.height);
 
 		this.game_state.layout.square_scene_root_node.calculateLayout(this.game.canvas.width, this.game.canvas.height, Yoga.DIRECTION_LTR);
-
-        console.log("Square rectangle layout at: " + this.layout_nodes.square.getComputedLeft() + ", " + this.layout_nodes.square.getComputedTop() + " size " + this.layout_nodes.square.getComputedWidth() + "x" + this.layout_nodes.square.getComputedHeight());
         this.draw()
     }
 
