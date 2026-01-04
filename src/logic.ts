@@ -6,6 +6,7 @@ import Yoga, { Config, Node } from 'yoga-layout';
 export type LayoutState = {
     yoga_config: Config,
     start_scene_root_node: Node | undefined
+    square_scene_root_node: Node | undefined
 }
 
 /*

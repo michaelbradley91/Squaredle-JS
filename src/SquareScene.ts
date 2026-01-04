@@ -1,11 +1,27 @@
+import Yoga, { Node } from "yoga-layout";
 import { GameState, init_game_state } from "./logic";
 
-export default class SquareScene extends Phaser.Scene {
+const TOP_MENU_HEIGHT = 36;
+const PROGRESS_BAR_HEIGHT = 36;
+const PREVIOUS_WORDS_HEIGHT = 36;
+const HINTS_CAROUSEL_MIN_HEIGHT = 100;
+const TOP_MENU_LEFT_MIN_WIDTH = 20;
+const TOP_MENU_RIGHT_MIN_WIDTH = 20;
+const PROGRESS_BAR_MIN_WIDTH = 40;
+const HINTS_CAROUSEL_MIN_WIDTH = 20;
 
+export default class SquareScene extends Phaser.Scene {
+    top_menu_left: Phaser.GameObjects.Rectangle | undefined;
+    top_menu_right: Phaser.GameObjects.Rectangle | undefined;
+    progress_bar: Phaser.GameObjects.Rectangle | undefined;
+    previous_words: Phaser.GameObjects.Rectangle | undefined;
+    square: Phaser.GameObjects.Rectangle | undefined;
+    hints_carousel_left: Phaser.GameObjects.Rectangle | undefined;
+    hints_carousel_right: Phaser.GameObjects.Rectangle | undefined;
     game_state!: GameState;
 
     // Layout logic
-    layout_nodes: {screen: Node, start: Node, quit: Node} | undefined;
+    layout_nodes: {screen: Node, top_menu: Node[], progress_bar: Node, previous_words: Node, square: Node, hints_carousel: Node[]} | undefined;
 
     constructor() {
         super('square')
@@ -37,6 +53,70 @@ export default class SquareScene extends Phaser.Scene {
 
     preload(){
         // this.load.image("present", "assets/Present.png");
+    }
+
+    update_rectangle(node: Node, rectangle: Phaser.GameObjects.Rectangle | undefined)
+    {
+        if (rectangle) {
+            let width = node.getComputedWidth();
+            let height = node.getComputedHeight();
+            let x = node.getComputedLeft();
+            let y = node.getComputedTop();
+            let parent = node.getParent();
+            while (parent) {
+                x += parent.getComputedLeft();
+                y += parent.getComputedTop();
+                parent = parent.getParent();
+            }
+            console.log("Updating rectangle to: " + node.getComputedLeft() + ", " + node.getComputedTop() + " size " + node.getComputedWidth() + "x" + node.getComputedHeight());
+            rectangle.setPosition(x + (width / 2), y + (height / 2));
+            rectangle.setSize(width, height);
+            rectangle.setVisible(true);
+        }
+    }
+    hide_rectangle(node: Node, rectangle: Phaser.GameObjects.Rectangle | undefined)
+    {
+        if (rectangle) {
+            rectangle.setVisible(false);
+            rectangle.width = 0;
+            rectangle.height = 0;
+            rectangle.setPosition(-1000, -1000);
+        }
+    }
+
+    draw()
+    {
+        if (!this.layout_nodes) {
+            return;
+        }
+
+        if (!this.top_menu_left || !this.top_menu_right || !this.progress_bar || !this.previous_words || !this.square || !this.hints_carousel_left || !this.hints_carousel_right) {
+            return;
+        }
+        this.top_menu_left.visible = false;
+        this.top_menu_right.visible = false;
+        this.progress_bar.visible = false;
+        this.previous_words.visible = false;
+        this.square.visible = false;  
+        this.hints_carousel_left.visible = false;
+        this.hints_carousel_right.visible = false;
+
+        this.update_rectangle(this.layout_nodes.top_menu[0], this.top_menu_left);
+        if (this.layout_nodes.top_menu.length > 1)
+        {
+            this.update_rectangle(this.layout_nodes.top_menu[1], this.top_menu_right);
+        }
+        this.update_rectangle(this.layout_nodes.progress_bar, this.progress_bar);
+        this.update_rectangle(this.layout_nodes.previous_words, this.previous_words);
+        this.update_rectangle(this.layout_nodes.square, this.square);
+        this.update_rectangle(this.layout_nodes.hints_carousel[0], this.hints_carousel_left);
+        if (this.layout_nodes.hints_carousel.length > 1)
+        {
+            this.update_rectangle(this.layout_nodes.hints_carousel[1], this.hints_carousel_right);
+        }
+
+
+        console.log("Drawn layout with rectangle at: " + this.square?.x + ", " + this.square?.y + " size " + this.square?.width + "x" + this.square?.height);
     }
 
     update_layout() {
@@ -150,9 +230,176 @@ export default class SquareScene extends Phaser.Scene {
          * The hints might roll from one side to the other but I think it may be cleaner
          * to only place hints if they fully fit in one side...? We'll see how it looks.
          */
+
+        // Is the screen horizontal or vertical?
+        let is_vertical = true;
+        if (this.game.canvas.width > this.game.canvas.height) {
+            // Horizontal layout
+            is_vertical = false
+        }
+
+        console.log(`Layout is vertical: ${is_vertical}`);
+
+        // Easier to just reset each time
+        if (this.game_state.layout.square_scene_root_node)
+        {
+            this.game_state.layout.square_scene_root_node.freeRecursive();
+            this.game_state.layout.square_scene_root_node = undefined;
+        }
+
+        let node = Yoga.Node.create();
+        this.game_state.layout.square_scene_root_node = node;
+
+        // Build the layout tree if it doesn't exist yet
+        if (is_vertical)
+        {
+            // The screen node is the outer container holding the menu options
+            let screen_node = Yoga.Node.create();
+            screen_node.setWidth("100%");
+            screen_node.setHeight("100%");
+            screen_node.setDisplay(Yoga.DISPLAY_FLEX);
+            screen_node.setFlexDirection(Yoga.FLEX_DIRECTION_COLUMN);
+            
+            node.insertChild(screen_node, 0);
+
+            let top_menu_node = Yoga.Node.create();
+            top_menu_node.setHeight(TOP_MENU_HEIGHT);
+            top_menu_node.setWidth("100%");
+            screen_node.insertChild(top_menu_node, 0);
+
+            let progress_bar_node = Yoga.Node.create();
+            progress_bar_node.setHeight(PROGRESS_BAR_HEIGHT);
+            progress_bar_node.setWidth("100%");
+            screen_node.insertChild(progress_bar_node, 1);
+
+            let previous_words_node = Yoga.Node.create();
+            previous_words_node.setHeight(PREVIOUS_WORDS_HEIGHT);
+            previous_words_node.setWidth("100%");
+            screen_node.insertChild(previous_words_node, 2);
+
+            let square_node = Yoga.Node.create();
+            square_node.setFlexGrow(1);
+            square_node.setAspectRatio(1);
+            square_node.setAlignSelf(Yoga.ALIGN_CENTER);
+            screen_node.insertChild(square_node, 3);
+
+            let hints_carousel_node = Yoga.Node.create();
+            hints_carousel_node.setMinHeight(HINTS_CAROUSEL_MIN_HEIGHT);
+            hints_carousel_node.setWidth("100%");
+            screen_node.insertChild(hints_carousel_node, 4);
+
+            this.layout_nodes = {
+                screen: screen_node,
+                top_menu: [top_menu_node],
+                progress_bar: progress_bar_node,
+                previous_words: previous_words_node,
+                square: square_node,
+                hints_carousel: [hints_carousel_node]
+            };
+        }
+        else
+        {
+            // The screen node is the outer container holding the menu options
+            let screen_node = Yoga.Node.create();
+            screen_node.setWidth("100%");
+            screen_node.setHeight("100%");
+            screen_node.setDisplay(Yoga.DISPLAY_FLEX);
+            screen_node.setFlexDirection(Yoga.FLEX_DIRECTION_COLUMN);
+            
+            node.insertChild(screen_node, 0);
+
+            let top_row_container = Yoga.Node.create();
+            top_row_container.setHeight(TOP_MENU_HEIGHT);
+            top_row_container.setWidth("100%");
+            top_row_container.setDisplay(Yoga.DISPLAY_FLEX);
+            top_row_container.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
+            top_row_container.setJustifyContent(Yoga.JUSTIFY_SPACE_BETWEEN);
+            screen_node.insertChild(top_row_container, 0);
+
+            let menu_left_node = Yoga.Node.create();
+            menu_left_node.setWidth("33%");
+            menu_left_node.setMinWidth(TOP_MENU_LEFT_MIN_WIDTH);
+            top_row_container.insertChild(menu_left_node, 0);
+
+            let progress_bar_node = Yoga.Node.create();
+            progress_bar_node.setHeight(PROGRESS_BAR_HEIGHT);
+            progress_bar_node.setMinWidth(PROGRESS_BAR_MIN_WIDTH);
+            progress_bar_node.setWidth("34%");
+            top_row_container.insertChild(progress_bar_node, 1);
+
+            let menu_right_node = Yoga.Node.create();
+            menu_right_node.setWidth("33%");
+            menu_right_node.setMinWidth(TOP_MENU_RIGHT_MIN_WIDTH);
+            top_row_container.insertChild(menu_right_node, 2);
+
+            let previous_words_node = Yoga.Node.create();
+            previous_words_node.setHeight(PREVIOUS_WORDS_HEIGHT);
+            previous_words_node.setWidth("100%");
+            screen_node.insertChild(previous_words_node, 1);
+
+            let middle_row_container = Yoga.Node.create();
+            middle_row_container.setFlexGrow(1);
+            middle_row_container.setWidth("100%");
+            middle_row_container.setDisplay(Yoga.DISPLAY_FLEX);
+            middle_row_container.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
+            middle_row_container.setJustifyContent(Yoga.JUSTIFY_CENTER);
+            screen_node.insertChild(middle_row_container, 2);
+
+            let hints_carousel_left_node = Yoga.Node.create();
+            hints_carousel_left_node.setMinWidth(HINTS_CAROUSEL_MIN_WIDTH);
+            hints_carousel_left_node.setHeight("100%");
+            hints_carousel_left_node.setFlexGrow(0.5);
+            middle_row_container.insertChild(hints_carousel_left_node, 0);
+
+            let square_node = Yoga.Node.create();
+            square_node.setFlexGrow(1);
+            // square_node.setAspectRatio(1);
+            square_node.setWidth("100%");
+            square_node.setHeight("100%");
+            square_node.setAlignSelf(Yoga.ALIGN_CENTER);
+            middle_row_container.insertChild(square_node, 1);
+
+            let hints_carousel_right_node = Yoga.Node.create();
+            hints_carousel_right_node.setMinWidth(HINTS_CAROUSEL_MIN_WIDTH);
+            hints_carousel_right_node.setHeight("100%");
+            hints_carousel_right_node.setFlexGrow(0.5);
+            middle_row_container.insertChild(hints_carousel_right_node, 2);
+
+            this.layout_nodes = {
+                screen: screen_node,
+                top_menu: [menu_left_node, menu_right_node],
+                progress_bar: progress_bar_node,
+                previous_words: previous_words_node,
+                square: square_node,
+                hints_carousel: [hints_carousel_left_node, hints_carousel_right_node]
+            };
+        }
+		
+        console.log("Calculating layout for size: " + this.game.canvas.width + "x" + this.game.canvas.height);
+
+		this.game_state.layout.square_scene_root_node.calculateLayout(this.game.canvas.width, this.game.canvas.height, Yoga.DIRECTION_LTR);
+
+        console.log("Square rectangle layout at: " + this.layout_nodes.square.getComputedLeft() + ", " + this.layout_nodes.square.getComputedTop() + " size " + this.layout_nodes.square.getComputedWidth() + "x" + this.layout_nodes.square.getComputedHeight());
+        this.draw()
     }
 
     create() {
+        this.top_menu_left = this.add.rectangle(400, 300, 800, 600, 0xff00000);
+        this.top_menu_right = this.add.rectangle(400, 300, 800, 600, 0x00ff00);
+        this.progress_bar = this.add.rectangle(400, 300, 800, 600, 0x0000ff);
+        this.previous_words = this.add.rectangle(400, 300, 800, 600, 0xffff00);
+        this.square = this.add.rectangle(400, 300, 800, 800, 0xff00ff);
+        this.hints_carousel_left = this.add.rectangle(455, 325, 755, 725, 0x00ffff);
+        this.hints_carousel_right = this.add.rectangle(455, 325, 755, 725, 0xffffff);
+
+        this.top_menu_left.visible = false;
+        this.top_menu_right.visible = false;
+        this.progress_bar.visible = false;
+        this.previous_words.visible = false;
+        this.square.visible = false;  
+        this.hints_carousel_left.visible = false;  
+        this.hints_carousel_right.visible = false;
+
         // Listen for resize events  
         this.scale.on('resize', this.handle_resize, this);
     
