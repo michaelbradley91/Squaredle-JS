@@ -8,7 +8,7 @@ const HINTS_CAROUSEL_MIN_HEIGHT = 100;
 const TOP_MENU_LEFT_MIN_WIDTH = 20;
 const TOP_MENU_RIGHT_MIN_WIDTH = 20;
 const PROGRESS_BAR_MIN_WIDTH = 40;
-const HINTS_CAROUSEL_MIN_WIDTH = 20;
+const HINTS_CAROUSEL_MIN_WIDTH = 120;
 
 export default class SquareScene extends Phaser.Scene {
     top_menu_left: Phaser.GameObjects.Rectangle | undefined;
@@ -351,7 +351,6 @@ export default class SquareScene extends Phaser.Scene {
             let hints_carousel_left_node = Yoga.Node.create();
             hints_carousel_left_node.setMinWidth(HINTS_CAROUSEL_MIN_WIDTH);
             hints_carousel_left_node.setHeight("100%");
-            hints_carousel_left_node.setFlexGrow(0.5);
             middle_row_container.insertChild(hints_carousel_left_node, 0);
 
             let square_node = Yoga.Node.create();
@@ -366,7 +365,6 @@ export default class SquareScene extends Phaser.Scene {
             let hints_carousel_right_node = Yoga.Node.create();
             hints_carousel_right_node.setMinWidth(HINTS_CAROUSEL_MIN_WIDTH);
             hints_carousel_right_node.setHeight("100%");
-            hints_carousel_right_node.setFlexGrow(0.5);
             middle_row_container.insertChild(hints_carousel_right_node, 2);
 
             this.layout_nodes = {
