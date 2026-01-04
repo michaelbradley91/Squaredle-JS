@@ -17,6 +17,7 @@
 	},
 	"dependencies": {
 		"phaser": "^3.90.0",
+		"phaser3-rex-plugins": "^1.80.17",
 		"yoga-layout": "^3.2.1"
 	}
 }

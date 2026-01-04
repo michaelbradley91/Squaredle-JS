@@ -1,7 +1,6 @@
 import Phaser from 'phaser'
 import { FONT_FAMILY, HIGHLIGHTED_TEXT_COLOR, START_MENU_FONT_SIZE, TEXT_COLOR } from './constants';
 import { GameState, init_game_state } from './logic';
-import StartScreen from '../assets/StartScreen.png';
 import Yoga, { Node } from 'yoga-layout';
 
 
@@ -17,14 +16,14 @@ export default class StartScene extends Phaser.Scene {
 	is_persistent: string = "no"
 	storage_estimate: {usage: number, quota: number} = {usage: 0, quota: 0};
 
-	// Layout nodes
+	// Layout logic
 	layout_nodes: {screen: Node, start: Node, quit: Node} | undefined;
 
 	constructor() {
 		super('start')
 	}
 	
-	reset_layout()
+	update_layout()
 	{
 		// Build the layout tree if it doesn't exist yet
 		if (!this.game_state.layout.start_scene_root_node)
@@ -94,7 +93,7 @@ export default class StartScene extends Phaser.Scene {
 		}
 
 		// Set up the Yoga tree for the start scene
-		this.reset_layout();
+		this.update_layout();
 	}
 
 	handle_resize(game_size: Phaser.Structs.Size)
@@ -103,7 +102,7 @@ export default class StartScene extends Phaser.Scene {
 		// Update camera viewport to match new size  
     	this.cameras.main.setViewport(0, 0, game_size.width, game_size.height);
 
-		this.reset_layout();
+		this.update_layout();
 	}
 
 	preload() {
@@ -233,13 +232,14 @@ export default class StartScene extends Phaser.Scene {
 		this.scale.on('resize', this.handle_resize, this);  
 	
 		// Trigger initial resize to set positions  
-		this.handle_resize(this.scale.gameSize); 
+		this.handle_resize(this.scale.gameSize);
+		this.layout_nodes?.screen.setAspectRatio
 	}
 
 	update(time: number, delta: number): void {
 		// Update logic if needed
 		this.start_text?.setText(`Start (${this.is_persistent}) ${this.storage_estimate?.usage} / ${this.storage_estimate?.quota}`);
-		this.reset_layout();
+		this.update_layout();
 	}
 
 	start_game()
