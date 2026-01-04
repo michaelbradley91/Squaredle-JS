@@ -21,7 +21,7 @@ export default class SquareScene extends Phaser.Scene {
     game_state!: GameState;
 
     // Layout logic
-    layout_nodes: {screen: Node, top_menu: Node[], progress_bar: Node, previous_words: Node, square: Node, hints_carousel: Node[]} | undefined;
+    layout_nodes: {screen: Node, top_menu: Node[], progress_bar: Node, previous_words: Node, square: Node, hints_carousel: Node[], is_vertical: boolean} | undefined;
 
     constructor() {
         super('square')
@@ -55,27 +55,116 @@ export default class SquareScene extends Phaser.Scene {
         // this.load.image("present", "assets/Present.png");
     }
 
+    get_original_square_rectangle()
+    {
+        if (!this.layout_nodes) {
+            return {x: 0, y: 0, width: 0, height: 0};
+        }
+        let node = this.layout_nodes.square
+        let width = node.getComputedWidth();
+        let height = node.getComputedHeight();
+        let x = node.getComputedLeft();
+        let y = node.getComputedTop();
+        let parent = node.getParent();
+        while (parent) {
+            x += parent.getComputedLeft();
+            y += parent.getComputedTop();
+            parent = parent.getParent();
+        }
+        return {x: x, y: y, width: width, height: height};
+    }
+
+    get_rectangle_from_node(node: Node)
+    {
+        // Get the absolute position of this node first...
+        let width = node.getComputedWidth();
+        let height = node.getComputedHeight();
+        let x = node.getComputedLeft();
+        let y = node.getComputedTop();
+        let parent = node.getParent();
+        while (parent) {
+            x += parent.getComputedLeft();
+            y += parent.getComputedTop();
+            parent = parent.getParent();
+        }
+        
+        if (!this.layout_nodes) {
+            return {x: x, y: y, width: width, height: height};
+        }
+
+        if (node == this.layout_nodes?.square)
+        {
+            // Due to the madening flow behaviour for squares, I can't figure out a way to correctly squish the square inside
+            // its bounding box, so compute this...
+            console.log("Adjusting square...")
+            if (width > height)
+            {
+                let gap = width - height;
+                // The square should be centered width-ways and made to the height
+                x += gap / 2;
+                width = height;
+            }
+            else if (height > width)
+            {
+                let gap = height - width;
+
+                // If this is a vertical layout, the square should be kept upward to allow more space in the hints
+                if (!this.layout_nodes.is_vertical)
+                {
+                    y += gap / 2;
+                }
+                height = width;
+            }
+        }
+        else if (this.layout_nodes?.hints_carousel && (node == this.layout_nodes.hints_carousel[0] || (this.layout_nodes.hints_carousel.length > 1 && node == this.layout_nodes.hints_carousel[1])))
+        {
+            // If this is the hints bars increase their size according to the square...
+            let square_coords = this.get_rectangle_from_node(this.layout_nodes.square);
+            let original_square_coords = this.get_original_square_rectangle();
+            
+            // Find the adjustment...
+            if (original_square_coords.width > square_coords.width)
+            {
+                // The square has been squished horizontally, so increase the hints width if in a horizontal layout
+                if (!this.layout_nodes.is_vertical)
+                {
+                    let gap = original_square_coords.width - square_coords.width;
+                    width += gap / 2;
+                    if (node == this.layout_nodes.hints_carousel[1])
+                    {
+                        x -= gap / 2;
+                    }
+                }
+            }
+            if (original_square_coords.height > square_coords.height)
+            {
+                // The square has been squished vertically, so increase the hints height if in a vertical layout
+                if (this.layout_nodes.is_vertical)
+                {                    
+                    let gap = original_square_coords.height - square_coords.height;
+                    height += gap;
+                    y -= gap;
+                }
+            }
+
+        }
+        return {x: x, y: y, width: width, height: height};
+    }
+
     update_rectangle(node: Node, rectangle: Phaser.GameObjects.Rectangle | undefined)
     {
-        if (rectangle) {
-            let width = node.getComputedWidth();
-            let height = node.getComputedHeight();
-            let x = node.getComputedLeft();
-            let y = node.getComputedTop();
-            let parent = node.getParent();
-            while (parent) {
-                x += parent.getComputedLeft();
-                y += parent.getComputedTop();
-                parent = parent.getParent();
-            }
-            if (node == this.layout_nodes?.square)
-            {
-                console.log("Drawing square at " + (x + (width / 2)) + "," +  (y + (height / 2)) + " (" + width + "," + height + ")");
-            }
-            rectangle.setPosition(x + (width / 2), y + (height / 2));
-            rectangle.setSize(width, height);
-            rectangle.setVisible(true);
+        let coords = this.get_rectangle_from_node(node)
+        if (!rectangle) {
+            return;
         }
+
+        if (node == this.layout_nodes?.square)
+        {
+            console.log("Drawing square at " + (coords.x + (coords.width / 2)) + "," +  (coords.y + (coords.height / 2)) + " (" + coords.width + "," + coords.height + ")");
+        }
+        rectangle.setPosition(coords.x + (coords.width / 2), coords.y + (coords.height / 2));
+        rectangle.setSize(coords.width, coords.height);
+        rectangle.setVisible(true);
     }
     hide_rectangle(node: Node, rectangle: Phaser.GameObjects.Rectangle | undefined)
     {
@@ -297,7 +386,8 @@ export default class SquareScene extends Phaser.Scene {
                 progress_bar: progress_bar_node,
                 previous_words: previous_words_node,
                 square: square_node,
-                hints_carousel: [hints_carousel_node]
+                hints_carousel: [hints_carousel_node],
+                is_vertical: is_vertical
             };
         }
         else
@@ -373,7 +463,8 @@ export default class SquareScene extends Phaser.Scene {
                 progress_bar: progress_bar_node,
                 previous_words: previous_words_node,
                 square: square_node,
-                hints_carousel: [hints_carousel_left_node, hints_carousel_right_node]
+                hints_carousel: [hints_carousel_left_node, hints_carousel_right_node],
+                is_vertical: is_vertical
             };
         }
 		
