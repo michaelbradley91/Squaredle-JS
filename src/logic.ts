@@ -2,11 +2,12 @@
  * This module contains all the "thinking" parts of the game
  */
 import Yoga, { Config, Node } from 'yoga-layout';
+import SquareSceneLayout from './layouts/SquareSceneLayout';
 
 export type LayoutState = {
     yoga_config: Config,
+    square_scene_layout: SquareSceneLayout
     start_scene_root_node: Node | undefined
-    square_scene_root_node: Node | undefined
 }
 
 /*
