@@ -11,10 +11,18 @@ export type LayoutState = {
 }
 
 /*
+ * The state of the square scene (where you play!)
+ */
+export type SquareState = {
+    square_size: number
+}
+
+/*
  * Handles all persistent game state
  */
 export type GameState = {
     layout: LayoutState
+    square: SquareState
 }
 
 /*
@@ -28,6 +36,9 @@ export function init_game_state(): GameState
             yoga_config: yoga_config,
             square_scene_layout: new SquareSceneLayout(yoga_config),
             start_scene_root_node: undefined
+        },
+        square: {
+            square_size: 4
         }
     };
 }

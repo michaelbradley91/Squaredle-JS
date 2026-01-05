@@ -132,6 +132,7 @@ const HINTS_CAROUSEL_MIN_WIDTH = 120;
 const TOP_MENU_LEFT_WIDTH = "30%";
 const TOP_MENU_RIGHT_WIDTH = "30%";
 const TOP_MENU_PROGRESS_BAR_WIDTH = "40%";
+const SQUARE_GRID_PADDING = 4;
 
 /**
  * Used by the screen to request specific positions
@@ -396,11 +397,15 @@ export default class SquareSceneLayout
         const square_node = Yoga.Node.create(this.yoga_config);
         square_node.setWidth(square_coordinates.width);
         square_node.setHeight(square_coordinates.height);
+        square_node.setDisplay(Yoga.DISPLAY_FLEX);
+        square_node.setFlexDirection(Yoga.FLEX_DIRECTION_COLUMN);
         square_node.setPositionType(Yoga.POSITION_TYPE_ABSOLUTE);
         square_node.setPosition(Yoga.EDGE_LEFT, square_coordinates.x);
         square_node.setPosition(Yoga.EDGE_TOP, square_coordinates.y);
         square_node.setJustifyContent(Yoga.JUSTIFY_CENTER);
         square_node.setAlignContent(Yoga.ALIGN_CENTER);
+        square_node.setPadding(Yoga.EDGE_RIGHT, SQUARE_GRID_PADDING * 2);
+        square_node.setPadding(Yoga.EDGE_BOTTOM, SQUARE_GRID_PADDING * 2);
 
         append_child(this.outer_layout.screen, square_node);
         this.outer_layout.square = square_node;
@@ -440,19 +445,43 @@ export default class SquareSceneLayout
 
     /**
      * Update the layout details for the given game state
-     * @param _game_state - the current game state
+     * @param game_state - the current game state
      */
-    private update_square_layout(_game_state: GameState)
+    private update_square_layout(game_state: GameState)
     {
-        // TODO: actually use the game state. Assuming it is 4x4 for now
-        this
+        this.square_layout = {
+            size: game_state.square.square_size,
+            grid_nodes: []
+        };
+        for (let row = 0; row < this.square_layout.size; row++)
+        {
+            const row_nodes: Node[] = [];
+            const row_node = Yoga.Node.create(this.yoga_config);
+            row_node.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
+            row_node.setWidth("100%");
+            row_node.setFlexGrow(1);
+            row_node.setMargin(Yoga.EDGE_ALL, SQUARE_GRID_PADDING);
+
+            append_child(this.outer_layout!.square, row_node);
+            this.square_layout.grid_nodes.push(row_nodes);
+            for (let col = 0; col < this.square_layout.size; col++)
+            {
+                const cell_node = Yoga.Node.create(this.yoga_config);
+                cell_node.setHeight("100%");
+                cell_node.setFlexGrow(1);
+                cell_node.setMargin(Yoga.EDGE_ALL, SQUARE_GRID_PADDING);
+                append_child(row_node, cell_node);
+
+                row_nodes.push(cell_node);
+            }
+        }
     }
 
     /**
      * Update the layout of the screen for the given screen size
      * @param screen_size the new screen size
      */
-    update_layout(screen_size: { width: number, height: number }, _game_state: GameState) 
+    update_layout(screen_size: { width: number, height: number }, game_state: GameState) 
     {
         // Free the existing layout
         this.root_node.freeRecursive();
@@ -460,6 +489,10 @@ export default class SquareSceneLayout
 
         this.is_vertical_layout = screen_size.height > screen_size.width;
         this.update_outer_layout(screen_size);
+        this.update_square_layout(game_state);
+
+        // Recalculate all positions
+        this.root_node.calculateLayout(screen_size.width, screen_size.height, Yoga.DIRECTION_LTR);
     }
 
     /**
@@ -511,5 +544,15 @@ export default class SquareSceneLayout
                 break;
         }
         return this.get_rectangle_for_outer_node(outer_node);
+    }
+
+    get_square_rectangle(row: number, col: number): { x: number, y: number, width: number, height: number } 
+    {
+        if (!this.square_layout) 
+        {
+            return { x: 0, y: 0, width: 0, height: 0 };
+        }
+        const cell_node = this.square_layout.grid_nodes[row][col];
+        return get_absolute_rectangle_from_node(cell_node);
     }
 }

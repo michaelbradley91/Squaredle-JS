@@ -13,6 +13,7 @@ export default class SquareScene extends Phaser.Scene
         square: Phaser.GameObjects.Rectangle;
         hints_left: Phaser.GameObjects.Rectangle;
         hints_right: Phaser.GameObjects.Rectangle;
+        squares: Phaser.GameObjects.Rectangle[][]
     } | undefined = undefined
 
     game_state!: GameState;
@@ -70,6 +71,15 @@ export default class SquareScene extends Phaser.Scene
         this.game_objects.square.visible = false;
         this.game_objects.hints_left.visible = false;
         this.game_objects.hints_right.visible = false;
+
+        // Hide all the squares too
+        for (const row of this.game_objects.squares)
+        {
+            for (const square of row)
+            {
+                square.visible = false;
+            }
+        }
     }
 
     draw()
@@ -81,7 +91,7 @@ export default class SquareScene extends Phaser.Scene
 
         const layout = this.game_state.layout.square_scene_layout;
         this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.TopMenu), this.game_objects.top_menu_left);
-        if (layout.is_vertical())
+        if (!layout.is_vertical())
         {
             this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.TopMenuRight), this.game_objects.top_menu_right);
         }
@@ -93,6 +103,19 @@ export default class SquareScene extends Phaser.Scene
         if (layout.get_layout_rectangle(OuterScreenNode.HintsRight))
         {
             this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.HintsRight), this.game_objects.hints_right);
+        }
+
+        let row_index = 0;
+        for (const row of this.game_objects.squares)
+        {
+            let column_index = 0;
+            for (const square of row)
+            {
+                console.log(`Updating square at ${row_index}, ${column_index}`);
+                this.update_rectangle(layout.get_square_rectangle(row_index, column_index), square);
+                column_index++;
+            }
+            row_index++;
         }
     }
 
@@ -106,6 +129,17 @@ export default class SquareScene extends Phaser.Scene
 
     create()
     {
+        const squares: Phaser.GameObjects.Rectangle[][] = [];
+        for (let row = 0; row < this.game_state.square.square_size; row++)
+        {
+            const square_row: Phaser.GameObjects.Rectangle[] = [];
+            for (let col = 0; col < this.game_state.square.square_size; col++)
+            {
+                const square = this.add.rectangle(400, 300, 800, 800, 0xaa00aa + (256 * ((row * this.game_state.square.square_size + col) * 16)));
+                square_row.push(square);
+            }
+            squares.push(square_row);
+        }
         this.game_objects = {
             top_menu_left: this.add.rectangle(400, 300, 800, 600, 0xff00000),
             top_menu_right: this.add.rectangle(400, 300, 800, 600, 0x00ff00),
@@ -113,8 +147,11 @@ export default class SquareScene extends Phaser.Scene
             previous_words: this.add.rectangle(400, 300, 800, 600, 0xffff00),
             square: this.add.rectangle(400, 300, 800, 800, 0xff00ff),
             hints_left: this.add.rectangle(455, 325, 755, 725, 0x00ffff),
-            hints_right: this.add.rectangle(455, 325, 755, 725, 0xffffff)
-        }
+            hints_right: this.add.rectangle(455, 325, 755, 725, 0xffffff),
+            squares: squares
+        };
+
+        this.children.sendToBack(this.game_objects.square);
 
         // Listen for resize events  
         this.scale.on('resize', this.handle_resize, this);
