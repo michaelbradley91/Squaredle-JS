@@ -39,6 +39,7 @@ export default class SquareScene extends Phaser.Scene
 
     handle_resize(game_size: Phaser.Structs.Size)
     {
+        console.log("Handling resize");
         // Update camera viewport to match new size  
         this.cameras.main.setViewport(0, 0, game_size.width, game_size.height);
 
@@ -73,6 +74,7 @@ export default class SquareScene extends Phaser.Scene
 
     draw()
     {
+        console.log("Drawing!");
         if (!this.game_objects || !this.game_state.layout.square_scene_layout) return;
 
         this.hide_all_rectangles();
@@ -96,6 +98,8 @@ export default class SquareScene extends Phaser.Scene
 
     update_layout()
     {
+        if (!this.game_state.layout.square_scene_layout) return;
+
         this.game_state.layout.square_scene_layout.update_layout({ width: this.game.canvas.width, height: this.game.canvas.height });
         this.draw();
     }

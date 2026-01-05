@@ -22,9 +22,11 @@ export type GameState = {
  */
 export function init_game_state(): GameState
 {
+    const yoga_config = Yoga.Config.create();
     return {
         layout: {
-            yoga_config: Yoga.Config.create(),
+            yoga_config: yoga_config,
+            square_scene_layout: new SquareSceneLayout(yoga_config),
             start_scene_root_node: undefined
         }
     };

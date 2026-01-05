@@ -118,7 +118,6 @@
 
 import Yoga, { Config, Node } from 'yoga-layout';
 import { get_absolute_rect as get_absolute_rectangle_from_node } from './yoga-helpers';
-import { GameState } from '~/logic';
 
 /* Constant parameters to adjust the view */
 const TOP_MENU_HEIGHT = 36;
@@ -136,7 +135,8 @@ const TOP_MENU_PROGRESS_BAR_WIDTH = "40%";
 /**
  * Used by the screen to request specific positions
  */
-export enum OuterScreenNode {
+export enum OuterScreenNode
+{
     TopMenuLeft = "top_menu_left",
     TopMenuRight = "top_menu_right",
     TopMenu = "top_menu",
@@ -148,7 +148,8 @@ export enum OuterScreenNode {
     Square = "square"
 }
 
-export default class SquareSceneLayout {
+export default class SquareSceneLayout 
+{
     // A saved reference to the yoga config used throughout the game
     private yoga_config: Config;
 
@@ -160,64 +161,79 @@ export default class SquareSceneLayout {
     // The "outer" layout. Due to difficulties positioning the square, we calculate the layout in a few stages
     private outer_layout: { screen: Node, top_menu: Node[], progress_bar: Node, previous_words: Node, square_container: Node, hints: Node[] } | undefined;
 
-    constructor(yoga_config: Config) {
+    constructor(yoga_config: Config) 
+    {
         this.yoga_config = yoga_config;
     }
 
-    private get_square_container_rectangle(): { x: number, y: number, width: number, height: number } {
+    private get_square_container_rectangle(): { x: number, y: number, width: number, height: number } 
+    {
         // We need the original square layout to compute the correct adjustment
         return get_absolute_rectangle_from_node(this.outer_layout!.square_container);
     }
 
-    private get_hints_carousel_min_width(screen_size: { width: number, height: number }): number {
+    private get_hints_carousel_min_width(screen_size: { width: number, height: number }): number 
+    {
         return Math.max(screen_size.width / 4, HINTS_CAROUSEL_MIN_WIDTH)
     }
 
-    private get_rectangle_for_outer_node(node: Node | undefined): { x: number, y: number, width: number, height: number } {
-        if (!this.outer_layout) {
+    private get_rectangle_for_outer_node(node: Node | undefined): { x: number, y: number, width: number, height: number } 
+    {
+        if (!this.outer_layout) 
+        {
             return { x: 0, y: 0, width: 0, height: 0 };
         }
         let { x: x, y: y, width: width, height: height } = get_absolute_rectangle_from_node(node);
 
-        if (node == this.outer_layout.square_container) {
+        if (node == this.outer_layout.square_container) 
+        {
             // Due to the madening flow behaviour for squares, I can't figure out a way to correctly squish the square inside
             // its bounding box, so compute this...
-            if (width > height) {
-                let gap = width - height;
+            if (width > height) 
+            {
+                const gap = width - height;
                 // The square should be centered width-ways and made to the height
                 x += gap / 2;
                 width = height;
             }
-            else if (height > width) {
-                let gap = height - width;
+            else if (height > width) 
+            {
+                const gap = height - width;
 
                 // If this is a vertical layout, the square should be kept upward to allow more space in the hints
-                if (!this.is_vertical_layout) {
+                if (!this.is_vertical_layout) 
+                {
                     y += gap / 2;
                 }
                 height = width;
             }
         }
-        else if (node == this.outer_layout.hints[0] || (!this.is_vertical_layout && node == this.outer_layout.hints[1])) {
+        else if (node == this.outer_layout.hints[0] || (!this.is_vertical_layout && node == this.outer_layout.hints[1])) 
+        {
             // If this is the hints bars increase their size according to the square...
-            let square_coords = this.get_rectangle_for_outer_node(this.outer_layout.square_container);
-            let original_square_coords = this.get_square_container_rectangle();
+            const square_coords = this.get_rectangle_for_outer_node(this.outer_layout.square_container);
+            const original_square_coords = this.get_square_container_rectangle();
 
             // Find the adjustment...
-            if (original_square_coords.width > square_coords.width) {
+            if (original_square_coords.width > square_coords.width) 
+            {
                 // The square has been squished horizontally, so increase the hints width if in a horizontal layout
-                if (!this.is_vertical_layout) {
-                    let gap = original_square_coords.width - square_coords.width;
+                if (!this.is_vertical_layout) 
+                {
+                    const gap = original_square_coords.width - square_coords.width;
                     width += gap / 2;
-                    if (node == this.outer_layout.hints[1]) {
+                    if (node == this.outer_layout.hints[1]) 
+                    {
                         x -= gap / 2;
                     }
                 }
             }
-            if (original_square_coords.height > square_coords.height) {
+            if (original_square_coords.height > square_coords.height) 
+            {
                 // The square has been squished vertically, so increase the hints height if in a vertical layout
-                if (this.is_vertical_layout) {
-                    let gap = original_square_coords.height - square_coords.height;
+                if (this.is_vertical_layout) 
+                {
+                    const gap = original_square_coords.height - square_coords.height;
                     height += gap;
                     y -= gap;
                 }
@@ -227,17 +243,21 @@ export default class SquareSceneLayout {
         return { x: x, y: y, width: width, height: height };
     }
 
-    private update_outer_layout(screen_size: { width: number, height: number }) {
+    private update_outer_layout(screen_size: { width: number, height: number }) 
+    {
         // Build the layout tree if it doesn't exist yet
-        if (!this.outer_root_node) {
+        if (!this.outer_root_node) 
+        {
             this.outer_root_node = Yoga.Node.create(this.yoga_config);
         }
         this.outer_root_node.freeRecursive();
+        this.outer_root_node = Yoga.Node.create(this.yoga_config);
 
         // Build the layout tree if it doesn't exist yet
-        if (this.is_vertical_layout) {
+        if (this.is_vertical_layout) 
+        {
             // The screen node is the outer container holding the menu options
-            let screen_node = Yoga.Node.create(this.yoga_config);
+            const screen_node = Yoga.Node.create(this.yoga_config);
             screen_node.setWidth("100%");
             screen_node.setHeight("100%");
             screen_node.setDisplay(Yoga.DISPLAY_FLEX);
@@ -245,28 +265,28 @@ export default class SquareSceneLayout {
 
             this.outer_root_node.insertChild(screen_node, 0);
 
-            let top_menu_node = Yoga.Node.create(this.yoga_config);
+            const top_menu_node = Yoga.Node.create(this.yoga_config);
             top_menu_node.setHeight(TOP_MENU_HEIGHT);
             top_menu_node.setWidth("100%");
             screen_node.insertChild(top_menu_node, 0);
 
-            let progress_bar_node = Yoga.Node.create(this.yoga_config);
+            const progress_bar_node = Yoga.Node.create(this.yoga_config);
             progress_bar_node.setHeight(PROGRESS_BAR_HEIGHT);
             progress_bar_node.setWidth("100%");
             screen_node.insertChild(progress_bar_node, 1);
 
-            let previous_words_node = Yoga.Node.create(this.yoga_config);
+            const previous_words_node = Yoga.Node.create(this.yoga_config);
             previous_words_node.setHeight(PREVIOUS_WORDS_HEIGHT);
             previous_words_node.setWidth("100%");
             screen_node.insertChild(previous_words_node, 2);
 
-            let square_node = Yoga.Node.create(this.yoga_config);
+            const square_node = Yoga.Node.create(this.yoga_config);
             square_node.setFlexGrow(1);
             square_node.setWidth("100%");
             square_node.setAlignSelf(Yoga.ALIGN_CENTER);
             screen_node.insertChild(square_node, 3);
 
-            let hints_carousel_node = Yoga.Node.create(this.yoga_config);
+            const hints_carousel_node = Yoga.Node.create(this.yoga_config);
             hints_carousel_node.setMinHeight(HINTS_CAROUSEL_MIN_HEIGHT);
             hints_carousel_node.setWidth("100%");
             screen_node.insertChild(hints_carousel_node, 4);
@@ -280,9 +300,10 @@ export default class SquareSceneLayout {
                 hints: [hints_carousel_node],
             };
         }
-        else {
+        else 
+        {
             // The screen node is the outer container holding the menu options
-            let screen_node = Yoga.Node.create();
+            const screen_node = Yoga.Node.create();
             screen_node.setWidth("100%");
             screen_node.setHeight("100%");
             screen_node.setDisplay(Yoga.DISPLAY_FLEX);
@@ -290,7 +311,7 @@ export default class SquareSceneLayout {
 
             this.outer_root_node.insertChild(screen_node, 0);
 
-            let top_row_container = Yoga.Node.create();
+            const top_row_container = Yoga.Node.create();
             top_row_container.setHeight(TOP_MENU_HEIGHT);
             top_row_container.setWidth("100%");
             top_row_container.setDisplay(Yoga.DISPLAY_FLEX);
@@ -298,28 +319,28 @@ export default class SquareSceneLayout {
             top_row_container.setJustifyContent(Yoga.JUSTIFY_SPACE_BETWEEN);
             screen_node.insertChild(top_row_container, 0);
 
-            let menu_left_node = Yoga.Node.create();
+            const menu_left_node = Yoga.Node.create();
             menu_left_node.setWidth(TOP_MENU_LEFT_WIDTH);
             menu_left_node.setMinWidth(TOP_MENU_LEFT_MIN_WIDTH);
             top_row_container.insertChild(menu_left_node, 0);
 
-            let progress_bar_node = Yoga.Node.create();
+            const progress_bar_node = Yoga.Node.create();
             progress_bar_node.setHeight(PROGRESS_BAR_HEIGHT);
             progress_bar_node.setMinWidth(PROGRESS_BAR_MIN_WIDTH);
             progress_bar_node.setWidth(TOP_MENU_PROGRESS_BAR_WIDTH);
             top_row_container.insertChild(progress_bar_node, 1);
 
-            let menu_right_node = Yoga.Node.create();
+            const menu_right_node = Yoga.Node.create();
             menu_right_node.setWidth(TOP_MENU_RIGHT_WIDTH);
             menu_right_node.setMinWidth(TOP_MENU_RIGHT_MIN_WIDTH);
             top_row_container.insertChild(menu_right_node, 2);
 
-            let previous_words_node = Yoga.Node.create();
+            const previous_words_node = Yoga.Node.create();
             previous_words_node.setHeight(PREVIOUS_WORDS_HEIGHT);
             previous_words_node.setWidth("100%");
             screen_node.insertChild(previous_words_node, 1);
 
-            let middle_row_container = Yoga.Node.create();
+            const middle_row_container = Yoga.Node.create();
             middle_row_container.setFlexGrow(1);
             middle_row_container.setWidth("100%");
             middle_row_container.setDisplay(Yoga.DISPLAY_FLEX);
@@ -327,12 +348,12 @@ export default class SquareSceneLayout {
             middle_row_container.setJustifyContent(Yoga.JUSTIFY_CENTER);
             screen_node.insertChild(middle_row_container, 2);
 
-            let hints_carousel_left_node = Yoga.Node.create();
+            const hints_carousel_left_node = Yoga.Node.create();
             hints_carousel_left_node.setMinWidth(this.get_hints_carousel_min_width(screen_size));
             hints_carousel_left_node.setHeight("100%");
             middle_row_container.insertChild(hints_carousel_left_node, 0);
 
-            let square_node = Yoga.Node.create();
+            const square_node = Yoga.Node.create();
             square_node.setFlexGrow(1);
             square_node.setWidth("auto");
             square_node.setHeight("100%");
@@ -341,7 +362,7 @@ export default class SquareSceneLayout {
             square_node.setJustifyContent(Yoga.JUSTIFY_CENTER);
             middle_row_container.insertChild(square_node, 1);
 
-            let hints_carousel_right_node = Yoga.Node.create();
+            const hints_carousel_right_node = Yoga.Node.create();
             hints_carousel_right_node.setMinWidth(this.get_hints_carousel_min_width(screen_size));
             hints_carousel_right_node.setHeight("100%");
             middle_row_container.insertChild(hints_carousel_right_node, 2);
@@ -366,7 +387,8 @@ export default class SquareSceneLayout {
      * Check if the screen is in a vertical orientation
      * @returns true if the screen is in a vertical orientation
      */
-    is_vertical(): boolean {
+    is_vertical(): boolean 
+    {
         return this.is_vertical_layout;
     }
 
@@ -374,7 +396,8 @@ export default class SquareSceneLayout {
      * Update the layout of the screen for the given screen size
      * @param screen_size the new screen size
      */
-    update_layout(screen_size: { width: number, height: number }) {
+    update_layout(screen_size: { width: number, height: number }) 
+    {
         this.is_vertical_layout = screen_size.height > screen_size.width;
         this.update_outer_layout(screen_size);
     }
@@ -384,12 +407,15 @@ export default class SquareSceneLayout {
      * @param node the "node" you want the rectangle for
      * @returns the rectangle for the given node
      */
-    get_layout_rectangle(node: OuterScreenNode): { x: number, y: number, width: number, height: number } {
-        if (!this.outer_layout) {
+    get_layout_rectangle(node: OuterScreenNode): { x: number, y: number, width: number, height: number } 
+    {
+        if (!this.outer_layout) 
+        {
             return { x: 0, y: 0, width: 0, height: 0 };
         }
         let outer_node: Node | undefined = undefined;
-        switch (node) {
+        switch (node) 
+        {
             case OuterScreenNode.TopMenu:
                 outer_node = this.outer_layout.top_menu[0];
                 break;
@@ -397,7 +423,8 @@ export default class SquareSceneLayout {
                 outer_node = this.outer_layout.top_menu[0];
                 break;
             case OuterScreenNode.TopMenuRight:
-                if (this.outer_layout.top_menu.length > 1) {
+                if (this.outer_layout.top_menu.length > 1) 
+                {
                     outer_node = this.outer_layout.top_menu[1];
                 }
                 break;
@@ -417,7 +444,8 @@ export default class SquareSceneLayout {
                 outer_node = this.outer_layout.hints[0];
                 break;
             case OuterScreenNode.HintsRight:
-                if (this.outer_layout.hints.length > 1) {
+                if (this.outer_layout.hints.length > 1) 
+                {
                     outer_node = this.outer_layout.hints[1];
                 }
                 break;
