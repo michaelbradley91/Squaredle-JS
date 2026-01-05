@@ -1,7 +1,9 @@
 import Yoga, { Node } from "yoga-layout";
 import { GameState, init_game_state } from "./logic";
 import { OuterScreenNode } from "./layouts/SquareSceneLayout";
+import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 
+const SQUARE_ROUNDING_FACTOR = 8;
 
 export default class SquareScene extends Phaser.Scene
 {
@@ -13,7 +15,7 @@ export default class SquareScene extends Phaser.Scene
         square: Phaser.GameObjects.Rectangle;
         hints_left: Phaser.GameObjects.Rectangle;
         hints_right: Phaser.GameObjects.Rectangle;
-        squares: Phaser.GameObjects.Rectangle[][]
+        squares: RoundRectangle[][]
     } | undefined = undefined
 
     game_state!: GameState;
@@ -53,9 +55,10 @@ export default class SquareScene extends Phaser.Scene
         // this.load.image("present", "assets/Present.png");
     }
 
-    update_rectangle(coords: { x: number, y: number, width: number, height: number }, rectangle: Phaser.GameObjects.Rectangle)
+    update_rectangle(coords: { x: number, y: number, width: number, height: number }, rectangle: Phaser.GameObjects.Rectangle | RoundRectangle)
     {
         rectangle.setPosition(coords.x + (coords.width / 2), coords.y + (coords.height / 2));
+        // @ts-expect-error - Rounded rectangle has a bad typing
         rectangle.setSize(coords.width, coords.height);
         rectangle.setVisible(true);
     }
@@ -112,7 +115,10 @@ export default class SquareScene extends Phaser.Scene
             for (const square of row)
             {
                 console.log(`Updating square at ${row_index}, ${column_index}`);
-                this.update_rectangle(layout.get_square_rectangle(row_index, column_index), square);
+                const rectangle = layout.get_square_rectangle(row_index, column_index);
+                const rounding = rectangle.width / SQUARE_ROUNDING_FACTOR;
+                square.setRadius(rounding);
+                this.update_rectangle(rectangle, square);
                 column_index++;
             }
             row_index++;
@@ -129,13 +135,13 @@ export default class SquareScene extends Phaser.Scene
 
     create()
     {
-        const squares: Phaser.GameObjects.Rectangle[][] = [];
+        const squares: RoundRectangle[][] = [];
         for (let row = 0; row < this.game_state.square.square_size; row++)
         {
-            const square_row: Phaser.GameObjects.Rectangle[] = [];
+            const square_row: RoundRectangle[] = [];
             for (let col = 0; col < this.game_state.square.square_size; col++)
             {
-                const square = this.add.rectangle(400, 300, 800, 800, 0xaa00aa + (256 * ((row * this.game_state.square.square_size + col) * 16)));
+                const square = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0xaa00aa + (256 * ((row * this.game_state.square.square_size + col) * 16)));
                 square_row.push(square);
             }
             squares.push(square_row);
