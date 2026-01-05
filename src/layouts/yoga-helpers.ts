@@ -26,3 +26,13 @@ export function get_absolute_rect(node: Node | undefined): { x: number, y: numbe
     }
     return { x: x, y: y, width: width, height: height };
 }
+
+/**
+ * Append a child to the end of a parent node
+ * @param parent the parent node to add the child to
+ * @param child the child node
+ */
+export function append_child(parent: Node, child: Node): void
+{
+    parent.insertChild(child, parent.getChildCount());
+}

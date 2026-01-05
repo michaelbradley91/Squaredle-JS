@@ -100,7 +100,7 @@ export default class SquareScene extends Phaser.Scene
     {
         if (!this.game_state.layout.square_scene_layout) return;
 
-        this.game_state.layout.square_scene_layout.update_layout({ width: this.game.canvas.width, height: this.game.canvas.height });
+        this.game_state.layout.square_scene_layout.update_layout({ width: this.game.canvas.width, height: this.game.canvas.height }, this.game_state);
         this.draw();
     }
 
