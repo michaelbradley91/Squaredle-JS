@@ -1,4 +1,3 @@
-import Yoga, { Node } from "yoga-layout";
 import { GameState, init_game_state } from "./logic";
 import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';

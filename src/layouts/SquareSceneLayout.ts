@@ -121,12 +121,12 @@ import { append_child, get_absolute_rect as get_absolute_rectangle_from_node } f
 import { GameState } from '~/logic';
 
 /* Constant parameters to adjust the view */
-const TOP_MENU_HEIGHT = 36;
-const PROGRESS_BAR_HEIGHT = 36;
-const PREVIOUS_WORDS_HEIGHT = 36;
+const TOP_MENU_HEIGHT = 64;
+const PROGRESS_BAR_HEIGHT = 64;
+const PREVIOUS_WORDS_HEIGHT = 64;
 const HINTS_CAROUSEL_MIN_HEIGHT = 250;
-const TOP_MENU_LEFT_MIN_WIDTH = 20;
-const TOP_MENU_RIGHT_MIN_WIDTH = 20;
+const TOP_MENU_LEFT_MIN_WIDTH = 60;
+const TOP_MENU_RIGHT_MIN_WIDTH = 60;
 const PROGRESS_BAR_MIN_WIDTH = 40;
 const HINTS_CAROUSEL_MIN_WIDTH = 200;
 const TOP_MENU_LEFT_WIDTH = "30%";
