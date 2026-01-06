@@ -38,7 +38,7 @@ export function new_square_parameters(): SquareParameters
             "10,11,12,13,14,15,16,17,18,19,20,21": 1
         },
         min_unique_long_word_length: 8,
-        min_unique_long_words: 3
+        min_unique_long_words: 4
         // min_unique_long_words: 1
     };
 }

@@ -8,7 +8,7 @@ import { random_choice } from "./random";
 import { choose_random_letter, choose_random_rare_letter, MAX_WORD_LENGTH, Words } from "./words";
 
 /* When generating a square, how many times should we try adjusting the same square? */
-const MAX_SQUARE_ADJUSTMENTS = 100;
+const MAX_SQUARE_ADJUSTMENTS = 200;
 const SEED_WORD_MIN_LENGTH = 9;
 const SEED_WORD_MAX_LENGTH = 14;
 
@@ -143,7 +143,7 @@ export class SquareQuality
 
         if (unique_long_words.size < square.parameters.min_unique_long_words)
         {
-            console.log("Long words too similar:", JSON.stringify(long_words), JSON.stringify(Array.from(unique_long_words)));
+            console.log("Long words too similar. Only found unique:", JSON.stringify(Array.from(unique_long_words)));
             this.assessment = SquareQualityAssessment.LongWordsTooSimilar;
             return;
         }
@@ -679,11 +679,6 @@ export function print_square_to_console(square: Square, words: Words)
         console.log(`Found word: ${word} at paths: ${JSON.stringify(quality.solution[word])}`);
     }
 
-    for (const position in quality.unique_coverage)
-    {
-        console.log(`Unique words at position ${position}: ${JSON.stringify(quality.unique_coverage[position])}`);
-    }
-
     for (const length of Object.keys(quality.words_by_length))
     {
         if (quality.words_by_length[length].size === 0) continue;
@@ -736,7 +731,7 @@ export function print_square_to_console(square: Square, words: Words)
  * @param square_parameters criteria for the generated square
  * @param words the current word list
  */
-export function generate_square(square_parameters: SquareParameters, words: Words, max_attempts: number = 100): Square
+export function generate_square(square_parameters: SquareParameters, words: Words, max_attempts: number = 1000): Square
 {
     const square = new Square();
     square.init_empty_square(square_parameters);
@@ -775,17 +770,13 @@ export function generate_square(square_parameters: SquareParameters, words: Word
         // print_square_to_console(square, words);
         if (quality.assessment === SquareQualityAssessment.Good)
         {
-            console.log("Found good quality square without adjustment!")
+            console.log("Found good quality square without adjustment!");
             break;
         }
 
         /* Should we attempt to tweak this square? */
         if (!should_try_adjusting_square(quality.assessment))
         {
-            if (quality.assessment !== SquareQualityAssessment.NotCovered)
-            {
-                console.log("Square rejected due to quality assessment: ", SquareQualityAssessment[quality.assessment]);
-            }
             continue;
         }
 
@@ -793,8 +784,7 @@ export function generate_square(square_parameters: SquareParameters, words: Word
         let adjustments_made = 0;
         while (square.get_quality(words).assessment !== SquareQualityAssessment.Good && adjustments_made < MAX_SQUARE_ADJUSTMENTS)
         {
-            quality = square.get_quality(words)
-            console.log("Square adjustment due to quality assessment: ", SquareQualityAssessment[quality.assessment]);
+            quality = square.get_quality(words);
             switch (quality.assessment)
             {
                 case SquareQualityAssessment.TooManyWords:
@@ -815,8 +805,6 @@ export function generate_square(square_parameters: SquareParameters, words: Word
                                 new_quality.word_count >= original_quality.word_count
                             ))
                         {
-                            console.log("Reverting change to square letter as quality did not improve. Quality now: ", SquareQualityAssessment[new_quality.assessment]);
-                            console.log("Adjusted square, old word count and new word count: ", original_quality.word_count, new_quality.word_count);
                             // This was a mistake - revert the change
                             square.add_letter(random_coordinates.x, random_coordinates.y, original_letter);
                             square.set_quality(original_quality);
@@ -827,15 +815,15 @@ export function generate_square(square_parameters: SquareParameters, words: Word
                             quality = new_quality;
                             square.set_quality(new_quality);
 
-                            console.log("Kept change to square letter");
-                            console.log("Adjusted square, old word count and new word count: ", original_quality.word_count, new_quality.word_count);
+                            console.log(`Kept change to square letter: ${original_quality.word_count} -> ${new_quality.word_count}`);
+
+                            adjustments_made = 0; // Encourage more changes if we're making progress
                         }
 
                         break;
                     }
                 case SquareQualityAssessment.NotUniqueLetters:
                     {
-                        console.log("Adjusting square: changing a random letter to improve unique letter coverage");
                         const positions_to_change: Position[] = []
                         for (const position of square_filled_positions)
                         {
@@ -898,13 +886,6 @@ export function generate_square(square_parameters: SquareParameters, words: Word
         {
             console.log("Found a good square!");
             break;
-        }
-        else
-        {
-            if (quality.assessment !== SquareQualityAssessment.NotCovered)
-            {
-                console.log("Square rejected due to quality assessment: ", SquareQualityAssessment[quality.assessment]);
-            }
         }
     }
     if (square.get_quality(words).assessment === SquareQualityAssessment.Good)

@@ -149,7 +149,7 @@ export default class SquareScene extends Phaser.Scene
         {
             for (let col = 0; col < this.game_state.square_parameters.size; col++)
             {
-                this.draw_square_letter(row, col,);
+                this.draw_square_letter(row, col);
             }
         }
     }
