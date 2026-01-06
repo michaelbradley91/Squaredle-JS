@@ -1,7 +1,7 @@
 import { GameState, init_game_state } from "./logic";
 import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
-import { generate_square } from "./squares";
+import { generate_square, Square, SquareQualityAssessment } from "./squares";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
@@ -10,6 +10,7 @@ const SQUARE_TEXT_PERCENTAGE = 0.6;
 const SQUARE_TEXT_FONT_FAMILY = 'roboto-bold';
 const SQUARE_TEXT_BIG_FONT_FAMILY = 'roboto-bold-big';
 const SQUARE_TEXT_BIG_FONT_CUTOFF = 100;
+const SQUARE_GENERATION_MAX_MILLISECONDS = 20;
 
 export default class SquareScene extends Phaser.Scene
 {
@@ -85,8 +86,13 @@ export default class SquareScene extends Phaser.Scene
         this.game_objects.square.visible = false;
         this.game_objects.hints_left.visible = false;
         this.game_objects.hints_right.visible = false;
+        this.hide_square_objects();
+    }
 
-        // Hide all the squares too
+    hide_square_objects()
+    {
+        if (!this.game_objects) return;
+
         for (const row of this.game_objects.squares)
         {
             for (const square of row)
@@ -154,6 +160,12 @@ export default class SquareScene extends Phaser.Scene
         }
     }
 
+    redraw_square()
+    {
+        this.hide_square_objects();
+        this.draw_square();
+    }
+
     draw()
     {
         if (!this.game_objects || !this.game_state.layout.square_scene_layout) return;
@@ -189,17 +201,47 @@ export default class SquareScene extends Phaser.Scene
         this.draw();
     }
 
-    create()
+    try_generate_square()
     {
-        const generated_square = generate_square(this.game_state.square_parameters, this.game_state.words);
+        /* If we've already computed the square, there's nothing to do */
+        if (this.game_state.square.computation.completed)
+        {
+            return;
+        }
+
+        /* Try generating a square for a short period */
+        const start_time = performance.now();
+        let last_letter_change: [string, number, number] | undefined = undefined;
+        do 
+        {
+            last_letter_change = generate_square(this.game_state.square_parameters, this.game_state.words, this.game_state.square.computation);
+        } while (!this.game_state.square.computation.completed && performance.now() - start_time < SQUARE_GENERATION_MAX_MILLISECONDS);
+
+        /* If we have a square now, update the display */
+        const square = this.game_state.square.computation.square;
+        if (!square)
+        {
+            return;
+        }
+
         for (let row = 0; row < this.game_state.square_parameters.size; row++)
         {
             for (let col = 0; col < this.game_state.square_parameters.size; col++)
             {
-                this.game_state.square.letters[row][col] = generated_square.get_letter(col, row);
+                this.game_state.square.letters[row][col] = square.get_letter(col, row);
             }
         }
 
+        if (last_letter_change)
+        {
+            this.game_state.square.letters[last_letter_change[2]][last_letter_change[1]] = last_letter_change[0];
+        }
+
+        this.redraw_square();
+    }
+
+    create()
+    {
         const squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[][] = [];
         for (let row = 0; row < this.game_state.square_parameters.size; row++)
         {
@@ -240,6 +282,6 @@ export default class SquareScene extends Phaser.Scene
 
     update(_time: number, _delta: number): void
     {
-        // update logic here
+        this.try_generate_square();
     }
 }

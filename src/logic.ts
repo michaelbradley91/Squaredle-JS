@@ -4,6 +4,7 @@
 import Yoga, { Config, Node } from 'yoga-layout';
 import SquareSceneLayout from './layouts/SquareSceneLayout';
 import { Words } from './words';
+import { Square } from './squares';
 
 export type LayoutState = {
     yoga_config: Config
@@ -57,10 +58,24 @@ export function clone_square_parameters(params: SquareParameters): SquareParamet
 }
 
 /*
+ * Records progress while computing a square
+ */
+export type SquareComputationState = {
+    square: Square | undefined,
+    start_time: number,
+    total_attempts: number
+    adjusting: boolean,
+    // This number is misleading due to the algorithm resetting it when making progress. Used internally only
+    adjustments_made: number,
+    completed: boolean
+}
+
+/*
  * The state of the square scene (where you play!)
  */
 export type SquareState = {
     letters: string[][]
+    computation: SquareComputationState
 }
 
 /*
@@ -93,7 +108,15 @@ export function init_game_state(): GameState
             start_scene_root_node: undefined
         },
         square: {
-            letters: square_letters
+            letters: square_letters,
+            computation: {
+                square: undefined,
+                start_time: 0,
+                total_attempts: 0,
+                adjusting: false,
+                adjustments_made: 0,
+                completed: false
+            }
         },
         square_parameters: new_square_parameters()
     };

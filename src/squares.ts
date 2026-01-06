@@ -3,7 +3,7 @@
  * playable squares
  */
 
-import { clone_square_parameters, new_square_parameters, SquareParameters } from "./logic";
+import { clone_square_parameters, new_square_parameters, SquareComputationState, SquareParameters } from "./logic";
 import { random_choice } from "./random";
 import { choose_random_letter, choose_random_rare_letter, MAX_WORD_LENGTH, Words } from "./words";
 
@@ -276,7 +276,7 @@ export class Square
     /**
      * Add a word randomly to the square, trying up to the maximum number of attempts
      */
-    add_word_randomly(word: string, max_attempts: number = 1000): boolean
+    try_add_word_randomly(word: string, max_attempts: number = 1000): boolean
     {
         if (word.length === 0) return true;
 
@@ -728,25 +728,156 @@ export function print_square_to_console(square: Square, words: Words)
  * Try generating a square with the given parameters..
  * 
  * Warning: this can take a while depending on the parameters!
+ * Each call makes another square and checks it for a solution.
+ * 
  * @param square_parameters criteria for the generated square
  * @param words the current word list
+ * @param computation the last computation so we can track where we are
+ * @returns if anything, the last letter modified. This change may have been
+ *          abandoned but it can be fun to show the user
  */
-export function generate_square(square_parameters: SquareParameters, words: Words, max_attempts: number = 1000): Square
+export function generate_square(square_parameters: SquareParameters, words: Words, computation: SquareComputationState): [string, number, number] | undefined
 {
-    const square = new Square();
-    square.init_empty_square(square_parameters);
-
-    let total_squares_generated = 0;
-    const start_time = performance.now();
-
-    while (total_squares_generated < max_attempts)
+    /* If the computation completed, start another one */
+    if (computation.completed || !computation.square)
     {
-        if (total_squares_generated > 0 && total_squares_generated % 10 === 0)
-        {
-            console.log(`Generated ${total_squares_generated} squares so far, still trying... (${performance.now() - start_time}ms)`);
-        }
+        const new_square = new Square();
+        new_square.init_empty_square(square_parameters);
 
-        total_squares_generated += 1;
+        computation.square = new_square;
+        computation.adjusting = false;
+        computation.total_attempts = 0;
+        computation.adjustments_made = 0;
+        computation.completed = false;
+        computation.start_time = 0;
+    }
+
+    // Reset the clock if this is a new computation
+    if (computation.start_time === 0)
+    {
+        computation.start_time = performance.now();
+    }
+
+    const square: Square = computation.square;
+    if (computation.total_attempts > 0 && computation.total_attempts % 10 === 0)
+    {
+        console.log(`Generated ${computation.total_attempts} squares so far, still trying... (${performance.now() - computation.start_time}ms)`);
+    }
+
+    computation.total_attempts += 1;
+    let last_letter_change: [string, number, number] | undefined = undefined;
+
+    if (computation.adjusting)
+    {
+        let quality = square.get_quality(words);
+        const square_filled_positions = square.all_filled_positions();
+        switch (quality.assessment)
+        {
+            case SquareQualityAssessment.TooManyWords:
+                {
+                    const random_position = random_choice(square_filled_positions);
+                    const random_coordinates = square.position_to_coordinates(random_position);
+
+                    const original_letter = square.get_letter(random_coordinates.x, random_coordinates.y);
+                    const original_quality = quality;
+
+                    square.add_random_letter(random_coordinates.x, random_coordinates.y);
+
+                    last_letter_change = [square.get_letter(random_coordinates.x, random_coordinates.y), random_coordinates.x, random_coordinates.y];
+
+                    const new_quality = square.reassess_quality(words);
+                    if ((new_quality.assessment !== SquareQualityAssessment.Good &&
+                        new_quality.assessment !== SquareQualityAssessment.NotUniqueLetters &&
+                        new_quality.assessment !== SquareQualityAssessment.TooManyWords) || (
+                            new_quality.assessment === SquareQualityAssessment.TooManyWords &&
+                            new_quality.word_count >= original_quality.word_count
+                        ))
+                    {
+                        // This was a mistake - revert the change
+                        square.add_letter(random_coordinates.x, random_coordinates.y, original_letter);
+                        square.set_quality(original_quality);
+                        quality = original_quality;
+                    }
+                    else
+                    {
+                        quality = new_quality;
+                        square.set_quality(new_quality);
+
+                        console.log(`Kept change to square letter: ${original_quality.word_count} -> ${new_quality.word_count}`);
+
+                        computation.adjustments_made = 0; // Encourage more changes if we're making progress
+                    }
+
+                    break;
+                }
+            case SquareQualityAssessment.NotUniqueLetters:
+                {
+                    const positions_to_change: Position[] = []
+                    for (const position of square_filled_positions)
+                    {
+                        const unique_covered_words = quality.unique_coverage[position];
+                        if (unique_covered_words.length === 0)
+                        {
+                            positions_to_change.push(position);
+                        }
+                    }
+                    const position_to_change = random_choice(positions_to_change);
+                    const coordinates_to_change = square.position_to_coordinates(position_to_change);
+
+                    const original_letter = square.get_letter(coordinates_to_change.x, coordinates_to_change.y);
+                    const original_quality = quality;
+                    square.add_random_letter(coordinates_to_change.x, coordinates_to_change.y);
+
+                    last_letter_change = [square.get_letter(coordinates_to_change.x, coordinates_to_change.y), coordinates_to_change.x, coordinates_to_change.y];
+
+                    const new_quality = square.reassess_quality(words);
+
+                    if (new_quality.assessment === SquareQualityAssessment.Good)
+                    {
+                        break;
+                    }
+                    if (new_quality.assessment === SquareQualityAssessment.TooManyWords ||
+                        new_quality.assessment === SquareQualityAssessment.NotUniqueLetters)
+                    {
+                        // Check the number of unique letters has gone up
+                        const new_failing_positions: Position[] = [];
+                        for (const position of square_filled_positions)
+                        {
+                            const unique_covered_words = new_quality.unique_coverage[position];
+                            if (unique_covered_words.length === 0)
+                            {
+                                new_failing_positions.push(position);
+                            }
+                        }
+                        if (new_failing_positions.length < positions_to_change.length)
+                        {
+                            // This is an improvement, keep the change
+                            break;
+                        }
+
+                        // Still not good enough, revert the change
+                        square.add_letter(coordinates_to_change.x, coordinates_to_change.y, original_letter);
+                        square.set_quality(original_quality);
+                        quality = original_quality;
+                        break;
+                    }
+                    break;
+                }
+            default:
+                {
+                    console.log("ERROR: Stopping adjustments to square");
+                    computation.adjustments_made = MAX_SQUARE_ADJUSTMENTS;
+                    break;
+                }
+        }
+        computation.adjustments_made += 1;
+        if (computation.adjustments_made >= MAX_SQUARE_ADJUSTMENTS)
+        {
+            computation.adjusting = false;
+        }
+    }
+    else
+    {
         square.fill_with_random_letters();
 
         /* We can't let the seed word be bigger than the square..!! */
@@ -760,141 +891,31 @@ export function generate_square(square_parameters: SquareParameters, words: Word
             let seed_word = choose_random_rare_letter();
             seed_word += words.get_random_word_of_length(seed_min_length, seed_max_length);
             seed_word += choose_random_rare_letter();
-            if (!square.add_word_randomly(seed_word))
-            {
-                continue;
-            }
+            square.try_add_word_randomly(seed_word);
         }
 
-        let quality = square.reassess_quality(words);
+        const quality = square.reassess_quality(words);
         // print_square_to_console(square, words);
-        if (quality.assessment === SquareQualityAssessment.Good)
+        if (quality.assessment !== SquareQualityAssessment.Good)
         {
-            console.log("Found good quality square without adjustment!");
-            break;
-        }
 
-        /* Should we attempt to tweak this square? */
-        if (!should_try_adjusting_square(quality.assessment))
-        {
-            continue;
-        }
-
-        const square_filled_positions = square.all_filled_positions();
-        let adjustments_made = 0;
-        while (square.get_quality(words).assessment !== SquareQualityAssessment.Good && adjustments_made < MAX_SQUARE_ADJUSTMENTS)
-        {
-            quality = square.get_quality(words);
-            switch (quality.assessment)
+            /* Should we attempt to tweak this square? */
+            if (should_try_adjusting_square(quality.assessment))
             {
-                case SquareQualityAssessment.TooManyWords:
-                    {
-                        const random_position = random_choice(square_filled_positions);
-                        const random_coordinates = square.position_to_coordinates(random_position);
-
-                        const original_letter = square.get_letter(random_coordinates.x, random_coordinates.y);
-                        const original_quality = quality;
-
-                        adjustments_made += 1;
-                        square.add_random_letter(random_coordinates.x, random_coordinates.y);
-                        const new_quality = square.reassess_quality(words);
-                        if ((new_quality.assessment !== SquareQualityAssessment.Good &&
-                            new_quality.assessment !== SquareQualityAssessment.NotUniqueLetters &&
-                            new_quality.assessment !== SquareQualityAssessment.TooManyWords) || (
-                                new_quality.assessment === SquareQualityAssessment.TooManyWords &&
-                                new_quality.word_count >= original_quality.word_count
-                            ))
-                        {
-                            // This was a mistake - revert the change
-                            square.add_letter(random_coordinates.x, random_coordinates.y, original_letter);
-                            square.set_quality(original_quality);
-                            quality = original_quality;
-                        }
-                        else
-                        {
-                            quality = new_quality;
-                            square.set_quality(new_quality);
-
-                            console.log(`Kept change to square letter: ${original_quality.word_count} -> ${new_quality.word_count}`);
-
-                            adjustments_made = 0; // Encourage more changes if we're making progress
-                        }
-
-                        break;
-                    }
-                case SquareQualityAssessment.NotUniqueLetters:
-                    {
-                        const positions_to_change: Position[] = []
-                        for (const position of square_filled_positions)
-                        {
-                            const unique_covered_words = quality.unique_coverage[position];
-                            if (unique_covered_words.length === 0)
-                            {
-                                positions_to_change.push(position);
-                            }
-                        }
-                        const position_to_change = random_choice(positions_to_change);
-                        const coordinates_to_change = square.position_to_coordinates(position_to_change);
-
-                        const original_letter = square.get_letter(coordinates_to_change.x, coordinates_to_change.y);
-                        const original_quality = quality;
-                        adjustments_made += 1;
-                        square.add_random_letter(coordinates_to_change.x, coordinates_to_change.y);
-                        const new_quality = square.reassess_quality(words);
-
-                        if (new_quality.assessment === SquareQualityAssessment.Good)
-                        {
-                            break;
-                        }
-                        if (new_quality.assessment === SquareQualityAssessment.TooManyWords ||
-                            new_quality.assessment === SquareQualityAssessment.NotUniqueLetters)
-                        {
-                            // Check the number of unique letters has gone up
-                            const new_failing_positions: Position[] = [];
-                            for (const position of square_filled_positions)
-                            {
-                                const unique_covered_words = new_quality.unique_coverage[position];
-                                if (unique_covered_words.length === 0)
-                                {
-                                    new_failing_positions.push(position);
-                                }
-                            }
-                            if (new_failing_positions.length < positions_to_change.length)
-                            {
-                                // This is an improvement, keep the change
-                                break;
-                            }
-
-                            // Still not good enough, revert the change
-                            square.add_letter(coordinates_to_change.x, coordinates_to_change.y, original_letter);
-                            square.set_quality(original_quality);
-                            quality = original_quality;
-                            break;
-                        }
-                        break;
-                    }
-                default:
-                    {
-                        console.log("ERROR: Stopping adjustments to square");
-                        adjustments_made = MAX_SQUARE_ADJUSTMENTS;
-                        break;
-                    }
+                computation.adjusting = true;
+                computation.adjustments_made = 0;
             }
-        }
-
-        if (quality.assessment === SquareQualityAssessment.Good)
-        {
-            console.log("Found a good square!");
-            break;
         }
     }
+
     if (square.get_quality(words).assessment === SquareQualityAssessment.Good)
     {
+        console.log("Found a good square!");
+        computation.completed = true;
+        computation.adjusting = false;
+        computation.square = square;
         print_square_to_console(square, words);
+        return last_letter_change;
     }
-    else
-    {
-        console.log("Failed to generate a good square...");
-    }
-    return square;
+    return last_letter_change;
 }
