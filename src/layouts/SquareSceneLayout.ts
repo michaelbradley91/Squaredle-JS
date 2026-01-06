@@ -121,10 +121,10 @@ import { append_child, get_absolute_rect as get_absolute_rectangle_from_node } f
 import { GameState } from '~/logic';
 
 /* Constant parameters to adjust the view */
-const TOP_MENU_HEIGHT = 64;
-const PROGRESS_BAR_HEIGHT = 64;
-const PREVIOUS_WORDS_HEIGHT = 64;
-const HINTS_CAROUSEL_MIN_HEIGHT = 250;
+const TOP_MENU_HEIGHT = 50;
+const PROGRESS_BAR_HEIGHT = 50;
+const PREVIOUS_WORDS_HEIGHT = 50;
+const HINTS_CAROUSEL_MIN_HEIGHT = 180;
 const TOP_MENU_LEFT_MIN_WIDTH = 60;
 const TOP_MENU_RIGHT_MIN_WIDTH = 60;
 const PROGRESS_BAR_MIN_WIDTH = 40;
@@ -391,8 +391,6 @@ export default class SquareSceneLayout
 
         /* Update the inner node rectangles... */
         const square_coordinates = this.get_rectangle_for_outer_node(this.outer_layout.square_scaffold);
-
-        console.log("Square coordinates after layout: ", square_coordinates);
 
         const square_node = Yoga.Node.create(this.yoga_config);
         square_node.setWidth(square_coordinates.width);

@@ -52,7 +52,6 @@ export default class SquareScene extends Phaser.Scene
 
     handle_resize(game_size: Phaser.Structs.Size)
     {
-        console.log("Handling resize");
         // Update camera viewport to match new size
         this.cameras.main.setViewport(0, 0, game_size.width, game_size.height);
 
@@ -109,7 +108,6 @@ export default class SquareScene extends Phaser.Scene
         const layout = this.game_state.layout.square_scene_layout;
         const square = this.game_objects.squares[row][column];
 
-        console.log(`Updating square at ${row}, ${column}`);
         const rectangle = layout.get_square_rectangle(row, column);
         const rounding = rectangle.width / SQUARE_ROUNDING_FACTOR;
         const border_rounding = rectangle.width / SQUARE_BORDER_ROUNDING_FACTOR;
@@ -135,7 +133,6 @@ export default class SquareScene extends Phaser.Scene
         }
         text.setFontSize(background_rectangle.height * SQUARE_TEXT_PERCENTAGE);
         text.setText(letter);
-        console.log("Setting square text to ", letter);
         text.setVisible(true);
         text.setPosition(
             background_rectangle.x + (background_rectangle.width / 2),

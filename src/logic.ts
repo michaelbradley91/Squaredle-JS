@@ -3,6 +3,7 @@
  */
 import Yoga, { Config, Node } from 'yoga-layout';
 import SquareSceneLayout from './layouts/SquareSceneLayout';
+import { Words } from './words';
 
 export type LayoutState = {
     yoga_config: Config,
@@ -22,6 +23,7 @@ export type SquareState = {
  * Handles all persistent game state
  */
 export type GameState = {
+    words: Words
     layout: LayoutState
     square: SquareState
 }
@@ -39,6 +41,7 @@ export function init_game_state(): GameState
     square_letters.push(['M', 'N', 'O', 'Z']);
 
     return {
+        words: new Words(),
         layout: {
             yoga_config: yoga_config,
             square_scene_layout: new SquareSceneLayout(yoga_config),
