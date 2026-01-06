@@ -448,7 +448,7 @@ export default class SquareSceneLayout
     private update_square_layout(game_state: GameState)
     {
         this.square_layout = {
-            size: game_state.square.square_size,
+            size: game_state.square_parameters.size,
             grid_nodes: []
         };
         for (let row = 0; row < this.square_layout.size; row++)
@@ -547,18 +547,6 @@ export default class SquareSceneLayout
     get_square_rectangle(row: number, col: number): { x: number, y: number, width: number, height: number } 
     {
         if (!this.square_layout) 
-        {
-            return { x: 0, y: 0, width: 0, height: 0 };
-        }
-        if (!this.square_layout.grid_nodes)
-        {
-            return { x: 0, y: 0, width: 0, height: 0 };
-        }
-        if (!this.square_layout.grid_nodes[row])
-        {
-            return { x: 0, y: 0, width: 0, height: 0 };
-        }
-        if (!this.square_layout.grid_nodes[row][col])
         {
             return { x: 0, y: 0, width: 0, height: 0 };
         }
