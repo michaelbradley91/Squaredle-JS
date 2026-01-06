@@ -6,10 +6,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="theme-color" content="black" />
 	<meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
+	<meta name="viewport"
+		content="width=device-width, initial-scale=0.5, maximum-scale=1.0, minimum-scale=0.5, user-scalable=no, minimal-ui">
 	<link rel="manifest" href="manifest.json" />
 	<link rel="icon" href="/assets/Squaredle192.png" sizes="192x192" />
-    <link rel="icon" href="/assets/Squaredle256.png" sizes="256x256" />
-    <link rel="icon" href="/assets/Squaredle512.png" sizes="512x512" />
+	<link rel="icon" href="/assets/Squaredle256.png" sizes="256x256" />
+	<link rel="icon" href="/assets/Squaredle512.png" sizes="512x512" />
 	<link rel="apple-touch-icon" sizes="192x192" href="/assets/Squaredle192.png">
 	<link rel="apple-touch-icon" sizes="256x256" href="/assets/Squaredle256.png">
 	<link rel="apple-touch-icon" sizes="512x512" href="/assets/Squaredle512.png">
@@ -19,22 +21,35 @@
 <body style="background-color: black; margin: 0">
 	<style media='screen' type='text/css'>
 		@font-face {
-		  font-family: roboto;
-		  src: url('assets/roboto.regular.ttf');
-		  font-weight:400;
-		  font-weight:normal;
+			font-family: roboto;
+			src: url('assets/roboto.regular.ttf');
+			font-weight: 400;
+			font-weight: normal;
 		}
-  	</style>
+	</style>
+	<style media='screen' type='text/css'>
+		@font-face {
+			font-family: roboto-bold;
+			src: url('assets/roboto.bold.ttf');
+			font-weight: 400;
+			font-weight: normal;
+		}
+	</style>
 	<div style="font-family:roboto; position:absolute; left:-1000px; visibility:hidden;">.</div>
+	<div style="font-family:roboto-bold; position:absolute; left:-1000px; visibility:hidden;">.</div>
 	<div id="app"></div>
 	<script>
 		var href = new URL(window.location.href).pathname;
 		var dir = href.substring(0, href.lastIndexOf('/')) + "/";
-		if ('serviceWorker' in navigator) {
-			window.addEventListener('load', function() {
-				navigator.serviceWorker.register('./sw.js', {scope: dir}).then(function(registration) {
+		if ('serviceWorker' in navigator)
+		{
+			window.addEventListener('load', function ()
+			{
+				navigator.serviceWorker.register('./sw.js', { scope: dir }).then(function (registration)
+				{
 					console.log('ServiceWorker registration successful with scope: ', registration.scope);
-				}, function(err) {
+				}, function (err)
+				{
 					console.log('ServiceWorker registration failed: ', err);
 				});
 			});

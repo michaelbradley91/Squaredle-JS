@@ -4,6 +4,10 @@ import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 
 const SQUARE_ROUNDING_FACTOR = 8;
+const SQUARE_BORDER_ROUNDING_ADDITION = 4;
+const SQUARE_BORDER_PERCENTAGE = 0.04;
+const SQUARE_TEXT_PERCENTAGE = 0.6;
+const SQUARE_TEXT_FONT_FAMILY = 'roboto-bold';
 
 export default class SquareScene extends Phaser.Scene
 {
@@ -15,7 +19,7 @@ export default class SquareScene extends Phaser.Scene
         square: Phaser.GameObjects.Rectangle;
         hints_left: Phaser.GameObjects.Rectangle;
         hints_right: Phaser.GameObjects.Rectangle;
-        squares: RoundRectangle[][]
+        squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText }[][]
     } | undefined = undefined
 
     game_state!: GameState;
@@ -43,7 +47,7 @@ export default class SquareScene extends Phaser.Scene
     handle_resize(game_size: Phaser.Structs.Size)
     {
         console.log("Handling resize");
-        // Update camera viewport to match new size  
+        // Update camera viewport to match new size
         this.cameras.main.setViewport(0, 0, game_size.width, game_size.height);
 
         // Update the layout
@@ -52,6 +56,7 @@ export default class SquareScene extends Phaser.Scene
 
     preload()
     {
+        this.load.bitmapFont("roboto-bold", "assets/Roboto-Bold.png", "assets/Roboto-Bold.xml");
         // this.load.image("present", "assets/Present.png");
     }
 
@@ -63,7 +68,7 @@ export default class SquareScene extends Phaser.Scene
         rectangle.setVisible(true);
     }
 
-    hide_all_rectangles()
+    hide_all_objects()
     {
         if (!this.game_objects) return;
 
@@ -80,18 +85,71 @@ export default class SquareScene extends Phaser.Scene
         {
             for (const square of row)
             {
-                square.visible = false;
+                square.border.visible = false;
+                square.background.visible = false;
+                square.text.visible = false;
+            }
+        }
+    }
+
+    draw_square_letter(row: number, column: number)
+    {
+        if (!this.game_objects) return;
+
+        const letter = this.game_state.square.letters[row][column];
+        if (!letter) return;
+
+        const layout = this.game_state.layout.square_scene_layout;
+        const square = this.game_objects.squares[row][column];
+
+        console.log(`Updating square at ${row}, ${column}`);
+        const rectangle = layout.get_square_rectangle(row, column);
+        const rounding = rectangle.width / SQUARE_ROUNDING_FACTOR;
+
+        square.background.setRadius(rounding);
+        square.border.setRadius(rounding + SQUARE_BORDER_ROUNDING_ADDITION);
+
+        // The border uses up all the space, so shrink the rectangle for the background
+        const background_rectangle = {
+            x: rectangle.x + (rectangle.width * SQUARE_BORDER_PERCENTAGE),
+            y: rectangle.y + (rectangle.height * SQUARE_BORDER_PERCENTAGE),
+            width: rectangle.width - (2 * (rectangle.width * SQUARE_BORDER_PERCENTAGE)),
+            height: rectangle.height - (2 * (rectangle.height * SQUARE_BORDER_PERCENTAGE))
+        };
+        this.update_rectangle(rectangle, square.border);
+        this.update_rectangle(background_rectangle, square.background);
+
+        square.text.setFontSize(background_rectangle.height * SQUARE_TEXT_PERCENTAGE);
+        square.text.setText(letter);
+        console.log("Setting square text to ", letter);
+        square.text.setVisible(true);
+        square.text.setPosition(
+            background_rectangle.x + (background_rectangle.width / 2),
+            background_rectangle.y + (background_rectangle.height / 2)
+        );
+    }
+
+    draw_square()
+    {
+        if (!this.game_objects) return;
+
+        for (let row = 0; row < this.game_state.square.square_size; row++)
+        {
+            for (let col = 0; col < this.game_state.square.square_size; col++)
+            {
+                this.draw_square_letter(row, col,);
             }
         }
     }
 
     draw()
     {
-        console.log("Drawing!");
         if (!this.game_objects || !this.game_state.layout.square_scene_layout) return;
 
-        this.hide_all_rectangles();
+        // Start by hiding everything
+        this.hide_all_objects();
 
+        // Draw the basic layout
         const layout = this.game_state.layout.square_scene_layout;
         this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.TopMenu), this.game_objects.top_menu_left);
         if (!layout.is_vertical())
@@ -108,21 +166,7 @@ export default class SquareScene extends Phaser.Scene
             this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.HintsRight), this.game_objects.hints_right);
         }
 
-        let row_index = 0;
-        for (const row of this.game_objects.squares)
-        {
-            let column_index = 0;
-            for (const square of row)
-            {
-                console.log(`Updating square at ${row_index}, ${column_index}`);
-                const rectangle = layout.get_square_rectangle(row_index, column_index);
-                const rounding = rectangle.width / SQUARE_ROUNDING_FACTOR;
-                square.setRadius(rounding);
-                this.update_rectangle(rectangle, square);
-                column_index++;
-            }
-            row_index++;
-        }
+        this.draw_square();
     }
 
     update_layout()
@@ -135,14 +179,16 @@ export default class SquareScene extends Phaser.Scene
 
     create()
     {
-        const squares: RoundRectangle[][] = [];
+        const squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText }[][] = [];
         for (let row = 0; row < this.game_state.square.square_size; row++)
         {
-            const square_row: RoundRectangle[] = [];
+            const square_row: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText }[] = [];
             for (let col = 0; col < this.game_state.square.square_size; col++)
             {
-                const square = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0xaa00aa + (256 * ((row * this.game_state.square.square_size + col) * 16)));
-                square_row.push(square);
+                const border = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0x000000);
+                const background = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0xaa00aa + (256 * ((row * this.game_state.square.square_size + col) * 16)));
+                const text = this.add.bitmapText(400, 300, 'roboto-bold', '').setOrigin(0.5, 0.565);
+                square_row.push({ background: background, border: border, text: text });
             }
             squares.push(square_row);
         }

@@ -14,7 +14,8 @@ export type LayoutState = {
  * The state of the square scene (where you play!)
  */
 export type SquareState = {
-    square_size: number
+    square_size: number,
+    letters: string[][]
 }
 
 /*
@@ -31,6 +32,12 @@ export type GameState = {
 export function init_game_state(): GameState
 {
     const yoga_config = Yoga.Config.create();
+    const square_letters: string[][] = [];
+    square_letters.push(['A', 'B', 'C', 'D']);
+    square_letters.push(['E', 'F', 'G', 'H']);
+    square_letters.push(['I', 'J', 'K', 'L']);
+    square_letters.push(['M', 'N', 'O', 'P']);
+
     return {
         layout: {
             yoga_config: yoga_config,
@@ -38,7 +45,8 @@ export function init_game_state(): GameState
             start_scene_root_node: undefined
         },
         square: {
-            square_size: 4
+            square_size: 4,
+            letters: square_letters
         }
     };
 }

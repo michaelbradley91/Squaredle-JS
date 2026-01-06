@@ -42,7 +42,7 @@ jobs:
                 - name: Build
                   run: npm run build
                 - name: Copy assets
-                  run: mkdir -p ./dist/assets && cp ./assets/*.png ./assets/*.ttf ./dist/assets/ && cp ./sw.js ./dist/ && cp ./favicon.ico ./dist/
+                  run: mkdir -p ./dist/assets && cp ./assets/*.png ./assets/*.ttf ./assets/*.xml ./dist/assets/ && cp ./sw.js ./dist/ && cp ./favicon.ico ./dist/
                 - name: Setup Pages
                   uses: actions/configure-pages@v4
                 - name: Upload artifact

@@ -9,6 +9,7 @@ const config: Phaser.Types.Core.GameConfig = {
 	width: 800,
 	height: 600,
 	scene: [SquareScene, StartScene],
+	pixelArt: false,
 	plugins: {
 		global: [
 			{
@@ -22,8 +23,10 @@ const config: Phaser.Types.Core.GameConfig = {
 		mode: Phaser.Scale.RESIZE, // Key: Enable resize mode  
 		autoCenter: Phaser.Scale.CENTER_BOTH, // Center canvas in parent  
 		width: window.innerWidth,  // Initial width = window width  
-		height: window.innerHeight // Initial height = window height  
-	}
+		height: window.innerHeight, // Initial height = window height
+	},
+	autoRound: true,
+	antialias: true,
 }
 
 const game = new Phaser.Game(config);
