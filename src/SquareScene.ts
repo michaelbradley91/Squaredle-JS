@@ -133,7 +133,7 @@ export default class SquareScene extends Phaser.Scene
             text = square.text_big;
         }
         text.setFontSize(background_rectangle.height * SQUARE_TEXT_PERCENTAGE);
-        text.setText(letter);
+        text.setText(letter.toUpperCase());
         text.setVisible(true);
         text.setPosition(
             background_rectangle.x + (background_rectangle.width / 2),
@@ -191,7 +191,14 @@ export default class SquareScene extends Phaser.Scene
 
     create()
     {
-        generate_square(this.game_state.square_parameters, this.game_state.words);
+        const generated_square = generate_square(this.game_state.square_parameters, this.game_state.words);
+        for (let row = 0; row < this.game_state.square_parameters.size; row++)
+        {
+            for (let col = 0; col < this.game_state.square_parameters.size; col++)
+            {
+                this.game_state.square.letters[row][col] = generated_square.get_letter(col, row);
+            }
+        }
 
         const squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[][] = [];
         for (let row = 0; row < this.game_state.square_parameters.size; row++)
