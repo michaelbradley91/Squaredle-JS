@@ -1,7 +1,8 @@
+import dsv from '@rollup/plugin-dsv';
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-	plugins: [],
+	plugins: [dsv()],
 	base: '/Squaredle-JS/',
 	server: {
 		host: '0.0.0.0',
