@@ -8,6 +8,8 @@ const SQUARE_BORDER_ROUNDING_FACTOR = 6;
 const SQUARE_BORDER_PERCENTAGE = 0.04;
 const SQUARE_TEXT_PERCENTAGE = 0.6;
 const SQUARE_TEXT_FONT_FAMILY = 'roboto-bold';
+const SQUARE_TEXT_BIG_FONT_FAMILY = 'roboto-bold-big';
+const SQUARE_TEXT_BIG_FONT_CUTOFF = 100;
 
 export default class SquareScene extends Phaser.Scene
 {
@@ -19,7 +21,12 @@ export default class SquareScene extends Phaser.Scene
         square: Phaser.GameObjects.Rectangle;
         hints_left: Phaser.GameObjects.Rectangle;
         hints_right: Phaser.GameObjects.Rectangle;
-        squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText }[][]
+        squares: {
+            background: RoundRectangle,
+            border: RoundRectangle,
+            text: Phaser.GameObjects.BitmapText,
+            text_big: Phaser.GameObjects.BitmapText
+        }[][]
     } | undefined = undefined
 
     game_state!: GameState;
@@ -57,7 +64,7 @@ export default class SquareScene extends Phaser.Scene
     preload()
     {
         this.load.bitmapFont("roboto-bold", "assets/Roboto-Bold.png", "assets/Roboto-Bold.xml");
-        // this.load.image("present", "assets/Present.png");
+        this.load.bitmapFont("roboto-bold-big", "assets/Roboto-Bold-Big.png", "assets/Roboto-Bold-Big.xml");
     }
 
     update_rectangle(coords: { x: number, y: number, width: number, height: number }, rectangle: Phaser.GameObjects.Rectangle | RoundRectangle)
@@ -88,6 +95,7 @@ export default class SquareScene extends Phaser.Scene
                 square.border.visible = false;
                 square.background.visible = false;
                 square.text.visible = false;
+                square.text_big.visible = false;
             }
         }
     }
@@ -120,11 +128,17 @@ export default class SquareScene extends Phaser.Scene
         this.update_rectangle(rectangle, square.border);
         this.update_rectangle(background_rectangle, square.background);
 
-        square.text.setFontSize(background_rectangle.height * SQUARE_TEXT_PERCENTAGE);
-        square.text.setText(letter);
+        const font_size = background_rectangle.height * SQUARE_TEXT_PERCENTAGE;
+        let text = square.text;
+        if (font_size > SQUARE_TEXT_BIG_FONT_CUTOFF)
+        {
+            text = square.text_big;
+        }
+        text.setFontSize(background_rectangle.height * SQUARE_TEXT_PERCENTAGE);
+        text.setText(letter);
         console.log("Setting square text to ", letter);
-        square.text.setVisible(true);
-        square.text.setPosition(
+        text.setVisible(true);
+        text.setPosition(
             background_rectangle.x + (background_rectangle.width / 2),
             background_rectangle.y + (background_rectangle.height / 2)
         );
@@ -180,10 +194,10 @@ export default class SquareScene extends Phaser.Scene
 
     create()
     {
-        const squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText }[][] = [];
+        const squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[][] = [];
         for (let row = 0; row < this.game_state.square.square_size; row++)
         {
-            const square_row: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText }[] = [];
+            const square_row: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[] = [];
             for (let col = 0; col < this.game_state.square.square_size; col++)
             {
                 const border = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0x000000);
@@ -191,7 +205,8 @@ export default class SquareScene extends Phaser.Scene
 
                 // We use a bitmap font as the letters in the middle are especially large and imperfections show
                 const text = this.add.bitmapText(400, 300, SQUARE_TEXT_FONT_FAMILY, '').setOrigin(0.5, 0.565);
-                square_row.push({ background: background, border: border, text: text });
+                const text_big = this.add.bitmapText(400, 300, SQUARE_TEXT_BIG_FONT_FAMILY, '').setOrigin(0.5, 0.565);
+                square_row.push({ background: background, border: border, text: text, text_big: text_big });
             }
             squares.push(square_row);
         }

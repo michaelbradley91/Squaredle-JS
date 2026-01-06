@@ -124,11 +124,11 @@ import { GameState } from '~/logic';
 const TOP_MENU_HEIGHT = 36;
 const PROGRESS_BAR_HEIGHT = 36;
 const PREVIOUS_WORDS_HEIGHT = 36;
-const HINTS_CAROUSEL_MIN_HEIGHT = 100;
+const HINTS_CAROUSEL_MIN_HEIGHT = 250;
 const TOP_MENU_LEFT_MIN_WIDTH = 20;
 const TOP_MENU_RIGHT_MIN_WIDTH = 20;
 const PROGRESS_BAR_MIN_WIDTH = 40;
-const HINTS_CAROUSEL_MIN_WIDTH = 120;
+const HINTS_CAROUSEL_MIN_WIDTH = 200;
 const TOP_MENU_LEFT_WIDTH = "30%";
 const TOP_MENU_RIGHT_WIDTH = "30%";
 const TOP_MENU_PROGRESS_BAR_WIDTH = "40%";
@@ -188,7 +188,7 @@ export default class SquareSceneLayout
 
     private get_hints_carousel_min_width(screen_size: { width: number, height: number }): number 
     {
-        return Math.max(screen_size.width / 4, HINTS_CAROUSEL_MIN_WIDTH)
+        return Math.max(screen_size.width / 6, HINTS_CAROUSEL_MIN_WIDTH)
     }
 
     private get_rectangle_for_outer_node(node: Node | undefined): { x: number, y: number, width: number, height: number } 
