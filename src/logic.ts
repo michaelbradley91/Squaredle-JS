@@ -6,16 +6,25 @@ import SquareSceneLayout from './layouts/SquareSceneLayout';
 import { Words } from './words';
 
 export type LayoutState = {
-    yoga_config: Config,
+    yoga_config: Config
     square_scene_layout: SquareSceneLayout
     start_scene_root_node: Node | undefined
+}
+
+/*
+ * Parameters that influence how the square is generated
+ */
+export type SquareParameters = {
+    square_size: number
+    square_template: boolean[][]
+    words_count_range: [number, number]
+    min_word_lengths: { [word_length: string]: number }
 }
 
 /*
  * The state of the square scene (where you play!)
  */
 export type SquareState = {
-    square_size: number,
     letters: string[][]
 }
 
@@ -26,6 +35,7 @@ export type GameState = {
     words: Words
     layout: LayoutState
     square: SquareState
+    square_parameters: SquareParameters
 }
 
 /*
@@ -48,8 +58,20 @@ export function init_game_state(): GameState
             start_scene_root_node: undefined
         },
         square: {
-            square_size: 4,
             letters: square_letters
+        },
+        square_parameters: {
+            square_size: 4,
+            square_template: [true, true, true, true].map(() => [true, true, true, true]),
+            words_count_range: [20, 40],
+            min_word_lengths: {
+                "4": 6,
+                "5": 6,
+                "6": 5,
+                "7,8": 3,
+                "8,9": 2,
+                "10,11,12,13,14,15,16,17,18,19,20,21": 1
+            }
         }
     };
 }

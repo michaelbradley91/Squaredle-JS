@@ -55,8 +55,6 @@ export class Words
 
     constructor()
     {
-        const start_time = performance.now();
-        console.log("loading words...");
         this.bad_words = new Set(bad_word_list.map(entry => entry.word.toLowerCase()));
         this.words = word_list.map(entry => entry.word.toLowerCase()).filter(word => word.length > 0 && !this.bad_words.has(word));
         this.bonus_words = bonus_word_list.map(entry => entry.word.toLowerCase()).filter(word => word.length > 0 && !this.bad_words.has(word));
@@ -83,8 +81,6 @@ export class Words
             }
             this.words_by_length[word.length].push(word);
         }
-
-        console.log(`Loading words took this many milliseconds: ${performance.now() - start_time}`);
     }
 
     get_words(): string[]
