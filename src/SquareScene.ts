@@ -4,7 +4,7 @@ import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 
 const SQUARE_ROUNDING_FACTOR = 8;
-const SQUARE_BORDER_ROUNDING_ADDITION = 4;
+const SQUARE_BORDER_ROUNDING_FACTOR = 6;
 const SQUARE_BORDER_PERCENTAGE = 0.04;
 const SQUARE_TEXT_PERCENTAGE = 0.6;
 const SQUARE_TEXT_FONT_FAMILY = 'roboto-bold';
@@ -105,9 +105,10 @@ export default class SquareScene extends Phaser.Scene
         console.log(`Updating square at ${row}, ${column}`);
         const rectangle = layout.get_square_rectangle(row, column);
         const rounding = rectangle.width / SQUARE_ROUNDING_FACTOR;
+        const border_rounding = rectangle.width / SQUARE_BORDER_ROUNDING_FACTOR;
 
         square.background.setRadius(rounding);
-        square.border.setRadius(rounding + SQUARE_BORDER_ROUNDING_ADDITION);
+        square.border.setRadius(border_rounding);
 
         // The border uses up all the space, so shrink the rectangle for the background
         const background_rectangle = {
@@ -187,7 +188,9 @@ export default class SquareScene extends Phaser.Scene
             {
                 const border = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0x000000);
                 const background = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0xaa00aa + (256 * ((row * this.game_state.square.square_size + col) * 16)));
-                const text = this.add.bitmapText(400, 300, 'roboto-bold', '').setOrigin(0.5, 0.565);
+
+                // We use a bitmap font as the letters in the middle are especially large and imperfections show
+                const text = this.add.bitmapText(400, 300, SQUARE_TEXT_FONT_FAMILY, '').setOrigin(0.5, 0.565);
                 square_row.push({ background: background, border: border, text: text });
             }
             squares.push(square_row);
