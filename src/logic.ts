@@ -15,10 +15,41 @@ export type LayoutState = {
  * Parameters that influence how the square is generated
  */
 export type SquareParameters = {
-    square_size: number
-    square_template: boolean[][]
+    size: number
+    template: boolean[][]
     words_count_range: [number, number]
     min_word_lengths: { [word_length: string]: number }
+    min_unique_long_words: number
+}
+
+export function new_square_parameters(): SquareParameters
+{
+    return {
+        size: 4,
+        template: [true, true, true, true].map(() => [true, true, true, true]),
+        words_count_range: [20, 40],
+        min_word_lengths: {
+            "4": 6,
+            "5": 6,
+            "6": 5,
+            "7,8": 3,
+            "8,9": 2,
+            "10,11,12,13,14,15,16,17,18,19,20,21": 1
+        },
+        min_unique_long_words: 4
+    };
+}
+
+/** Create an identical copy of the square parameters */
+export function clone_square_parameters(params: SquareParameters): SquareParameters
+{
+    return {
+        size: params.size,
+        template: params.template.map(row => row.slice()),
+        words_count_range: [params.words_count_range[0], params.words_count_range[1]],
+        min_word_lengths: { ...params.min_word_lengths },
+        min_unique_long_words: params.min_unique_long_words
+    }
 }
 
 /*
@@ -60,19 +91,7 @@ export function init_game_state(): GameState
         square: {
             letters: square_letters
         },
-        square_parameters: {
-            square_size: 4,
-            square_template: [true, true, true, true].map(() => [true, true, true, true]),
-            words_count_range: [20, 40],
-            min_word_lengths: {
-                "4": 6,
-                "5": 6,
-                "6": 5,
-                "7,8": 3,
-                "8,9": 2,
-                "10,11,12,13,14,15,16,17,18,19,20,21": 1
-            }
-        }
+        square_parameters: new_square_parameters()
     };
 }
 
