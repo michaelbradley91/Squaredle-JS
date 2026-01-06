@@ -36,7 +36,7 @@ export function init_game_state(): GameState
     square_letters.push(['A', 'B', 'C', 'D']);
     square_letters.push(['E', 'F', 'G', 'H']);
     square_letters.push(['I', 'J', 'K', 'L']);
-    square_letters.push(['M', 'N', 'O', 'P']);
+    square_letters.push(['M', 'N', 'O', 'Z']);
 
     return {
         layout: {
