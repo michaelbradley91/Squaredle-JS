@@ -1,6 +1,7 @@
 import { GameState, init_game_state } from "./logic";
 import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
+import { generate_square } from "./squares";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
@@ -144,9 +145,9 @@ export default class SquareScene extends Phaser.Scene
     {
         if (!this.game_objects) return;
 
-        for (let row = 0; row < this.game_state.square.square_size; row++)
+        for (let row = 0; row < this.game_state.square_parameters.size; row++)
         {
-            for (let col = 0; col < this.game_state.square.square_size; col++)
+            for (let col = 0; col < this.game_state.square_parameters.size; col++)
             {
                 this.draw_square_letter(row, col,);
             }
@@ -190,14 +191,16 @@ export default class SquareScene extends Phaser.Scene
 
     create()
     {
+        generate_square(this.game_state.square_parameters, this.game_state.words);
+
         const squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[][] = [];
-        for (let row = 0; row < this.game_state.square.square_size; row++)
+        for (let row = 0; row < this.game_state.square_parameters.size; row++)
         {
             const square_row: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[] = [];
-            for (let col = 0; col < this.game_state.square.square_size; col++)
+            for (let col = 0; col < this.game_state.square_parameters.size; col++)
             {
                 const border = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0x000000);
-                const background = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0xaa00aa + (256 * ((row * this.game_state.square.square_size + col) * 16)));
+                const background = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0xaa00aa + (256 * ((row * this.game_state.square_parameters.size + col) * 16)));
 
                 // We use a bitmap font as the letters in the middle are especially large and imperfections show
                 const text = this.add.bitmapText(400, 300, SQUARE_TEXT_FONT_FAMILY, '').setOrigin(0.5, 0.565);

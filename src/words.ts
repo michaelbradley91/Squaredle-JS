@@ -10,9 +10,6 @@ import { random_choice, random_weighted_choice } from "./random";
 /* No word in our dictionary is longer than this */
 export const MAX_WORD_LENGTH = 32;
 
-/* Words at this length of greater are considered "long words" */
-export const LONG_WORD_LENGTH = 8;
-
 const RARE_LETTER_FREQUENCIES: { [letter: string]: number } = {
     'b': 0.392,
     'j': 0.653,

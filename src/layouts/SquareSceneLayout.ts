@@ -550,6 +550,18 @@ export default class SquareSceneLayout
         {
             return { x: 0, y: 0, width: 0, height: 0 };
         }
+        if (!this.square_layout.grid_nodes)
+        {
+            return { x: 0, y: 0, width: 0, height: 0 };
+        }
+        if (!this.square_layout.grid_nodes[row])
+        {
+            return { x: 0, y: 0, width: 0, height: 0 };
+        }
+        if (!this.square_layout.grid_nodes[row][col])
+        {
+            return { x: 0, y: 0, width: 0, height: 0 };
+        }
         const cell_node = this.square_layout.grid_nodes[row][col];
         return get_absolute_rectangle_from_node(cell_node);
     }

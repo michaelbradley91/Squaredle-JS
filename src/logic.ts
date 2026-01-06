@@ -19,6 +19,7 @@ export type SquareParameters = {
     template: boolean[][]
     words_count_range: [number, number]
     min_word_lengths: { [word_length: string]: number }
+    min_unique_long_word_length: number
     min_unique_long_words: number
 }
 
@@ -27,7 +28,7 @@ export function new_square_parameters(): SquareParameters
     return {
         size: 4,
         template: [true, true, true, true].map(() => [true, true, true, true]),
-        words_count_range: [20, 40],
+        words_count_range: [20, 60],
         min_word_lengths: {
             "4": 6,
             "5": 6,
@@ -36,7 +37,9 @@ export function new_square_parameters(): SquareParameters
             "8,9": 2,
             "10,11,12,13,14,15,16,17,18,19,20,21": 1
         },
-        min_unique_long_words: 4
+        min_unique_long_word_length: 8,
+        min_unique_long_words: 3
+        // min_unique_long_words: 1
     };
 }
 
@@ -48,6 +51,7 @@ export function clone_square_parameters(params: SquareParameters): SquareParamet
         template: params.template.map(row => row.slice()),
         words_count_range: [params.words_count_range[0], params.words_count_range[1]],
         min_word_lengths: { ...params.min_word_lengths },
+        min_unique_long_word_length: params.min_unique_long_word_length,
         min_unique_long_words: params.min_unique_long_words
     }
 }
