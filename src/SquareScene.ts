@@ -1,7 +1,8 @@
 import { GameState, init_game_state } from "./logic";
 import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
-import { generate_square, Square, SquareQualityAssessment } from "./squares";
+import { generate_square } from "./squares";
+import { graphics_add_circle } from "./textures";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
@@ -10,7 +11,9 @@ const SQUARE_TEXT_PERCENTAGE = 0.6;
 const SQUARE_TEXT_FONT_FAMILY = 'roboto-bold';
 const SQUARE_TEXT_BIG_FONT_FAMILY = 'roboto-bold-big';
 const SQUARE_TEXT_BIG_FONT_CUTOFF = 100;
-const SQUARE_GENERATION_MAX_MILLISECONDS = 20;
+const SQUARE_GENERATION_MAX_MILLISECONDS = 1;
+const SQUARE_CONNECTING_LINE_COLOR = 0x00ff00;
+const SQUARE_CONNECTING_LINE_ALPHA = 0.5;
 
 export default class SquareScene extends Phaser.Scene
 {
@@ -27,7 +30,8 @@ export default class SquareScene extends Phaser.Scene
             border: RoundRectangle,
             text: Phaser.GameObjects.BitmapText,
             text_big: Phaser.GameObjects.BitmapText
-        }[][]
+        }[][],
+        square_connecting_line_texture: Phaser.GameObjects.Image | undefined
     } | undefined = undefined
 
     game_state!: GameState;
@@ -103,6 +107,10 @@ export default class SquareScene extends Phaser.Scene
                 square.text_big.visible = false;
             }
         }
+        if (this.game_objects.square_connecting_line_texture)
+        {
+            this.game_objects.square_connecting_line_texture.visible = false;
+        }
     }
 
     draw_square_letter(row: number, column: number)
@@ -157,6 +165,109 @@ export default class SquareScene extends Phaser.Scene
             {
                 this.draw_square_letter(row, col);
             }
+        }
+
+        this.draw_lines_between_squares();
+    }
+
+    draw_lines_between_squares()
+    {
+        if (!this.game_objects) return;
+        if (!this.game_state.layout.square_scene_layout) return;
+        if (this.game_state.square_parameters.size <= 0) return;
+
+        /* Draw any active line connecting the squares */
+        if (this.game_state.square.line_in_progress.length > 0)
+        {
+            // Destroy the current line texture
+            if (this.game_objects.square_connecting_line_texture)
+            {
+                this.textures.remove('square-connecting-line');
+                this.game_objects.square_connecting_line_texture.destroy();
+            }
+
+            const line_graphics = this.add.graphics();
+
+            /* The line is made up of circles on each square and a line between them */
+            const standard_rectangle = this.game_state.layout.square_scene_layout.get_square_rectangle(0, 0);
+            const standard_radius = standard_rectangle.width / 7;
+            for (let i = 0; i < this.game_state.square.line_in_progress.length; i++)
+            {
+                const position = this.game_state.square.line_in_progress[i];
+                const rectangle = this.game_state.layout.square_scene_layout.get_square_rectangle(position.y, position.x);
+
+                const circle_centre = {
+                    x: rectangle.x + (rectangle.width / 2),
+                    y: rectangle.y + (rectangle.height / 2)
+                };
+
+                let circle_radius = standard_radius;
+                if (i == 0)
+                {
+                    circle_radius = rectangle.width / 3;
+                }
+                graphics_add_circle(line_graphics, circle_centre.x, circle_centre.y, circle_radius, SQUARE_CONNECTING_LINE_COLOR, 1.0);
+            }
+
+            if (this.game_state.square.line_end)
+            {
+                graphics_add_circle(line_graphics, this.game_state.square.line_end.x, this.game_state.square.line_end.y,
+                    standard_radius, SQUARE_CONNECTING_LINE_COLOR, 1.0);
+            }
+
+            /* Now add lines between each circle */
+            if (this.game_state.square.line_in_progress.length > 1)
+            {
+                for (let i = 0; i < this.game_state.square.line_in_progress.length - 1; i++)
+                {
+                    const position_start = this.game_state.square.line_in_progress[i];
+                    const rectangle_start = this.game_state.layout.square_scene_layout.get_square_rectangle(position_start.y, position_start.x);
+
+                    const line_start = {
+                        x: rectangle_start.x + (rectangle_start.width / 2),
+                        y: rectangle_start.y + (rectangle_start.height / 2)
+                    };
+
+                    const position_end = this.game_state.square.line_in_progress[i + 1];
+                    const rectangle_end = this.game_state.layout.square_scene_layout.get_square_rectangle(position_end.y, position_end.x);
+                    const line_end = {
+                        x: rectangle_end.x + (rectangle_end.width / 2),
+                        y: rectangle_end.y + (rectangle_end.height / 2)
+                    };
+
+                    line_graphics.lineStyle(standard_radius * 2, SQUARE_CONNECTING_LINE_COLOR, 1.0);
+                    line_graphics.lineBetween(line_start.x, line_start.y, line_end.x, line_end.y);
+                }
+            }
+
+            if (this.game_state.square.line_end && this.game_state.square.line_in_progress.length > 0)
+            {
+                const position_start = this.game_state.square.line_in_progress[this.game_state.square.line_in_progress.length - 1];
+                const rectangle_start = this.game_state.layout.square_scene_layout.get_square_rectangle(position_start.y, position_start.x);
+
+                const line_start = {
+                    x: rectangle_start.x + (rectangle_start.width / 2),
+                    y: rectangle_start.y + (rectangle_start.height / 2)
+                };
+
+                const line_end = {
+                    x: this.game_state.square.line_end.x,
+                    y: this.game_state.square.line_end.y
+                };
+
+                line_graphics.lineStyle(standard_radius * 2, SQUARE_CONNECTING_LINE_COLOR, 1.0);
+                line_graphics.lineBetween(line_start.x, line_start.y, line_end.x, line_end.y);
+            }
+            line_graphics.generateTexture('square-connecting-line', this.game.canvas.width, this.game.canvas.height);
+            line_graphics.destroy();
+
+            this.game_objects.square_connecting_line_texture = this.add.image(0, 0, 'square-connecting-line')
+                .setOrigin(0, 0).setAlpha(SQUARE_CONNECTING_LINE_ALPHA);
+        }
+        else
+        {
+            this.textures.remove('square-connecting-line');
+            this.game_objects.square_connecting_line_texture?.destroy();
         }
     }
 
@@ -236,8 +347,6 @@ export default class SquareScene extends Phaser.Scene
         {
             this.game_state.square.letters[last_letter_change[2]][last_letter_change[1]] = last_letter_change[0];
         }
-
-        this.redraw_square();
     }
 
     create()
@@ -266,7 +375,8 @@ export default class SquareScene extends Phaser.Scene
             square: this.add.rectangle(400, 300, 800, 800, 0xff00ff),
             hints_left: this.add.rectangle(455, 325, 755, 725, 0x00ffff),
             hints_right: this.add.rectangle(455, 325, 755, 725, 0xffffff),
-            squares: squares
+            squares: squares,
+            square_connecting_line_texture: undefined
         };
 
         this.children.sendToBack(this.game_objects.square);
@@ -282,6 +392,15 @@ export default class SquareScene extends Phaser.Scene
 
     update(_time: number, _delta: number): void
     {
+        if (!this.game_objects) return;
+        if (this.game.input.mousePointer)
+        {
+            this.game_state.square.line_end = {
+                x: this.game.input.mousePointer.x,
+                y: this.game.input.mousePointer.y
+            };
+        }
         this.try_generate_square();
+        this.redraw_square();
     }
 }

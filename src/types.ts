@@ -2,7 +2,8 @@
  * Grid structures
  */
 
-export enum Piece {
+export enum Piece
+{
     Elf = 1,
     Sleigh = 2,
     RedPrinter = 3,
@@ -20,7 +21,8 @@ export type Position = {
     y: number
 };
 
-export enum Action {
+export enum Action
+{
     Write_Blue = 1,
     Write_Red = 2,
     Write_Orange = 3,
@@ -51,7 +53,8 @@ export type Grid = {
     entries: GridEntry[][]
 }
 
-export enum Bauble {
+export enum Bauble
+{
     Red = 1,
     Orange = 2,
     Blue = 3,
@@ -66,7 +69,8 @@ export type TestResult = {
     next_test_case: number | undefined
 }
 
-export enum LevelType {
+export enum LevelType
+{
     Output = 1,  // The level requires the player to change the baubles to something specific
     Accept = 2   // The level requires the player to accept or reject presents on some condition
 }

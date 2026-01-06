@@ -260,7 +260,6 @@ export default class StartScene extends Phaser.Scene
 
 		// Trigger initial resize to set positions  
 		this.handle_resize(this.scale.gameSize);
-		this.layout_nodes?.screen.setAspectRatio
 	}
 
 	update(time: number, delta: number): void 

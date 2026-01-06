@@ -5,6 +5,7 @@ import Yoga, { Config, Node } from 'yoga-layout';
 import SquareSceneLayout from './layouts/SquareSceneLayout';
 import { Words } from './words';
 import { Square } from './squares';
+import { Position } from './types';
 
 export type LayoutState = {
     yoga_config: Config
@@ -76,6 +77,8 @@ export type SquareComputationState = {
 export type SquareState = {
     letters: string[][]
     computation: SquareComputationState
+    line_in_progress: Position[]
+    line_end: Position | undefined
 }
 
 /*
@@ -116,7 +119,9 @@ export function init_game_state(): GameState
                 adjusting: false,
                 adjustments_made: 0,
                 completed: false
-            }
+            },
+            line_end: undefined,
+            line_in_progress: [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }]
         },
         square_parameters: new_square_parameters()
     };
