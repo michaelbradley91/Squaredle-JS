@@ -441,10 +441,13 @@ export default class SquareScene extends Phaser.Scene
 
     handle_pointer_down(pointer: Phaser.Input.Pointer)
     {
-        const square_touched = this.game_state.layout.square_scene_layout.get_square_at_position(pointer.x, pointer.y);
-        if (square_touched)
+        if (this.game_state.square.computation.completed)
         {
-            this.game_state.square.line_in_progress = [{ x: square_touched.col, y: square_touched.row }];
+            const square_touched = this.game_state.layout.square_scene_layout.get_square_at_position(pointer.x, pointer.y);
+            if (square_touched)
+            {
+                this.game_state.square.line_in_progress = [{ x: square_touched.col, y: square_touched.row }];
+            }
         }
     }
 
