@@ -14,6 +14,9 @@ const SQUARE_TEXT_BIG_FONT_CUTOFF = 100;
 const SQUARE_GENERATION_MAX_MILLISECONDS = 1;
 const SQUARE_CONNECTING_LINE_COLOR = 0x00ff00;
 const SQUARE_CONNECTING_LINE_ALPHA = 0.5;
+const SQUARE_CONNECTING_LINE_WIDTH_THRESHOLD = 2.5;
+const SQUARE_CONNECTING_LINE_BIG_CIRCLE_FACTOR = 3;
+const SQUARE_CONNECTING_LINE_SMALL_CIRCLE_FACTOR = 7;
 
 export default class SquareScene extends Phaser.Scene
 {
@@ -182,7 +185,10 @@ export default class SquareScene extends Phaser.Scene
             // Destroy the current line texture
             if (this.game_objects.square_connecting_line_texture)
             {
-                this.textures.remove('square-connecting-line');
+                if (this.textures.exists('square-connecting-line'))
+                {
+                    this.textures.remove('square-connecting-line');
+                }
                 this.game_objects.square_connecting_line_texture.destroy();
             }
 
@@ -190,7 +196,7 @@ export default class SquareScene extends Phaser.Scene
 
             /* The line is made up of circles on each square and a line between them */
             const standard_rectangle = this.game_state.layout.square_scene_layout.get_square_rectangle(0, 0);
-            const standard_radius = standard_rectangle.width / 7;
+            const standard_radius = standard_rectangle.width / SQUARE_CONNECTING_LINE_SMALL_CIRCLE_FACTOR;
             for (let i = 0; i < this.game_state.square.line_in_progress.length; i++)
             {
                 const position = this.game_state.square.line_in_progress[i];
@@ -204,7 +210,7 @@ export default class SquareScene extends Phaser.Scene
                 let circle_radius = standard_radius;
                 if (i == 0)
                 {
-                    circle_radius = rectangle.width / 3;
+                    circle_radius = rectangle.width / SQUARE_CONNECTING_LINE_BIG_CIRCLE_FACTOR;
                 }
                 graphics_add_circle(line_graphics, circle_centre.x, circle_centre.y, circle_radius, SQUARE_CONNECTING_LINE_COLOR, 1.0);
             }
@@ -303,7 +309,10 @@ export default class SquareScene extends Phaser.Scene
         }
         else
         {
-            this.textures.remove('square-connecting-line');
+            if (this.textures.exists('square-connecting-line'))
+            {
+                this.textures.remove('square-connecting-line');
+            }
             this.game_objects.square_connecting_line_texture?.destroy();
         }
     }
@@ -420,6 +429,8 @@ export default class SquareScene extends Phaser.Scene
 
         // Listen for resize events  
         this.scale.on('resize', this.handle_resize, this);
+        this.input.on('pointerdown', this.handle_pointer_down, this);
+        this.input.on('pointerup', this.handle_pointer_up, this);
 
         // TODO: create the square here
 
@@ -427,17 +438,89 @@ export default class SquareScene extends Phaser.Scene
         this.handle_resize(this.scale.gameSize);
     }
 
+    handle_pointer_down(pointer: Phaser.Input.Pointer)
+    {
+        const square_touched = this.game_state.layout.square_scene_layout.get_square_at_position(pointer.x, pointer.y);
+        if (square_touched)
+        {
+            this.game_state.square.line_in_progress = [{ x: square_touched.col, y: square_touched.row }];
+        }
+    }
+
+    handle_pointer_up(_: Phaser.Input.Pointer)
+    {
+        // TODO: see if the player found a word
+
+        // Stop drawing any current line
+        this.game_state.square.line_end = undefined;
+        this.game_state.square.line_in_progress = [];
+    }
+
     update(_time: number, _delta: number): void
     {
         if (!this.game_objects) return;
-        if (this.game.input.mousePointer)
-        {
-            this.game_state.square.line_end = {
-                x: this.game.input.mousePointer.x,
-                y: this.game.input.mousePointer.y
-            };
-        }
+
         this.try_generate_square();
+
+        if (!this.game.input.activePointer.isDown)
+        {
+            this.game_state.square.line_end = undefined;
+            this.game_state.square.line_in_progress = [];
+        }
+
+        /* Should we support line drawing? */
+        if (this.game_state.square.computation.completed)
+        {
+            const x = this.game.input.activePointer.x;
+            const y = this.game.input.activePointer.y;
+
+            if (this.game.input.activePointer.isDown)
+            {
+                const square_touched = this.game_state.layout.square_scene_layout.get_square_at_position(x, y);
+                if (square_touched)
+                {
+                    /* Is it close enough to the centre of a square? */
+                    const rectangle = this.game_state.layout.square_scene_layout.get_square_rectangle(square_touched.row, square_touched.col);
+                    const centre = {
+                        x: rectangle.x + (rectangle.width / 2),
+                        y: rectangle.y + (rectangle.height / 2)
+                    };
+                    const distance_squared = (centre.x - x) * (centre.x - x) + (centre.y - y) * (centre.y - y);
+                    const threshold = rectangle.width / SQUARE_CONNECTING_LINE_WIDTH_THRESHOLD;
+                    if (distance_squared <= threshold * threshold)
+                    {
+                        /* Is it a new square? */
+                        let new_square = true;
+                        const line_in_progress = this.game_state.square.line_in_progress;
+                        for (let i = 0; i < line_in_progress.length; i++)
+                        {
+                            const line_position = line_in_progress[i];
+                            if (line_position.x == square_touched.col && line_position.y == square_touched.row)
+                            {
+                                new_square = false;
+                                /* Have we backed up to the previous square? */
+                                if (i == line_in_progress.length - 2)
+                                {
+                                    this.game_state.square.line_in_progress.pop();
+                                }
+                            }
+                        }
+
+                        if (new_square)
+                        {
+                            /* It needs to be adjacent to the last square */
+                            const last_square = line_in_progress[line_in_progress.length - 1];
+                            const col_diff = Math.abs(last_square.x - square_touched.col);
+                            const row_diff = Math.abs(last_square.y - square_touched.row);
+                            if (col_diff <= 1 && row_diff <= 1 && (col_diff + row_diff) > 0)
+                            {
+                                line_in_progress.push({ x: square_touched.col, y: square_touched.row });
+                            }
+                        }
+                    }
+                }
+            }
+        }
         this.redraw_square();
     }
 }

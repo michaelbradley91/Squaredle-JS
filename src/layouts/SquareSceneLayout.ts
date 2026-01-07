@@ -553,4 +553,55 @@ export default class SquareSceneLayout
         const cell_node = this.square_layout.grid_nodes[row][col];
         return get_absolute_rectangle_from_node(cell_node);
     }
+
+    /**
+     * Clamp the given coordinates to be within the square area
+     */
+    clamp_to_square(x: number, y: number): { x: number, y: number } 
+    {
+        const square_rect = this.get_layout_rectangle(OuterScreenNode.Square);
+        let clamped_x = x;
+        let clamped_y = y;
+        if (x < square_rect.x) 
+        {
+            clamped_x = square_rect.x;
+        }
+        if (x > square_rect.x + square_rect.width)
+        {
+            clamped_x = square_rect.x + square_rect.width;
+        }
+        if (y < square_rect.y)
+        {
+            clamped_y = square_rect.y;
+        }
+        if (y > square_rect.y + square_rect.height)
+        {
+            clamped_y = square_rect.y + square_rect.height;
+        }
+        return { x: clamped_x, y: clamped_y };
+    }
+
+    /**
+     * Get the square that the given coordinates overlap with, if any
+     */
+    get_square_at_position(x: number, y: number): { row: number, col: number } | undefined
+    {
+        if (!this.square_layout)
+        {
+            return undefined;
+        }
+        for (let row = 0; row < this.square_layout.size; row++)
+        {
+            for (let col = 0; col < this.square_layout.size; col++)
+            {
+                const square_rect = this.get_square_rectangle(row, col);
+                if (x >= square_rect.x && x <= square_rect.x + square_rect.width &&
+                    y >= square_rect.y && y <= square_rect.y + square_rect.height)
+                {
+                    return { row: row, col: col };
+                }
+            }
+        }
+        return undefined;
+    }
 }
