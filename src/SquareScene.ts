@@ -62,6 +62,7 @@ export default class SquareScene extends Phaser.Scene
     handle_resize(game_size: Phaser.Structs.Size)
     {
         // Update camera viewport to match new size
+        console.log("Resizing to:", game_size.width, game_size.height);
         this.cameras.main.setViewport(0, 0, game_size.width, game_size.height);
 
         // Update the layout
