@@ -121,14 +121,14 @@ import { append_child, get_absolute_rect as get_absolute_rectangle_from_node } f
 import { GameState } from '~/logic';
 
 /* Constant parameters to adjust the view */
-const TOP_MENU_HEIGHT = 50;
-const PROGRESS_BAR_HEIGHT = 50;
-const PREVIOUS_WORDS_HEIGHT = 50;
-const HINTS_CAROUSEL_MIN_HEIGHT = 180;
-const TOP_MENU_LEFT_MIN_WIDTH = 60;
-const TOP_MENU_RIGHT_MIN_WIDTH = 60;
-const PROGRESS_BAR_MIN_WIDTH = 40;
-const HINTS_CAROUSEL_MIN_WIDTH = 200;
+const TOP_MENU_HEIGHT = "7%";
+const PROGRESS_BAR_HEIGHT = "7%";
+const PREVIOUS_WORDS_HEIGHT = "7%"
+const HINTS_CAROUSEL_MIN_HEIGHT = "25%";
+const TOP_MENU_LEFT_MIN_WIDTH = "30%";
+const TOP_MENU_RIGHT_MIN_WIDTH = "30%";
+const PROGRESS_BAR_MIN_WIDTH = "40%";
+const HINTS_CAROUSEL_MIN_WIDTH = "25%";
 const TOP_MENU_LEFT_WIDTH = "30%";
 const TOP_MENU_RIGHT_WIDTH = "30%";
 const TOP_MENU_PROGRESS_BAR_WIDTH = "40%";
@@ -186,9 +186,10 @@ export default class SquareSceneLayout
         return get_absolute_rectangle_from_node(this.outer_layout!.square_scaffold);
     }
 
-    private get_hints_carousel_min_width(screen_size: { width: number, height: number }): number 
+    private get_hints_carousel_min_width(screen_size: { width: number, height: number }): number | string
     {
-        return Math.max(screen_size.width / 6, HINTS_CAROUSEL_MIN_WIDTH)
+        // return Math.max(screen_size.width / 6, HINTS_CAROUSEL_MIN_WIDTH)
+        return HINTS_CAROUSEL_MIN_WIDTH;
     }
 
     private get_rectangle_for_outer_node(node: Node | undefined): { x: number, y: number, width: number, height: number } 
