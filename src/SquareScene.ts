@@ -211,6 +211,25 @@ export default class SquareScene extends Phaser.Scene
 
             if (this.game_state.square.line_end)
             {
+                // Clamp the line end to the square
+                const square_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.Square);
+                const line_end = this.game_state.square.line_end;
+                if (line_end.x < square_rectangle.x)
+                {
+                    line_end.x = square_rectangle.x;
+                }
+                if (line_end.x > square_rectangle.x + square_rectangle.width)
+                {
+                    line_end.x = square_rectangle.x + square_rectangle.width;
+                }
+                if (line_end.y < square_rectangle.y)
+                {
+                    line_end.y = square_rectangle.y;
+                }
+                if (line_end.y > square_rectangle.y + square_rectangle.height)
+                {
+                    line_end.y = square_rectangle.y + square_rectangle.height;
+                }
                 graphics_add_circle(line_graphics, this.game_state.square.line_end.x, this.game_state.square.line_end.y,
                     standard_radius, SQUARE_CONNECTING_LINE_COLOR, 1.0);
             }
@@ -255,6 +274,24 @@ export default class SquareScene extends Phaser.Scene
                     y: this.game_state.square.line_end.y
                 };
 
+                // Clamp the line end to the square
+                const square_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.Square);
+                if (line_end.x < square_rectangle.x)
+                {
+                    line_end.x = square_rectangle.x;
+                }
+                if (line_end.x > square_rectangle.x + square_rectangle.width)
+                {
+                    line_end.x = square_rectangle.x + square_rectangle.width;
+                }
+                if (line_end.y < square_rectangle.y)
+                {
+                    line_end.y = square_rectangle.y;
+                }
+                if (line_end.y > square_rectangle.y + square_rectangle.height)
+                {
+                    line_end.y = square_rectangle.y + square_rectangle.height;
+                }
                 line_graphics.lineStyle(standard_radius * 2, SQUARE_CONNECTING_LINE_COLOR, 1.0);
                 line_graphics.lineBetween(line_start.x, line_start.y, line_end.x, line_end.y);
             }
