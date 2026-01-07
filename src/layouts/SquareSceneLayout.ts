@@ -271,17 +271,17 @@ export default class SquareSceneLayout
             append_child(this.root_node, screen_node);
 
             const top_menu_node = Yoga.Node.create(this.yoga_config);
-            top_menu_node.setMinHeight(TOP_MENU_HEIGHT / window.devicePixelRatio);
+            top_menu_node.setMinHeight(TOP_MENU_HEIGHT);
             top_menu_node.setWidth("100%");
             append_child(screen_node, top_menu_node);
 
             const progress_bar_node = Yoga.Node.create(this.yoga_config);
-            progress_bar_node.setMinHeight(PROGRESS_BAR_HEIGHT / window.devicePixelRatio);
+            progress_bar_node.setMinHeight(PROGRESS_BAR_HEIGHT);
             progress_bar_node.setWidth("100%");
             append_child(screen_node, progress_bar_node);
 
             const previous_words_node = Yoga.Node.create(this.yoga_config);
-            previous_words_node.setMinHeight(PREVIOUS_WORDS_HEIGHT / window.devicePixelRatio);
+            previous_words_node.setMinHeight(PREVIOUS_WORDS_HEIGHT);
             previous_words_node.setWidth("100%");
             append_child(screen_node, previous_words_node);
 
@@ -319,7 +319,7 @@ export default class SquareSceneLayout
             append_child(this.root_node, screen_node);
 
             const top_row_container = Yoga.Node.create();
-            top_row_container.setMinHeight(TOP_MENU_HEIGHT / window.devicePixelRatio);
+            top_row_container.setMinHeight(TOP_MENU_HEIGHT);
             top_row_container.setWidth("100%");
             top_row_container.setDisplay(Yoga.DISPLAY_FLEX);
             top_row_container.setFlexDirection(Yoga.FLEX_DIRECTION_ROW);
@@ -332,7 +332,7 @@ export default class SquareSceneLayout
             append_child(top_row_container, menu_left_node);
 
             const progress_bar_node = Yoga.Node.create();
-            progress_bar_node.setMinHeight(PROGRESS_BAR_HEIGHT / window.devicePixelRatio);
+            progress_bar_node.setMinHeight(PROGRESS_BAR_HEIGHT);
             progress_bar_node.setMinWidth(PROGRESS_BAR_MIN_WIDTH);
             progress_bar_node.setWidth(TOP_MENU_PROGRESS_BAR_WIDTH);
             append_child(top_row_container, progress_bar_node);
@@ -343,7 +343,7 @@ export default class SquareSceneLayout
             append_child(top_row_container, menu_right_node);
 
             const previous_words_node = Yoga.Node.create();
-            previous_words_node.setMinHeight(PREVIOUS_WORDS_HEIGHT / window.devicePixelRatio);
+            previous_words_node.setMinHeight(PREVIOUS_WORDS_HEIGHT);
             previous_words_node.setWidth("100%");
             append_child(screen_node, previous_words_node);
 
