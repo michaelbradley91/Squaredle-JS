@@ -469,7 +469,7 @@ export default class SquareScene extends Phaser.Scene
         }
 
         /* Should we support line drawing? */
-        if (this.game_state.square.computation.completed)
+        if (this.game_state.square.computation.completed && this.game_state.square.line_in_progress.length > 0)
         {
             const x = this.game.input.activePointer.x;
             const y = this.game.input.activePointer.y;
@@ -520,6 +520,7 @@ export default class SquareScene extends Phaser.Scene
                     }
                 }
             }
+            this.game_state.square.line_end = { x: this.input.activePointer.x, y: this.input.activePointer.y }
         }
         this.redraw_square();
     }
