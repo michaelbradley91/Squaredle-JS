@@ -27,6 +27,19 @@ const roboto_regular_font_sizes: { [key in number]: string } = {
 }
 
 const available_sizes = Object.keys(roboto_regular_font_sizes).map(s => parseInt(s)).sort((a, b) => a - b);
+let em_font_size: number = 0;
+
+export function get_em_font_size(): number
+{
+    if (em_font_size > 0) return em_font_size;
+
+    const div = document.getElementById("font-em-div");
+    if (!div) return 0;
+    // div.style.height = '1em';
+    em_font_size = parseFloat(getComputedStyle(div).fontSize);
+    // em_font_size = div.offsetHeight;
+    return em_font_size;
+}
 
 /**
  * Load all the fonts for the current scene
@@ -50,7 +63,22 @@ export function get_font_size(
     canvas_height: number,
     font_size: FontSize): number
 {
-    return Math.ceil(canvas_height * font_size);
+    switch (font_size)
+    {
+        case FontSize.TINY:
+            return get_em_font_size();
+        case FontSize.SMALL:
+            return get_em_font_size() * 1.25;
+        case FontSize.MEDIUM:
+            return get_em_font_size() * 1.75;
+        case FontSize.LARGE:
+            return get_em_font_size() * 2.5;
+        case FontSize.HUGE:
+            return get_em_font_size() * 3.5;
+        default:
+            // Error as we don't know
+            throw new Error("Unknown font size");
+    }
 }
 
 export class MyBitmapText extends Phaser.GameObjects.BitmapText
