@@ -35,9 +35,10 @@ export function get_em_font_size(): number
 
     const div = document.getElementById("font-em-div");
     if (!div) return 0;
-    // div.style.height = '1em';
-    em_font_size = parseFloat(getComputedStyle(div).fontSize);
-    // em_font_size = div.offsetHeight;
+    div.style.height = '12pt';
+    // em_font_size = parseFloat(getComputedStyle(div).fontSize);
+    em_font_size = div.offsetHeight;
+    div.style.height = '0em';
     return em_font_size;
 }
 
