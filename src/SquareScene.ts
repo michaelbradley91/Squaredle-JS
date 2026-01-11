@@ -445,6 +445,7 @@ export default class SquareScene extends Phaser.Scene
             hints_right: this.add.rectangle(455, 325, 755, 725, 0xffffff),
             squares: squares,
             square_connecting_line_texture: undefined,
+            // 12 is technically legible but awful for the user
             text_test: [this.add.bitmapText(10, 20,
                 "roboto-regular-16", "Generating square...",
                 12
@@ -454,24 +455,26 @@ export default class SquareScene extends Phaser.Scene
                 14
             ).setOrigin(0, -0.5),
             this.add.bitmapText(10, 160,
-                "roboto-regular-32", "Generating square...",
-                18
+                "roboto-regular-32", "Generating square TINY...",
+                get_font_size(this.scale.gameSize, FontSize.TINY)
             ).setOrigin(0, -0.5),
+            // 24 is the smallest font the user can read comfortably
+            // on a phone... The problem is again we need percentages
             this.add.bitmapText(10, 240,
-                "roboto-regular-32", "Generating square...",
-                24
+                "roboto-regular-32", "Generating square SMALL...",
+                get_font_size(this.scale.gameSize, FontSize.SMALL)
             ).setOrigin(0, -0.5),
             this.add.bitmapText(10, 320,
-                "roboto-regular-48", "Generating square...",
-                32
+                "roboto-regular-48", "Generating square MEDIUM...",
+                get_font_size(this.scale.gameSize, FontSize.MEDIUM)
             ).setOrigin(0, -0.5),
             this.add.bitmapText(10, 400,
-                "roboto-regular-80", "Generating square...",
-                48
+                "roboto-regular-80", "Generating square LARGE...",
+                get_font_size(this.scale.gameSize, FontSize.LARGE)
             ).setOrigin(0, -0.5),
             this.add.bitmapText(10, 480,
-                "roboto-regular-128", "Generating square...",
-                80
+                "roboto-regular-128", "Generating square HUGE...",
+                get_font_size(this.scale.gameSize, FontSize.HUGE)
             ).setOrigin(0, -0.5)]
         };
 

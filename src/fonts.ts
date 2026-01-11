@@ -5,6 +5,7 @@
 export enum FontSize
 {
     /* We scale font sizes to fit a certain percentage of the screen height */
+    TINY = 0.020,
     SMALL = 0.025,
     MEDIUM = 0.035,
     LARGE = 0.05,
