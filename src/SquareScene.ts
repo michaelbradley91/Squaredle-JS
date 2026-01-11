@@ -3,6 +3,7 @@ import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 import { generate_square } from "./squares";
 import { graphics_add_circle } from "./textures";
+import { FontSize, get_font_size } from "./fonts";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
@@ -34,7 +35,8 @@ export default class SquareScene extends Phaser.Scene
             text: Phaser.GameObjects.BitmapText,
             text_big: Phaser.GameObjects.BitmapText
         }[][],
-        square_connecting_line_texture: Phaser.GameObjects.Image | undefined
+        square_connecting_line_texture: Phaser.GameObjects.Image | undefined,
+        text_test: Phaser.GameObjects.BitmapText[]
     } | undefined = undefined
 
     game_state!: GameState;
@@ -73,6 +75,15 @@ export default class SquareScene extends Phaser.Scene
     {
         this.load.bitmapFont("roboto-bold", "assets/Roboto-Bold.png", "assets/Roboto-Bold.xml");
         this.load.bitmapFont("roboto-bold-big", "assets/Roboto-Bold-Big.png", "assets/Roboto-Bold-Big.xml");
+        this.load.bitmapFont("roboto-regular-12", "assets/Roboto-Regular-12.png", "assets/Roboto-Regular-12.fnt")
+        this.load.bitmapFont("roboto-regular-16", "assets/Roboto-Regular-16.png", "assets/Roboto-Regular-16.fnt")
+        this.load.bitmapFont("roboto-regular-24", "assets/Roboto-Regular-24.png", "assets/Roboto-Regular-24.fnt")
+        this.load.bitmapFont("roboto-regular-32", "assets/Roboto-Regular-32.png", "assets/Roboto-Regular-32.fnt")
+        this.load.bitmapFont("roboto-regular-48", "assets/Roboto-Regular-48.png", "assets/Roboto-Regular-48.fnt")
+        this.load.bitmapFont("roboto-regular-64", "assets/Roboto-Regular-64.png", "assets/Roboto-Regular-64.fnt")
+        this.load.bitmapFont("roboto-regular-80", "assets/Roboto-Regular-80.png", "assets/Roboto-Regular-80.fnt")
+        this.load.bitmapFont("roboto-regular-128", "assets/Roboto-Regular-128.png", "assets/Roboto-Regular-128.fnt");
+        this.load.bitmapFont("roboto-regular-144", "assets/Roboto-Regular-144.png", "assets/Roboto-Regular-144.fnt");
     }
 
     update_rectangle(coords: { x: number, y: number, width: number, height: number }, rectangle: Phaser.GameObjects.Rectangle | RoundRectangle)
@@ -94,6 +105,11 @@ export default class SquareScene extends Phaser.Scene
         this.game_objects.square.visible = false;
         this.game_objects.hints_left.visible = false;
         this.game_objects.hints_right.visible = false;
+
+        for (let i = 0; i < this.game_objects.text_test.length; i++) 
+        {
+            this.game_objects.text_test[i].visible = false;
+        }
         this.hide_square_objects();
     }
 
@@ -349,6 +365,11 @@ export default class SquareScene extends Phaser.Scene
         }
 
         this.draw_square();
+
+        for (let i = 0; i < this.game_objects.text_test.length; i++) 
+        {
+            this.game_objects.text_test[i].visible = true;
+        }
     }
 
     update_layout()
@@ -423,7 +444,35 @@ export default class SquareScene extends Phaser.Scene
             hints_left: this.add.rectangle(455, 325, 755, 725, 0x00ffff),
             hints_right: this.add.rectangle(455, 325, 755, 725, 0xffffff),
             squares: squares,
-            square_connecting_line_texture: undefined
+            square_connecting_line_texture: undefined,
+            text_test: [this.add.bitmapText(10, 20,
+                "roboto-regular-16", "Generating square...",
+                12
+            ).setOrigin(0, -0.5),
+            this.add.bitmapText(10, 80,
+                "roboto-regular-24", "Generating square...",
+                14
+            ).setOrigin(0, -0.5),
+            this.add.bitmapText(10, 160,
+                "roboto-regular-32", "Generating square...",
+                18
+            ).setOrigin(0, -0.5),
+            this.add.bitmapText(10, 240,
+                "roboto-regular-32", "Generating square...",
+                24
+            ).setOrigin(0, -0.5),
+            this.add.bitmapText(10, 320,
+                "roboto-regular-48", "Generating square...",
+                32
+            ).setOrigin(0, -0.5),
+            this.add.bitmapText(10, 400,
+                "roboto-regular-80", "Generating square...",
+                48
+            ).setOrigin(0, -0.5),
+            this.add.bitmapText(10, 480,
+                "roboto-regular-128", "Generating square...",
+                80
+            ).setOrigin(0, -0.5)]
         };
 
         this.children.sendToBack(this.game_objects.square);

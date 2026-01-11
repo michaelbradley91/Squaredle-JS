@@ -41,7 +41,6 @@ export function new_square_parameters(): SquareParameters
         },
         min_unique_long_word_length: 8,
         min_unique_long_words: 4
-        // min_unique_long_words: 1
     };
 }
 
@@ -78,7 +77,11 @@ export type SquareState = {
     letters: string[][]
     computation: SquareComputationState
     line_in_progress: Position[]
-    line_end: Position | undefined
+    line_end: Position | undefined,
+    words_found: Set<string>
+    words_found_expanded: boolean,
+    words_found_carousel_index: number,
+    hints_carousel_index: number
 }
 
 /*

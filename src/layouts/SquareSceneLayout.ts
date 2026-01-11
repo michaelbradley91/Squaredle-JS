@@ -186,12 +186,6 @@ export default class SquareSceneLayout
         return get_absolute_rectangle_from_node(this.outer_layout!.square_scaffold);
     }
 
-    private get_hints_carousel_min_width(screen_size: { width: number, height: number }): number | string
-    {
-        // return Math.max(screen_size.width / 6, HINTS_CAROUSEL_MIN_WIDTH)
-        return HINTS_CAROUSEL_MIN_WIDTH;
-    }
-
     private get_rectangle_for_outer_node(node: Node | undefined): { x: number, y: number, width: number, height: number } 
     {
         if (!this.outer_layout) 
@@ -357,7 +351,7 @@ export default class SquareSceneLayout
             append_child(screen_node, middle_row_container);
 
             const hints_carousel_left_node = Yoga.Node.create();
-            hints_carousel_left_node.setMinWidth(this.get_hints_carousel_min_width(screen_size));
+            hints_carousel_left_node.setMinWidth(HINTS_CAROUSEL_MIN_WIDTH);
             hints_carousel_left_node.setHeight("100%");
             append_child(middle_row_container, hints_carousel_left_node);
 
@@ -371,7 +365,7 @@ export default class SquareSceneLayout
             append_child(middle_row_container, square_node);
 
             const hints_carousel_right_node = Yoga.Node.create();
-            hints_carousel_right_node.setMinWidth(this.get_hints_carousel_min_width(screen_size));
+            hints_carousel_right_node.setMinWidth(HINTS_CAROUSEL_MIN_WIDTH);
             hints_carousel_right_node.setHeight("100%");
             append_child(middle_row_container, hints_carousel_right_node);
 
