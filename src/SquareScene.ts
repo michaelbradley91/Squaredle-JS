@@ -3,7 +3,7 @@ import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 import { generate_square } from "./squares";
 import { graphics_add_circle } from "./textures";
-import { FontSize, get_font_size } from "./fonts";
+import { FontSize, get_font_size, load_fonts, make_text, MyBitmapText, resize_font } from "./fonts";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
@@ -36,7 +36,7 @@ export default class SquareScene extends Phaser.Scene
             text_big: Phaser.GameObjects.BitmapText
         }[][],
         square_connecting_line_texture: Phaser.GameObjects.Image | undefined,
-        text_test: Phaser.GameObjects.BitmapText[]
+        text_test: MyBitmapText[]
     } | undefined = undefined
 
     game_state!: GameState;
@@ -75,15 +75,7 @@ export default class SquareScene extends Phaser.Scene
     {
         this.load.bitmapFont("roboto-bold", "assets/Roboto-Bold.png", "assets/Roboto-Bold.xml");
         this.load.bitmapFont("roboto-bold-big", "assets/Roboto-Bold-Big.png", "assets/Roboto-Bold-Big.xml");
-        this.load.bitmapFont("roboto-regular-12", "assets/Roboto-Regular-12.png", "assets/Roboto-Regular-12.fnt")
-        this.load.bitmapFont("roboto-regular-16", "assets/Roboto-Regular-16.png", "assets/Roboto-Regular-16.fnt")
-        this.load.bitmapFont("roboto-regular-24", "assets/Roboto-Regular-24.png", "assets/Roboto-Regular-24.fnt")
-        this.load.bitmapFont("roboto-regular-32", "assets/Roboto-Regular-32.png", "assets/Roboto-Regular-32.fnt")
-        this.load.bitmapFont("roboto-regular-48", "assets/Roboto-Regular-48.png", "assets/Roboto-Regular-48.fnt")
-        this.load.bitmapFont("roboto-regular-64", "assets/Roboto-Regular-64.png", "assets/Roboto-Regular-64.fnt")
-        this.load.bitmapFont("roboto-regular-80", "assets/Roboto-Regular-80.png", "assets/Roboto-Regular-80.fnt")
-        this.load.bitmapFont("roboto-regular-128", "assets/Roboto-Regular-128.png", "assets/Roboto-Regular-128.fnt");
-        this.load.bitmapFont("roboto-regular-144", "assets/Roboto-Regular-144.png", "assets/Roboto-Regular-144.fnt");
+        load_fonts(this);
     }
 
     update_rectangle(coords: { x: number, y: number, width: number, height: number }, rectangle: Phaser.GameObjects.Rectangle | RoundRectangle)
@@ -368,7 +360,7 @@ export default class SquareScene extends Phaser.Scene
 
         for (let i = 0; i < this.game_objects.text_test.length; i++) 
         {
-            this.game_objects.text_test[i].visible = true;
+            this.game_objects.text_test[i].update(this.game.canvas.height).visible = true;
         }
     }
 
@@ -446,36 +438,13 @@ export default class SquareScene extends Phaser.Scene
             squares: squares,
             square_connecting_line_texture: undefined,
             // 12 is technically legible but awful for the user
-            text_test: [this.add.bitmapText(10, 20,
-                "roboto-regular-16", "Generating square...",
-                12
-            ).setOrigin(0, -0.5),
-            this.add.bitmapText(10, 80,
-                "roboto-regular-24", "Generating square...",
-                14
-            ).setOrigin(0, -0.5),
-            this.add.bitmapText(10, 160,
-                "roboto-regular-32", "Generating square TINY...",
-                get_font_size(this.scale.gameSize, FontSize.TINY)
-            ).setOrigin(0, -0.5),
-            // 24 is the smallest font the user can read comfortably
-            // on a phone... The problem is again we need percentages
-            this.add.bitmapText(10, 240,
-                "roboto-regular-32", "Generating square SMALL...",
-                get_font_size(this.scale.gameSize, FontSize.SMALL)
-            ).setOrigin(0, -0.5),
-            this.add.bitmapText(10, 320,
-                "roboto-regular-48", "Generating square MEDIUM...",
-                get_font_size(this.scale.gameSize, FontSize.MEDIUM)
-            ).setOrigin(0, -0.5),
-            this.add.bitmapText(10, 400,
-                "roboto-regular-80", "Generating square LARGE...",
-                get_font_size(this.scale.gameSize, FontSize.LARGE)
-            ).setOrigin(0, -0.5),
-            this.add.bitmapText(10, 480,
-                "roboto-regular-128", "Generating square HUGE...",
-                get_font_size(this.scale.gameSize, FontSize.HUGE)
-            ).setOrigin(0, -0.5)]
+            text_test: [
+                make_text(this, 10, 20, FontSize.TINY, "Generating square..."),
+                make_text(this, 10, 80, FontSize.SMALL, "Generating square..."),
+                make_text(this, 10, 160, FontSize.MEDIUM, "Generating square..."),
+                make_text(this, 10, 240, FontSize.LARGE, "Generating square..."),
+                make_text(this, 10, 320, FontSize.HUGE, "Generating square...")
+            ]
         };
 
         this.children.sendToBack(this.game_objects.square);
