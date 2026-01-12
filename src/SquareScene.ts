@@ -439,7 +439,7 @@ export default class SquareScene extends Phaser.Scene
             square_connecting_line_texture: undefined,
             // 12 is technically legible but awful for the user
             text_test: [
-                make_text(this, 10, 20, FontSize.TINY, "Generating square..."),
+                make_text(this, 10, 20, FontSize.TINY, "Generating square..!"),
                 make_text(this, 10, 80, FontSize.SMALL, "Generating square..."),
                 make_text(this, 10, 160, FontSize.MEDIUM, "Generating square..."),
                 make_text(this, 10, 240, FontSize.LARGE, "Generating square..."),
