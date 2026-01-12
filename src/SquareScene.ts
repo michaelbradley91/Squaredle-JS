@@ -3,7 +3,7 @@ import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 import { generate_square } from "./squares";
 import { graphics_add_circle } from "./textures";
-import { FontSize, load_fonts, make_text, MyBitmapText } from "./fonts";
+import { FontSize, get_view_port_scaling, load_fonts, make_text, MyBitmapText } from "./fonts";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
@@ -441,7 +441,7 @@ export default class SquareScene extends Phaser.Scene
             text_test: [
                 make_text(this, 10, 20, FontSize.TINY, "Generating square..!"),
                 make_text(this, 10, 80, FontSize.SMALL, "Generating square..."),
-                make_text(this, 10, 160, FontSize.MEDIUM, "Generating square..."),
+                make_text(this, 10, 160, FontSize.MEDIUM, `Generating square...${get_view_port_scaling()}`),
                 make_text(this, 10, 240, FontSize.LARGE, "Generating square..."),
                 make_text(this, 10, 320, FontSize.HUGE, "Generating square...")
             ]

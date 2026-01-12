@@ -43,14 +43,22 @@ export function load_fonts(scene: Phaser.Scene)
     }
 }
 
+export function get_view_port_scaling(): number
+{
+    const zoom = visualViewport ? visualViewport.scale : 1;
+    console.log("Has visual viewport? ", visualViewport != null, " Zoom:", zoom);
+    return zoom;
+}
+
 /**
  * Get a reasonable base font size as suggested here:
  * https://matthewjamestaylor.com/responsive-font-size
  */
 export function get_base_font_size(canvas_width: number): number
 {
-    const zoom = ((window.outerWidth) / window.innerWidth);
-    return ((15 * zoom) + (0.390625 * canvas_width / 100))
+    const font_size = ((15 * get_view_port_scaling()) + (0.390625 * canvas_width / 100))
+    console.log("Suggesting font size with zoom:", font_size);
+    return font_size;
 }
 
 /**
