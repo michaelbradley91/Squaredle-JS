@@ -47,7 +47,7 @@ export function get_view_port_scaling(): number
 {
     const zoom = visualViewport ? visualViewport.scale : 1;
     console.log("Has visual viewport? ", visualViewport != null, " Zoom:", zoom);
-    return zoom;
+    return 1 / zoom;
 }
 
 /**
