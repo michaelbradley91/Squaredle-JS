@@ -27,20 +27,6 @@ const roboto_regular_font_sizes: { [key in number]: string } = {
 }
 
 const available_sizes = Object.keys(roboto_regular_font_sizes).map(s => parseInt(s)).sort((a, b) => a - b);
-let em_font_size: number = 0;
-
-export function get_em_font_size(): number
-{
-    if (em_font_size > 0) return em_font_size;
-
-    const div = document.getElementById("font-em-div");
-    if (!div) return 0;
-    div.style.height = '12pt';
-    // em_font_size = parseFloat(getComputedStyle(div).fontSize);
-    em_font_size = div.offsetHeight;
-    div.style.height = '0em';
-    return em_font_size;
-}
 
 /**
  * Load all the fonts for the current scene
@@ -58,24 +44,33 @@ export function load_fonts(scene: Phaser.Scene)
 }
 
 /**
+ * Get a reasonable base font size as suggested here:
+ * https://matthewjamestaylor.com/responsive-font-size
+ */
+export function get_base_font_size(canvas_width: number): number
+{
+    return (15 + Math.round(0.390625 * canvas_width / 100))
+}
+
+/**
  * Get an appropriate font-size for the given screen
  */
 export function get_font_size(
-    canvas_height: number,
+    canvas_width: number,
     font_size: FontSize): number
 {
     switch (font_size)
     {
         case FontSize.TINY:
-            return get_em_font_size();
+            return get_base_font_size(canvas_width);
         case FontSize.SMALL:
-            return get_em_font_size() * 1.25;
+            return get_base_font_size(canvas_width) * 1.25;
         case FontSize.MEDIUM:
-            return get_em_font_size() * 1.75;
+            return get_base_font_size(canvas_width) * 1.75;
         case FontSize.LARGE:
-            return get_em_font_size() * 2.5;
+            return get_base_font_size(canvas_width) * 2.5;
         case FontSize.HUGE:
-            return get_em_font_size() * 3.5;
+            return get_base_font_size(canvas_width) * 3.5;
         default:
             // Error as we don't know
             throw new Error("Unknown font size");
@@ -88,7 +83,7 @@ export class MyBitmapText extends Phaser.GameObjects.BitmapText
 
     constructor(scene: Phaser.Scene, x: number, y: number, font_size: FontSize, text: string)
     {
-        const size = get_font_size(scene.scale.gameSize.height, font_size);
+        const size = get_font_size(scene.scale.gameSize.width, font_size);
         // A font size about 1.5* bigger than the actual font size tends to look best for some reason
         let chosen_size = available_sizes[available_sizes.length - 1];
         for (const available_size of available_sizes)
@@ -117,11 +112,4 @@ export class MyBitmapText extends Phaser.GameObjects.BitmapText
 export function make_text(scene: Phaser.Scene, x: number, y: number, font_size: FontSize, text: string): Phaser.GameObjects.BitmapText
 {
     return new MyBitmapText(scene, x, y, font_size, text);
-}
-
-export function resize_font(font: Phaser.GameObjects.BitmapText, canvas_height: number): Phaser.GameObjects.BitmapText
-{
-    const target_size = get_font_size(canvas_height, FontSize.MEDIUM);
-    font.setFontSize(target_size);
-    return font;
 }

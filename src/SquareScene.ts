@@ -3,7 +3,7 @@ import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 import { generate_square } from "./squares";
 import { graphics_add_circle } from "./textures";
-import { FontSize, get_font_size, load_fonts, make_text, MyBitmapText, resize_font } from "./fonts";
+import { FontSize, load_fonts, make_text, MyBitmapText } from "./fonts";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
