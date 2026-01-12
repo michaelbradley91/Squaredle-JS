@@ -49,7 +49,8 @@ export function load_fonts(scene: Phaser.Scene)
  */
 export function get_base_font_size(canvas_width: number): number
 {
-    return (15 + Math.round(0.390625 * canvas_width / 100))
+    const zoom = ((window.outerWidth) / window.innerWidth);
+    return ((15 * zoom) + (0.390625 * canvas_width / 100))
 }
 
 /**
