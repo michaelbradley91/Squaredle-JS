@@ -101,10 +101,10 @@ export function init_game_state(): GameState
 {
     const yoga_config = Yoga.Config.create();
     const square_letters: string[][] = [];
-    square_letters.push(['A', 'B', 'C', 'D']);
-    square_letters.push(['E', 'F', 'G', 'H']);
-    square_letters.push(['I', 'J', 'K', 'L']);
-    square_letters.push(['M', 'N', 'O', 'Z']);
+    square_letters.push(['I', 'N', 'G', 'U']);
+    square_letters.push(['A', 'E', 'I', 'F']);
+    square_letters.push(['T', 'D', 'S', 'N']);
+    square_letters.push(['D', 'E', 'D', 'I']);
 
     return {
         words: new Words(),
@@ -124,9 +124,12 @@ export function init_game_state(): GameState
                 completed: false
             },
             line_end: undefined,
-            line_in_progress: [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }]
+            line_in_progress: [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }],
+            words_found: new Set<string>(),
+            words_found_expanded: false,
+            words_found_carousel_index: 0,
+            hints_carousel_index: 0
         },
         square_parameters: new_square_parameters()
     };
 }
-

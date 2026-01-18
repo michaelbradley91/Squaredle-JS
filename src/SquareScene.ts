@@ -1,9 +1,9 @@
 import { GameState, init_game_state } from "./logic";
 import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
-import { generate_square } from "./squares";
+import { generate_square, Square } from "./squares";
 import { graphics_add_circle } from "./textures";
-import { FontSize, get_view_port_scaling, load_fonts, make_text, MyBitmapText } from "./fonts";
+import { FontSize, FontStyle, get_view_port_scaling, load_fonts, make_text, MyBitmapText } from "./fonts";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
@@ -380,13 +380,31 @@ export default class SquareScene extends Phaser.Scene
             return;
         }
 
-        /* Try generating a square for a short period */
-        const start_time = performance.now();
-        let last_letter_change: [string, number, number] | undefined = undefined;
-        do 
+        this.game_state.square.computation.completed = true;
+        this.game_state.square.computation.start_time = performance.now();
+        this.game_state.square.computation.total_attempts = 0;
+        this.game_state.square.computation.adjusting = false;
+        this.game_state.square.computation.adjustments_made = 0;
+        const new_square = new Square();
+        new_square.init_empty_square(this.game_state.square_parameters);
+        this.game_state.square.computation.square = new_square;
+
+        for (let row = 0; row < this.game_state.square_parameters.size; row++)
         {
-            last_letter_change = generate_square(this.game_state.square_parameters, this.game_state.words, this.game_state.square.computation);
-        } while (!this.game_state.square.computation.completed && performance.now() - start_time < SQUARE_GENERATION_MAX_MILLISECONDS);
+            for (let col = 0; col < this.game_state.square_parameters.size; col++)
+            {
+                new_square.add_letter(col, row, this.game_state.square.letters[row][col]);
+            }
+        }
+
+        /* Try generating a square for a short period */
+        // TODO put back
+        // const start_time = performance.now();
+        // let last_letter_change: [string, number, number] | undefined = undefined;
+        // do 
+        // {
+        //     last_letter_change = generate_square(this.game_state.square_parameters, this.game_state.words, this.game_state.square.computation);
+        // } while (!this.game_state.square.computation.completed && performance.now() - start_time < SQUARE_GENERATION_MAX_MILLISECONDS);
 
         /* If we have a square now, update the display */
         const square = this.game_state.square.computation.square;
@@ -403,10 +421,11 @@ export default class SquareScene extends Phaser.Scene
             }
         }
 
-        if (last_letter_change)
-        {
-            this.game_state.square.letters[last_letter_change[2]][last_letter_change[1]] = last_letter_change[0];
-        }
+        // TODO: put back
+        // if (last_letter_change)
+        // {
+        //     this.game_state.square.letters[last_letter_change[2]][last_letter_change[1]] = last_letter_change[0];
+        // }
     }
 
     create()
@@ -439,11 +458,11 @@ export default class SquareScene extends Phaser.Scene
             square_connecting_line_texture: undefined,
             // 12 is technically legible but awful for the user
             text_test: [
-                make_text(this, 10, 20, FontSize.TINY, "Generating square..!"),
-                make_text(this, 10, 80, FontSize.SMALL, "Generating square..."),
-                make_text(this, 10, 160, FontSize.MEDIUM, `Generating square...${get_view_port_scaling()}`),
-                make_text(this, 10, 240, FontSize.LARGE, "Generating square..."),
-                make_text(this, 10, 320, FontSize.HUGE, "Generating square...")
+                make_text(this, 10, 20, FontSize.TINY, FontStyle.REGULAR, "Generating square..!"),
+                make_text(this, 10, 80, FontSize.SMALL, FontStyle.REGULAR, "Generating square..."),
+                make_text(this, 10, 160, FontSize.MEDIUM, FontStyle.REGULAR, `Generating square...${get_view_port_scaling()}`),
+                make_text(this, 10, 240, FontSize.LARGE, FontStyle.REGULAR, "Generating square..."),
+                make_text(this, 10, 320, FontSize.HUGE, FontStyle.REGULAR, "Generating square...")
             ]
         };
 
