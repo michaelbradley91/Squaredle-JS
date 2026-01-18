@@ -43,20 +43,26 @@ export function load_fonts(scene: Phaser.Scene)
     }
 }
 
+/* We artificially scale the canvas to force better resolution of text on high DPI displays */
+export const CANVAS_FORCED_SCALING: number = 2
+
 export function get_view_port_scaling(): number
 {
     const zoom = visualViewport ? visualViewport.scale : 1;
     console.log("Has visual viewport? ", visualViewport != null, " Zoom:", zoom);
-    return 1 / zoom;
+    return (1 / zoom) * CANVAS_FORCED_SCALING;
 }
 
 /**
  * Get a reasonable base font size as suggested here:
  * https://matthewjamestaylor.com/responsive-font-size
  */
-export function get_base_font_size(canvas_width: number): number
+export function get_base_font_size(canvas_size: { width: number, height: number }): number
 {
-    const font_size = ((15 * get_view_port_scaling()) + (0.390625 * canvas_width / 100))
+    // Take whichever is the narrower of width and height so on extremely long displays
+    // the font is not excessively large
+    const canvas_scaling = Math.min(canvas_size.width, canvas_size.height);
+    const font_size = ((15 * get_view_port_scaling()) + (0.390625 * canvas_scaling / 100))
     console.log("Suggesting font size with zoom:", font_size);
     return font_size;
 }
@@ -65,21 +71,21 @@ export function get_base_font_size(canvas_width: number): number
  * Get an appropriate font-size for the given screen
  */
 export function get_font_size(
-    canvas_width: number,
+    canvas_size: { width: number, height: number },
     font_size: FontSize): number
 {
     switch (font_size)
     {
         case FontSize.TINY:
-            return get_base_font_size(canvas_width);
+            return get_base_font_size(canvas_size);
         case FontSize.SMALL:
-            return get_base_font_size(canvas_width) * 1.25;
+            return get_base_font_size(canvas_size) * 1.25;
         case FontSize.MEDIUM:
-            return get_base_font_size(canvas_width) * 1.75;
+            return get_base_font_size(canvas_size) * 1.75;
         case FontSize.LARGE:
-            return get_base_font_size(canvas_width) * 2.5;
+            return get_base_font_size(canvas_size) * 2.5;
         case FontSize.HUGE:
-            return get_base_font_size(canvas_width) * 3.5;
+            return get_base_font_size(canvas_size) * 3.5;
         default:
             // Error as we don't know
             throw new Error("Unknown font size");
@@ -92,7 +98,7 @@ export class MyBitmapText extends Phaser.GameObjects.BitmapText
 
     constructor(scene: Phaser.Scene, x: number, y: number, font_size: FontSize, text: string)
     {
-        const size = get_font_size(scene.scale.gameSize.width, font_size);
+        const size = get_font_size({ width: scene.scale.gameSize.width, height: scene.scale.gameSize.height }, font_size);
         // A font size about 1.5* bigger than the actual font size tends to look best for some reason
         let chosen_size = available_sizes[available_sizes.length - 1];
         for (const available_size of available_sizes)
@@ -109,16 +115,15 @@ export class MyBitmapText extends Phaser.GameObjects.BitmapText
         scene.add.existing(this);
     }
 
-    update(canvas_height: number)
+    update(canvas_size: { width: number, height: number }): this
     {
-        const target_size = get_font_size(canvas_height, this.font_size);
+        const target_size = get_font_size({ width: canvas_size.width, height: canvas_size.height }, this.font_size);
         this.setFontSize(target_size);
         return this;
     }
 }
 
-
-export function make_text(scene: Phaser.Scene, x: number, y: number, font_size: FontSize, text: string): Phaser.GameObjects.BitmapText
+export function make_text(scene: Phaser.Scene, x: number, y: number, font_size: FontSize, text: string): MyBitmapText
 {
     return new MyBitmapText(scene, x, y, font_size, text);
 }

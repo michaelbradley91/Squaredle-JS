@@ -360,7 +360,7 @@ export default class SquareScene extends Phaser.Scene
 
         for (let i = 0; i < this.game_objects.text_test.length; i++) 
         {
-            this.game_objects.text_test[i].update(this.game.canvas.height).visible = true;
+            this.game_objects.text_test[i].update({ width: this.game.canvas.width, height: this.game.canvas.height }).visible = true;
         }
     }
 
