@@ -44,13 +44,22 @@ export function load_fonts(scene: Phaser.Scene)
 }
 
 /* We artificially scale the canvas to force better resolution of text on high DPI displays */
-export const CANVAS_FORCED_SCALING: number = 2
+export function get_forced_scaling(): number
+{
+    // For very high DPI displays, we want to scale up more
+    const zoom = visualViewport ? visualViewport.scale : 1;
+    if (zoom >= 1)
+    {
+        return 2;
+    }
+    return 1;
+}
 
 export function get_view_port_scaling(): number
 {
     const zoom = visualViewport ? visualViewport.scale : 1;
     console.log("Has visual viewport? ", visualViewport != null, " Zoom:", zoom);
-    return (1 / zoom) * CANVAS_FORCED_SCALING;
+    return (1 / zoom) * get_forced_scaling();
 }
 
 /**

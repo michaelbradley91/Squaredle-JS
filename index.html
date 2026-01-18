@@ -54,7 +54,7 @@
 	<div style="font-family:roboto-bold; position:absolute; left:-1000px; visibility:hidden;">.</div>
 	<div style="font-family:roboto-condensed; position:absolute; left:-1000px; visibility:hidden;">.</div>
 	<div style="font-family:roboto-condensed-bold; position:absolute; left:-1000px; visibility:hidden;">.</div>
-	<div id="app" style="width: 200%; height: 200%; zoom: 0.5; position: relative; top: -25%; left: -25%"></div>
+	<div id="app"></div>
 	<script>
 		var href = new URL(window.location.href).pathname;
 		var dir = href.substring(0, href.lastIndexOf('/')) + "/";
@@ -70,6 +70,12 @@
 					console.log('ServiceWorker registration failed: ', err);
 				});
 			});
+		}
+		var scale = visualViewport ? visualViewport.scale : 1;
+		if (scale >= 1)
+		{
+			// Force some scaling to improve font rendering
+			document.getElementById("app").setAttribute("style", "width: 200%; height: 200%; zoom: 0.5; position: relative; top: -25%; left: -25%");
 		}
 	</script>
 	<script type="module" src="src/main.ts"></script>
