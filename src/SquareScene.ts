@@ -3,7 +3,7 @@ import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 import { generate_square, Square } from "./squares";
 import { graphics_add_circle } from "./textures";
-import { FontSize, FontStyle, get_view_port_scaling, load_fonts, make_text, MyBitmapText } from "./fonts";
+import { FontSize, get_view_port_scaling, make_text, MyBitmapText } from "./fonts";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
@@ -75,7 +75,6 @@ export default class SquareScene extends Phaser.Scene
     {
         this.load.bitmapFont("roboto-bold", "assets/Roboto-Bold.png", "assets/Roboto-Bold.xml");
         this.load.bitmapFont("roboto-bold-big", "assets/Roboto-Bold-Big.png", "assets/Roboto-Bold-Big.xml");
-        load_fonts(this);
     }
 
     update_rectangle(coords: { x: number, y: number, width: number, height: number }, rectangle: Phaser.GameObjects.Rectangle | RoundRectangle)
@@ -458,11 +457,11 @@ export default class SquareScene extends Phaser.Scene
             square_connecting_line_texture: undefined,
             // 12 is technically legible but awful for the user
             text_test: [
-                make_text(this, 10, 20, FontSize.TINY, FontStyle.REGULAR, "Generating square..!"),
-                make_text(this, 10, 80, FontSize.SMALL, FontStyle.REGULAR, "Generating square..."),
-                make_text(this, 10, 160, FontSize.MEDIUM, FontStyle.REGULAR, `Generating square...${get_view_port_scaling()}`),
-                make_text(this, 10, 240, FontSize.LARGE, FontStyle.REGULAR, "Generating square..."),
-                make_text(this, 10, 320, FontSize.HUGE, FontStyle.REGULAR, "Generating square...")
+                make_text(this, 10, 20, FontSize.TINY, "Generating square..!"),
+                make_text(this, 10, 80, FontSize.SMALL, "Generating square..."),
+                make_text(this, 10, 160, FontSize.MEDIUM, `Generating square...${get_view_port_scaling()}`),
+                make_text(this, 10, 240, FontSize.LARGE, "Generating square..."),
+                make_text(this, 10, 320, FontSize.HUGE, "Generating square...")
             ]
         };
 
