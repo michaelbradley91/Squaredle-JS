@@ -4,6 +4,7 @@ import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 import { generate_square, Square } from "./squares";
 import { graphics_add_circle } from "./textures";
 import { FontSize, get_view_port_scaling, make_text, MyBitmapText } from "./fonts";
+import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;

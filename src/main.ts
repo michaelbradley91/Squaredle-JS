@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import RoundRectanglePlugin from 'phaser3-rex-plugins/plugins/roundrectangle-plugin.js';
+import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
 import StartScene from './StartScene'
 import SquareScene from './SquareScene';
 
@@ -15,6 +16,11 @@ const config: Phaser.Types.Core.GameConfig = {
 			{
 				key: 'rexRoundRectanglePlugin',
 				plugin: RoundRectanglePlugin,
+				start: true
+			},
+			{
+				key: 'rexBBCodeTextPlugin',
+				plugin: BBCodeTextPlugin,
 				start: true
 			}
 		]
