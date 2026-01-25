@@ -5,12 +5,16 @@ import StartScene from './StartScene'
 import SquareScene from './scenes/square/SquareScene';
 
 const config: Phaser.Types.Core.GameConfig = {
-	type: Phaser.AUTO,
+	// Canvas renderer is much more performant for the GPU
+	type: Phaser.CANVAS,
 	parent: 'app',
 	width: 800,
 	height: 600,
 	scene: [SquareScene, StartScene],
 	pixelArt: false,
+	render: {
+		clearBeforeRender: true,
+	},
 	plugins: {
 		global: [
 			{
@@ -31,8 +35,11 @@ const config: Phaser.Types.Core.GameConfig = {
 		width: window.innerWidth,  // Initial width = window width  
 		height: window.innerHeight, // Initial height = window height
 	},
-	autoRound: true,
-	antialias: true,
+	// Significantly improves performance
+	fps: {
+		target: 60,
+		forceSetTimeOut: true,
+	}
 }
 
 const game = new Phaser.Game(config);

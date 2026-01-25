@@ -431,6 +431,6 @@ export default class SquareComponent extends BaseComponent<SquareScene>
             this.game_state.square.line_end = { x: this.scene.game.input.activePointer.x, y: this.scene.game.input.activePointer.y }
         }
 
-        // this.draw();
+        this.draw();
     }
 }
