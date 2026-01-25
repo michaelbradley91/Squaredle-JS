@@ -5,8 +5,12 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { GameState } from "./logic";
 
+export const SQUARE_TEXT_FONT_FAMILY = 'roboto-bold';
+export const SQUARE_TEXT_BIG_FONT_FAMILY = 'roboto-bold-big';
+
 export enum FontSize
 {
+    MINISCULE = 0,
     TINY,
     SMALL,
     MEDIUM,
@@ -54,6 +58,8 @@ export function get_font_size(
 {
     switch (font_size)
     {
+        case FontSize.MINISCULE:
+            return get_base_font_size(canvas_size) * 0.7;
         case FontSize.TINY:
             return get_base_font_size(canvas_size) * 0.9;
         case FontSize.SMALL:
@@ -74,6 +80,7 @@ export function load_font_sizes(game_state: GameState, scene: Phaser.Scene): voi
 {
     const canvas_size = { width: scene.scale.gameSize.width, height: scene.scale.gameSize.height };
     game_state.font_sizes = {
+        [FontSize.MINISCULE]: get_font_size(canvas_size, FontSize.MINISCULE),
         [FontSize.TINY]: get_font_size(canvas_size, FontSize.TINY),
         [FontSize.SMALL]: get_font_size(canvas_size, FontSize.SMALL),
         [FontSize.MEDIUM]: get_font_size(canvas_size, FontSize.MEDIUM),

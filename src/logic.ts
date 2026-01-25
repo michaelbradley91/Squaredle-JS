@@ -90,6 +90,7 @@ export type SquareState = {
  */
 export type GameState = {
     font_sizes: {
+        [FontSize.MINISCULE]: number;
         [FontSize.TINY]: number;
         [FontSize.SMALL]: number;
         [FontSize.MEDIUM]: number;
@@ -114,6 +115,23 @@ export function init_game_state(): GameState
     square_letters.push(['T', 'D', 'S', 'N']);
     square_letters.push(['D', 'E', 'D', 'I']);
 
+    // Pretty weird scoring system.
+    // 4 = 5
+    // 5 = 8
+    // 6 = 12
+    // 7 = 16
+    // 8 = 22
+    // 9 = 30
+    // 10 = 38
+    // 11 = 48
+    // 12 = 58
+    // 13 = 70
+    // 14 = 82
+    // 15 = 96
+    // 16 = 110
+    // 17 = 120
+    // 18 = 135
+    // 19 = 153
     return {
         words: new Words(),
         layout: {
@@ -139,6 +157,7 @@ export function init_game_state(): GameState
             hints_carousel_index: 0
         },
         font_sizes: {
+            [FontSize.MINISCULE]: 10,
             [FontSize.TINY]: 12,
             [FontSize.SMALL]: 14,
             [FontSize.MEDIUM]: 18,
@@ -158,4 +177,131 @@ export function get_inner_rectangle_with_padding(rect: { x: number, y: number, w
         width: rect.width - (2 * padding),
         height: rect.height - (2 * padding)
     };
+}
+
+/**
+ * How many points is a word worth?
+ */
+export function get_word_points(length: number): number
+{
+    // These scores are loosely based off the scores I've seen words score in Squaredle
+    switch (length)
+    {
+        case 4: return 5;
+        case 5: return 8;
+        case 6: return 12;
+        case 7: return 16;
+        case 8: return 22;
+        case 9: return 30;
+        case 10: return 38;
+        case 11: return 48;
+        case 12: return 58;
+        case 13: return 70;
+        case 14: return 82;
+        case 15: return 96;
+        case 16: return 110;
+        case 17: return 120;
+        case 18: return 135;
+        default:
+            // For anything longer use this formula (same as Squaredle's real formula)
+            // This will be a whole number since either length - 1 or length - 2 is even
+            return (length - 1) * (length - 2) / 2;
+    }
+}
+
+/**
+ * Get the current square from the current game state.
+ * @param game_state the game state right now
+ * @returns the current square, if any
+ */
+export function get_current_square(game_state: GameState): Square | undefined
+{
+    return game_state.square.computation.square;
+}
+
+/**
+ * @param game_state the current game state
+ * @returns the total number of points available for the current square
+ */
+export function get_total_points(game_state: GameState): number
+{
+    const square = get_current_square(game_state);
+    if (!square)
+    {
+        return 0;
+    }
+
+    let total_score = 0;
+    const words_by_length = square.get_quality(game_state.words).words_by_length;
+    for (const length in words_by_length)
+    {
+        const words_at_length = words_by_length[length].size;
+        total_score += words_at_length * get_word_points(parseInt(length));
+    }
+    return total_score;
+}
+
+/**
+ * @param game_state the current game state
+ * @returns the number of points the player has earned so far
+ */
+export function get_points_earned(game_state: GameState): number
+{
+    const square = get_current_square(game_state);
+    if (!square)
+    {
+        return 0;
+    }
+    let earned_score = 0;
+    for (const word of game_state.square.words_found)
+    {
+        earned_score += get_word_points(word.length);
+    }
+    return earned_score;
+}
+
+/**
+ * The different hint levels for a given puzzle
+ * 
+ * The value represents the percentage progress required to unlock that hint level
+ */
+export enum HintLevel
+{
+    NONE = 0,
+    START_LETTERS = 0.25,
+    USED_LETTERS = 0.5,
+    WORD_HINTS = 0.75
+}
+
+/**
+ * Get the current hint level for the user given their progress with this square
+ * @param game_state the current state of the game
+ * @returns the hint level to show the user
+ */
+export function get_hint_level(game_state: GameState): HintLevel
+{
+    const square = get_current_square(game_state);
+    if (!square)
+    {
+        return HintLevel.NONE;
+    }
+
+    const total_points = get_total_points(game_state);
+    const earned_points = get_points_earned(game_state);
+    const percent_complete = (earned_points / total_points);
+
+    /* Boundaries are evenly split over hint levels */
+    if (percent_complete >= HintLevel.WORD_HINTS)
+    {
+        return HintLevel.WORD_HINTS;
+    }
+    if (percent_complete >= HintLevel.USED_LETTERS)
+    {
+        return HintLevel.USED_LETTERS;
+    }
+    if (percent_complete >= HintLevel.START_LETTERS)
+    {
+        return HintLevel.START_LETTERS;
+    }
+    return HintLevel.NONE;
 }

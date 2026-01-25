@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 import RoundRectanglePlugin from 'phaser3-rex-plugins/plugins/roundrectangle-plugin.js';
 import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
 import StartScene from './StartScene'
-import SquareScene from './SquareScene';
+import SquareScene from './scenes/square/SquareScene';
 
 const config: Phaser.Types.Core.GameConfig = {
 	type: Phaser.AUTO,

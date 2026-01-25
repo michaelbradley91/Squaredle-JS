@@ -1,35 +1,34 @@
-import { GameState, get_inner_rectangle_with_padding, init_game_state } from "./logic";
-import { OuterScreenNode } from "./layouts/SquareSceneLayout";
-import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
-import { generate_square, Square } from "./squares";
-import { graphics_add_circle } from "./textures";
-import { blank_text, fit_text, FontSize, get_view_port_scaling, load_font_sizes, make_text, MyBitmapText } from "./fonts";
-import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
+/**
+ * The central square on the game board
+ */
+
+import BaseComponent from "../BaseComponent";
+import SquareScene from "./SquareScene";
+import RoundRectangle from "phaser3-rex-plugins/plugins/roundrectangle";
+import { SQUARE_TEXT_BIG_FONT_FAMILY, SQUARE_TEXT_FONT_FAMILY } from "~/fonts";
+import { update_rectangle } from "../BaseScene";
+import { OuterScreenNode } from "~/layouts/SquareSceneLayout";
+import { graphics_add_circle } from "~/textures";
+import { Square } from "~/squares";
 
 const SQUARE_ROUNDING_FACTOR = 8;
 const SQUARE_BORDER_ROUNDING_FACTOR = 6;
 const SQUARE_BORDER_PERCENTAGE = 0.04;
 const SQUARE_TEXT_PERCENTAGE = 0.6;
-const SQUARE_TEXT_FONT_FAMILY = 'roboto-bold';
-const SQUARE_TEXT_BIG_FONT_FAMILY = 'roboto-bold-big';
+
 const SQUARE_TEXT_BIG_FONT_CUTOFF = 100;
-const SQUARE_GENERATION_MAX_MILLISECONDS = 1;
+// const SQUARE_GENERATION_MAX_MILLISECONDS = 1;
+
 const SQUARE_CONNECTING_LINE_COLOR = 0x00ff00;
 const SQUARE_CONNECTING_LINE_ALPHA = 0.5;
 const SQUARE_CONNECTING_LINE_WIDTH_THRESHOLD = 2.5;
 const SQUARE_CONNECTING_LINE_BIG_CIRCLE_FACTOR = 3;
 const SQUARE_CONNECTING_LINE_SMALL_CIRCLE_FACTOR = 7;
 
-export default class SquareScene extends Phaser.Scene
+
+export default class SquareComponent extends BaseComponent<SquareScene>
 {
-    game_objects: {
-        top_menu_left: Phaser.GameObjects.Rectangle;
-        top_menu_right: Phaser.GameObjects.Rectangle;
-        progress_bar: Phaser.GameObjects.Rectangle;
-        previous_words: Phaser.GameObjects.Rectangle;
-        square: Phaser.GameObjects.Rectangle;
-        hints_left: Phaser.GameObjects.Rectangle;
-        hints_right: Phaser.GameObjects.Rectangle;
+    game_objects!: {
         squares: {
             background: RoundRectangle,
             border: RoundRectangle,
@@ -37,73 +36,34 @@ export default class SquareScene extends Phaser.Scene
             text_big: Phaser.GameObjects.BitmapText
         }[][],
         square_connecting_line_texture: Phaser.GameObjects.Image | undefined,
-        carousel_text: BBCodeText,
-    } | undefined = undefined
-
-    game_state!: GameState;
-
-    constructor()
-    {
-        super('square')
     }
 
-    init(data: { game_state: GameState })
+    /**
+     * Initialise all the objects needed to display the square
+     */
+    public init(): void
     {
-        if (!data || !data.game_state)
+        const squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[][] = [];
+        for (let row = 0; row < this.game_state.square_parameters.size; row++)
         {
-            this.game_state = init_game_state();
+            const square_row: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[] = [];
+            for (let col = 0; col < this.game_state.square_parameters.size; col++)
+            {
+                const border = this.scene.add.rexRoundRectangle(400, 300, 800, 800, 20, 0x000000);
+                const background = this.scene.add.rexRoundRectangle(400, 300, 800, 800, 20, 0xaa00aa + (256 * ((row * this.game_state.square_parameters.size + col) * 16)));
+
+                // We use a bitmap font as the letters in the middle are especially large and imperfections show
+                const text = this.scene.add.bitmapText(400, 300, SQUARE_TEXT_FONT_FAMILY, '').setOrigin(0.5, 0.565);
+                const text_big = this.scene.add.bitmapText(400, 300, SQUARE_TEXT_BIG_FONT_FAMILY, '').setOrigin(0.5, 0.565);
+                square_row.push({ background: background, border: border, text: text, text_big: text_big });
+            }
+            squares.push(square_row);
         }
-        else
-        {
-            this.game_state = data.game_state;
-        }
 
-        // Set up the Yoga tree for the start scene
-        this.update_layout();
-    }
-
-    handle_resize(game_size: Phaser.Structs.Size)
-    {
-        console.log("Resizing to:", game_size.width, game_size.height);
-
-        // Update camera viewport to match new size
-        this.cameras.main.setViewport(0, 0, game_size.width, game_size.height);
-
-        // Load the font sizes for the new screen size for easy access
-        load_font_sizes(this.game_state, this);
-
-        // Update the layout
-        this.update_layout();
-    }
-
-    preload()
-    {
-        this.load.bitmapFont("roboto-bold", "assets/Roboto-Bold.png", "assets/Roboto-Bold.xml");
-        this.load.bitmapFont("roboto-bold-big", "assets/Roboto-Bold-Big.png", "assets/Roboto-Bold-Big.xml");
-    }
-
-    update_rectangle(coords: { x: number, y: number, width: number, height: number }, rectangle: Phaser.GameObjects.Rectangle | RoundRectangle)
-    {
-        rectangle.setPosition(coords.x + (coords.width / 2), coords.y + (coords.height / 2));
-        // @ts-expect-error - Rounded rectangle has a bad typing
-        rectangle.setSize(coords.width, coords.height);
-        rectangle.setVisible(true);
-    }
-
-    hide_all_objects()
-    {
-        if (!this.game_objects) return;
-
-        this.game_objects.top_menu_left.visible = false;
-        this.game_objects.top_menu_right.visible = false;
-        this.game_objects.progress_bar.visible = false;
-        this.game_objects.previous_words.visible = false;
-        this.game_objects.square.visible = false;
-        this.game_objects.hints_left.visible = false;
-        this.game_objects.hints_right.visible = false;
-
-        this.hide_square_objects();
-        this.hide_carousel_objects();
+        this.game_objects = {
+            squares: squares,
+            square_connecting_line_texture: undefined,
+        };
     }
 
     hide_square_objects()
@@ -126,11 +86,18 @@ export default class SquareScene extends Phaser.Scene
         }
     }
 
-    hide_carousel_objects()
+    public draw(): void
     {
-        if (!this.game_objects) return;
+        this.hide_square_objects();
+        for (let row = 0; row < this.game_state.square_parameters.size; row++)
+        {
+            for (let col = 0; col < this.game_state.square_parameters.size; col++)
+            {
+                this.draw_square_letter(row, col);
+            }
+        }
 
-        this.game_objects.carousel_text.setVisible(false);
+        this.draw_lines_between_squares();
     }
 
     draw_square_letter(row: number, column: number)
@@ -157,8 +124,8 @@ export default class SquareScene extends Phaser.Scene
             width: rectangle.width - (2 * (rectangle.width * SQUARE_BORDER_PERCENTAGE)),
             height: rectangle.height - (2 * (rectangle.height * SQUARE_BORDER_PERCENTAGE))
         };
-        this.update_rectangle(rectangle, square.border);
-        this.update_rectangle(background_rectangle, square.background);
+        update_rectangle(rectangle, square.border);
+        update_rectangle(background_rectangle, square.background);
 
         const font_size = background_rectangle.height * SQUARE_TEXT_PERCENTAGE;
         let text = square.text;
@@ -175,21 +142,6 @@ export default class SquareScene extends Phaser.Scene
         );
     }
 
-    draw_square()
-    {
-        if (!this.game_objects) return;
-
-        for (let row = 0; row < this.game_state.square_parameters.size; row++)
-        {
-            for (let col = 0; col < this.game_state.square_parameters.size; col++)
-            {
-                this.draw_square_letter(row, col);
-            }
-        }
-
-        this.draw_lines_between_squares();
-    }
-
     draw_lines_between_squares()
     {
         if (!this.game_objects) return;
@@ -202,14 +154,14 @@ export default class SquareScene extends Phaser.Scene
             // Destroy the current line texture
             if (this.game_objects.square_connecting_line_texture)
             {
-                if (this.textures.exists('square-connecting-line'))
+                if (this.scene.textures.exists('square-connecting-line'))
                 {
-                    this.textures.remove('square-connecting-line');
+                    this.scene.textures.remove('square-connecting-line');
                 }
                 this.game_objects.square_connecting_line_texture.destroy();
             }
 
-            const line_graphics = this.add.graphics();
+            const line_graphics = this.scene.add.graphics();
 
             /* The line is made up of circles on each square and a line between them */
             const standard_rectangle = this.game_state.layout.square_scene_layout.get_square_rectangle(0, 0);
@@ -318,87 +270,25 @@ export default class SquareScene extends Phaser.Scene
                 line_graphics.lineStyle(standard_radius * 2, SQUARE_CONNECTING_LINE_COLOR, 1.0);
                 line_graphics.lineBetween(line_start.x, line_start.y, line_end.x, line_end.y);
             }
-            line_graphics.generateTexture('square-connecting-line', this.game.canvas.width, this.game.canvas.height);
+            line_graphics.generateTexture('square-connecting-line', this.scene.game.canvas.width, this.scene.game.canvas.height);
             line_graphics.destroy();
 
-            this.game_objects.square_connecting_line_texture = this.add.image(0, 0, 'square-connecting-line')
+            this.game_objects.square_connecting_line_texture = this.scene.add.image(0, 0, 'square-connecting-line')
                 .setOrigin(0, 0).setAlpha(SQUARE_CONNECTING_LINE_ALPHA);
         }
         else
         {
-            if (this.textures.exists('square-connecting-line'))
+            if (this.scene.textures.exists('square-connecting-line'))
             {
-                this.textures.remove('square-connecting-line');
+                this.scene.textures.remove('square-connecting-line');
             }
             this.game_objects.square_connecting_line_texture?.destroy();
         }
     }
 
-    redraw_square()
-    {
-        this.hide_square_objects();
-        this.draw_square();
-    }
-
-    draw_hints_carousel()
-    {
-        if (!this.game_objects) return;
-
-        const rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!;
-        const padding = this.game_state.font_sizes[FontSize.TINY] / 2;
-        const inner_rectangle = get_inner_rectangle_with_padding(rectangle, padding);
-        console.log("Drawing hints carousel in rectangle:", rectangle);
-        fit_text(this.game_objects.carousel_text,
-            inner_rectangle,
-            ["hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
-                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
-                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
-                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
-                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
-                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
-                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
-                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
-            ]);
-
-        this.game_objects.carousel_text.setVisible(true);
-    }
-
-    draw()
-    {
-        if (!this.game_objects || !this.game_state.layout.square_scene_layout) return;
-
-        // Start by hiding everything
-        this.hide_all_objects();
-
-        // Draw the basic layout
-        const layout = this.game_state.layout.square_scene_layout;
-        this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.TopMenu), this.game_objects.top_menu_left);
-        if (!layout.is_vertical())
-        {
-            this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.TopMenuRight), this.game_objects.top_menu_right);
-        }
-        this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.ProgressBar), this.game_objects.progress_bar);
-        this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.PreviousWords), this.game_objects.previous_words);
-        this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.Square), this.game_objects.square);
-        this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.HintsLeft), this.game_objects.hints_left);
-
-        if (layout.get_layout_rectangle(OuterScreenNode.HintsRight))
-        {
-            this.update_rectangle(layout.get_layout_rectangle(OuterScreenNode.HintsRight), this.game_objects.hints_right);
-        }
-
-        this.draw_square();
-        this.draw_hints_carousel();
-    }
-
-    update_layout()
-    {
-        if (!this.game_state.layout.square_scene_layout) return;
-
-        this.game_state.layout.square_scene_layout.update_layout({ width: this.game.canvas.width, height: this.game.canvas.height }, this.game_state);
-        this.draw();
-    }
-
+    /**
+     * Try generating a square for another cycle.
+     */
     try_generate_square()
     {
         /* If we've already computed the square, there's nothing to do */
@@ -455,50 +345,6 @@ export default class SquareScene extends Phaser.Scene
         // }
     }
 
-    create()
-    {
-        const squares: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[][] = [];
-        for (let row = 0; row < this.game_state.square_parameters.size; row++)
-        {
-            const square_row: { background: RoundRectangle, border: RoundRectangle, text: Phaser.GameObjects.BitmapText, text_big: Phaser.GameObjects.BitmapText }[] = [];
-            for (let col = 0; col < this.game_state.square_parameters.size; col++)
-            {
-                const border = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0x000000);
-                const background = this.add.rexRoundRectangle(400, 300, 800, 800, 20, 0xaa00aa + (256 * ((row * this.game_state.square_parameters.size + col) * 16)));
-
-                // We use a bitmap font as the letters in the middle are especially large and imperfections show
-                const text = this.add.bitmapText(400, 300, SQUARE_TEXT_FONT_FAMILY, '').setOrigin(0.5, 0.565);
-                const text_big = this.add.bitmapText(400, 300, SQUARE_TEXT_BIG_FONT_FAMILY, '').setOrigin(0.5, 0.565);
-                square_row.push({ background: background, border: border, text: text, text_big: text_big });
-            }
-            squares.push(square_row);
-        }
-        this.game_objects = {
-            top_menu_left: this.add.rectangle(400, 300, 800, 600, 0xff00000),
-            top_menu_right: this.add.rectangle(400, 300, 800, 600, 0x00ff00),
-            progress_bar: this.add.rectangle(400, 300, 800, 600, 0x0000ff),
-            previous_words: this.add.rectangle(400, 300, 800, 600, 0xffff00),
-            square: this.add.rectangle(400, 300, 800, 800, 0xff00ff),
-            hints_left: this.add.rectangle(455, 325, 755, 725, 0x00ffff),
-            hints_right: this.add.rectangle(455, 325, 755, 725, 0xffffff),
-            squares: squares,
-            square_connecting_line_texture: undefined,
-            carousel_text: blank_text(this)
-        };
-
-        this.children.sendToBack(this.game_objects.square);
-
-        // Listen for resize events  
-        this.scale.on('resize', this.handle_resize, this);
-        this.input.on('pointerdown', this.handle_pointer_down, this);
-        this.input.on('pointerup', this.handle_pointer_up, this);
-
-        // TODO: create the square here
-
-        // Trigger initial resize to set positions  
-        this.handle_resize(this.scale.gameSize);
-    }
-
     handle_pointer_down(pointer: Phaser.Input.Pointer)
     {
         if (this.game_state.square.computation.completed)
@@ -520,13 +366,11 @@ export default class SquareScene extends Phaser.Scene
         this.game_state.square.line_in_progress = [];
     }
 
-    update(_time: number, _delta: number): void
+    update(): void
     {
-        if (!this.game_objects) return;
-
         this.try_generate_square();
 
-        if (!this.game.input.activePointer.isDown)
+        if (!this.scene.game.input.activePointer.isDown)
         {
             this.game_state.square.line_end = undefined;
             this.game_state.square.line_in_progress = [];
@@ -535,10 +379,10 @@ export default class SquareScene extends Phaser.Scene
         /* Should we support line drawing? */
         if (this.game_state.square.computation.completed && this.game_state.square.line_in_progress.length > 0)
         {
-            const x = this.game.input.activePointer.x;
-            const y = this.game.input.activePointer.y;
+            const x = this.scene.game.input.activePointer.x;
+            const y = this.scene.game.input.activePointer.y;
 
-            if (this.game.input.activePointer.isDown)
+            if (this.scene.game.input.activePointer.isDown)
             {
                 const square_touched = this.game_state.layout.square_scene_layout.get_square_at_position(x, y);
                 if (square_touched)
@@ -584,8 +428,9 @@ export default class SquareScene extends Phaser.Scene
                     }
                 }
             }
-            this.game_state.square.line_end = { x: this.input.activePointer.x, y: this.input.activePointer.y }
+            this.game_state.square.line_end = { x: this.scene.game.input.activePointer.x, y: this.scene.game.input.activePointer.y }
         }
-        this.redraw_square();
+
+        // this.draw();
     }
 }
