@@ -1,9 +1,9 @@
-import { GameState, init_game_state } from "./logic";
+import { GameState, get_inner_rectangle_with_padding, init_game_state } from "./logic";
 import { OuterScreenNode } from "./layouts/SquareSceneLayout";
 import RoundRectangle from 'phaser3-rex-plugins/plugins/roundrectangle.js';
 import { generate_square, Square } from "./squares";
 import { graphics_add_circle } from "./textures";
-import { FontSize, get_view_port_scaling, make_text, MyBitmapText } from "./fonts";
+import { blank_text, fit_text, FontSize, get_view_port_scaling, load_font_sizes, make_text, MyBitmapText } from "./fonts";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 
 const SQUARE_ROUNDING_FACTOR = 8;
@@ -37,7 +37,7 @@ export default class SquareScene extends Phaser.Scene
             text_big: Phaser.GameObjects.BitmapText
         }[][],
         square_connecting_line_texture: Phaser.GameObjects.Image | undefined,
-        text_test: MyBitmapText[]
+        carousel_text: BBCodeText,
     } | undefined = undefined
 
     game_state!: GameState;
@@ -64,9 +64,13 @@ export default class SquareScene extends Phaser.Scene
 
     handle_resize(game_size: Phaser.Structs.Size)
     {
-        // Update camera viewport to match new size
         console.log("Resizing to:", game_size.width, game_size.height);
+
+        // Update camera viewport to match new size
         this.cameras.main.setViewport(0, 0, game_size.width, game_size.height);
+
+        // Load the font sizes for the new screen size for easy access
+        load_font_sizes(this.game_state, this);
 
         // Update the layout
         this.update_layout();
@@ -98,11 +102,8 @@ export default class SquareScene extends Phaser.Scene
         this.game_objects.hints_left.visible = false;
         this.game_objects.hints_right.visible = false;
 
-        for (let i = 0; i < this.game_objects.text_test.length; i++) 
-        {
-            this.game_objects.text_test[i].visible = false;
-        }
         this.hide_square_objects();
+        this.hide_carousel_objects();
     }
 
     hide_square_objects()
@@ -123,6 +124,13 @@ export default class SquareScene extends Phaser.Scene
         {
             this.game_objects.square_connecting_line_texture.visible = false;
         }
+    }
+
+    hide_carousel_objects()
+    {
+        if (!this.game_objects) return;
+
+        this.game_objects.carousel_text.setVisible(false);
     }
 
     draw_square_letter(row: number, column: number)
@@ -332,6 +340,29 @@ export default class SquareScene extends Phaser.Scene
         this.draw_square();
     }
 
+    draw_hints_carousel()
+    {
+        if (!this.game_objects) return;
+
+        const rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!;
+        const padding = this.game_state.font_sizes[FontSize.TINY] / 2;
+        const inner_rectangle = get_inner_rectangle_with_padding(rectangle, padding);
+        console.log("Drawing hints carousel in rectangle:", rectangle);
+        fit_text(this.game_objects.carousel_text,
+            inner_rectangle,
+            ["hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
+                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
+                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
+                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
+                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
+                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
+                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
+                "hi ", "[i]hello[/i] ", "greetings ", "salutations ", "howdy ",
+            ]);
+
+        this.game_objects.carousel_text.setVisible(true);
+    }
+
     draw()
     {
         if (!this.game_objects || !this.game_state.layout.square_scene_layout) return;
@@ -357,11 +388,7 @@ export default class SquareScene extends Phaser.Scene
         }
 
         this.draw_square();
-
-        for (let i = 0; i < this.game_objects.text_test.length; i++) 
-        {
-            this.game_objects.text_test[i].update({ width: this.game.canvas.width, height: this.game.canvas.height }).visible = true;
-        }
+        this.draw_hints_carousel();
     }
 
     update_layout()
@@ -456,14 +483,7 @@ export default class SquareScene extends Phaser.Scene
             hints_right: this.add.rectangle(455, 325, 755, 725, 0xffffff),
             squares: squares,
             square_connecting_line_texture: undefined,
-            // 12 is technically legible but awful for the user
-            text_test: [
-                make_text(this, 10, 20, FontSize.TINY, "Generating square..!"),
-                make_text(this, 10, 80, FontSize.SMALL, "Generating square..."),
-                make_text(this, 10, 160, FontSize.MEDIUM, `Generating square...${get_view_port_scaling()}`),
-                make_text(this, 10, 240, FontSize.LARGE, "Generating square..."),
-                make_text(this, 10, 320, FontSize.HUGE, "Generating square...")
-            ]
+            carousel_text: blank_text(this)
         };
 
         this.children.sendToBack(this.game_objects.square);

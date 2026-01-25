@@ -2,6 +2,9 @@
  * This module contains functions to help us use a sensible font size
  */
 
+import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
+import { GameState } from "./logic";
+
 export enum FontSize
 {
     TINY,
@@ -67,38 +70,83 @@ export function get_font_size(
     }
 }
 
-export class MyBitmapText extends Phaser.GameObjects.Text
+export function load_font_sizes(game_state: GameState, scene: Phaser.Scene): void
 {
-    font_size: FontSize;
-
-    constructor(scene: Phaser.Scene, x: number, y: number, font_size: FontSize, text: string)
-    {
-        const size = get_font_size({ width: scene.scale.gameSize.width, height: scene.scale.gameSize.height }, font_size);
-        super(scene, x, y, text, { fontFamily: `roboto`, fontSize: `${size}px`, color: '#000000' });
-        this.font_size = font_size;
-        this.setOrigin(0, -0.5);
-        scene.add.existing(this);
-    }
-
-    update(canvas_size: { width: number, height: number }): this
-    {
-        const target_size = get_font_size({ width: canvas_size.width, height: canvas_size.height }, this.font_size);
-        this.setFontSize(target_size);
-        return this;
-    }
-}
-
-export function make_text(scene: Phaser.Scene, x: number, y: number, font_size: FontSize, text: string): MyBitmapText
-{
-    return new MyBitmapText(scene, x, y, font_size, text);
+    const canvas_size = { width: scene.scale.gameSize.width, height: scene.scale.gameSize.height };
+    game_state.font_sizes = {
+        [FontSize.TINY]: get_font_size(canvas_size, FontSize.TINY),
+        [FontSize.SMALL]: get_font_size(canvas_size, FontSize.SMALL),
+        [FontSize.MEDIUM]: get_font_size(canvas_size, FontSize.MEDIUM),
+        [FontSize.LARGE]: get_font_size(canvas_size, FontSize.LARGE),
+        [FontSize.HUGE]: get_font_size(canvas_size, FontSize.HUGE),
+    };
 }
 
 /**
+ * Try to fit the given text segments into the given bounds. The text segments
+ * should be written in BB code and each segment must be placed in whole or not at all.
  * 
- * @param bounds 
- * @param text 
+ * At least one segment will be placed, so if that cannot fit, it may overlap whatever is on-screen.
+ * @param bounds - the space for the text segments
+ * @param text_segments - the segments to fit in this space
+ * @returns The number of text segments that were able to fit
  */
-export function fit_text(bounds: { width: number, height: number },): void
+export function fit_text(text: BBCodeText, bounds: { x: number, y: number, width: number, height: number }, text_segments: string[]):
+    { segments: number, text: BBCodeText }
 {
+    if (text_segments.length <= 0)
+    {
+        return { segments: 0, text };
+    }
+    const default_style = {
+        fixedWidth: bounds.width,
+        fixedHeight: 0,
+        valign: 'top' as const,
+        halign: 'left' as const,
+        wrap: { mode: 'word' as const, width: bounds.width },
+        fontFamily: 'roboto',
+        fontSize: `${get_base_font_size({ width: text.scene.scale.gameSize.width, height: text.scene.scale.gameSize.height })}px`,
+        color: '#000000'
+    }
+    text.setStyle(default_style);
+    text.setPosition(bounds.x, bounds.y);
+    let number_of_segments = text_segments.length;
+    while (number_of_segments > 0)
+    {
+        text.setText(text_segments.slice(0, number_of_segments).join(''));
+        if (text.height <= bounds.height || number_of_segments === 1)
+        {
+            // It fits!
+            default_style.fixedHeight = bounds.height;
+            text.setStyle(default_style);
+            return { segments: number_of_segments, text };
+        }
+        number_of_segments--;
+    }
 
+    default_style.fixedHeight = bounds.height;
+    text.setStyle(default_style);
+    return { segments: 0, text };
+}
+
+/**
+ * Create a blank text object which is useful for typing when making a scene
+ * @param scene add a blank text object to the current scene
+ * @returns the text object created
+ */
+export function blank_text(scene: Phaser.Scene): BBCodeText
+{
+    const default_style = {
+        fixedWidth: 0,
+        fixedHeight: 0,
+        valign: 'top' as const,
+        halign: 'left' as const,
+        wrap: { mode: 'word' as const, width: 0 },
+        fontFamily: 'roboto',
+        fontSize: `${get_base_font_size({ width: scene.scale.gameSize.width, height: scene.scale.gameSize.height })}px`,
+        color: '#000000'
+    }
+    const empty_text = new BBCodeText(scene, 0, 0, "", default_style);
+    scene.add.existing(empty_text);
+    return empty_text;
 }

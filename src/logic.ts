@@ -6,6 +6,7 @@ import SquareSceneLayout from './layouts/SquareSceneLayout';
 import { Words } from './words';
 import { Square } from './squares';
 import { Position } from './types';
+import { FontSize } from './fonts';
 
 export type LayoutState = {
     yoga_config: Config
@@ -88,6 +89,13 @@ export type SquareState = {
  * Handles all persistent game state
  */
 export type GameState = {
+    font_sizes: {
+        [FontSize.TINY]: number;
+        [FontSize.SMALL]: number;
+        [FontSize.MEDIUM]: number;
+        [FontSize.LARGE]: number;
+        [FontSize.HUGE]: number;
+    };
     words: Words
     layout: LayoutState
     square: SquareState
@@ -130,6 +138,24 @@ export function init_game_state(): GameState
             words_found_carousel_index: 0,
             hints_carousel_index: 0
         },
+        font_sizes: {
+            [FontSize.TINY]: 12,
+            [FontSize.SMALL]: 14,
+            [FontSize.MEDIUM]: 18,
+            [FontSize.LARGE]: 24,
+            [FontSize.HUGE]: 36
+        },
         square_parameters: new_square_parameters()
+    };
+}
+
+export function get_inner_rectangle_with_padding(rect: { x: number, y: number, width: number, height: number }, padding: number):
+    { x: number, y: number, width: number, height: number }
+{
+    return {
+        x: rect.x + padding,
+        y: rect.y + padding,
+        width: rect.width - (2 * padding),
+        height: rect.height - (2 * padding)
     };
 }
