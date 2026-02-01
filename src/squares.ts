@@ -228,7 +228,7 @@ export class Square
         if (y < 0 || y >= this.parameters.size) return;
         if (this.parameters.template[y][x] === false) return;
         this.invalidate_caches();
-        this.letters[y][x] = letter;
+        this.letters[y][x] = letter.toLowerCase();
     }
 
     remove_letter(x: number, y: number)

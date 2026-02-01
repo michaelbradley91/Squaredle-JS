@@ -29,6 +29,7 @@ const SQUARE_CONNECTING_LINE_SMALL_CIRCLE_FACTOR = 7;
 export default class SquareComponent extends BaseComponent<SquareScene>
 {
     game_objects!: {
+        square: Phaser.GameObjects.Rectangle;
         squares: {
             background: RoundRectangle,
             border: RoundRectangle,
@@ -61,9 +62,12 @@ export default class SquareComponent extends BaseComponent<SquareScene>
         }
 
         this.game_objects = {
+            square: this.scene.add.rectangle(400, 300, 800, 800, 0xff00ff),
             squares: squares,
             square_connecting_line_texture: undefined,
         };
+
+        this.scene.children.sendToBack(this.game_objects.square);
     }
 
     hide_square_objects()
@@ -89,6 +93,10 @@ export default class SquareComponent extends BaseComponent<SquareScene>
     public draw(): void
     {
         this.hide_square_objects();
+
+        const layout = this.game_state.layout.square_scene_layout;
+        update_rectangle(layout.get_layout_rectangle(OuterScreenNode.Square), this.game_objects.square);
+
         for (let row = 0; row < this.game_state.square_parameters.size; row++)
         {
             for (let col = 0; col < this.game_state.square_parameters.size; col++)
@@ -102,8 +110,6 @@ export default class SquareComponent extends BaseComponent<SquareScene>
 
     draw_square_letter(row: number, column: number)
     {
-        if (!this.game_objects) return;
-
         const letter = this.game_state.square.letters[row][column];
         if (!letter) return;
 
@@ -144,8 +150,6 @@ export default class SquareComponent extends BaseComponent<SquareScene>
 
     draw_lines_between_squares()
     {
-        if (!this.game_objects) return;
-        if (!this.game_state.layout.square_scene_layout) return;
         if (this.game_state.square_parameters.size <= 0) return;
 
         /* Draw any active line connecting the squares */
