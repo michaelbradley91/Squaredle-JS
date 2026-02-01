@@ -130,30 +130,32 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 
         for (const length in quality.words_by_length)
         {
-            /* The title must be accompanied by something to be shown on the hints
-             * carousel */
-            let title_text = `[b]${length} letters[/b]\n`;
-
-            const first_word = quality.words_by_length[length].values().next().value;
-            if (!first_word)
+            if (quality.words_by_length[length].size <= 0)
             {
                 continue;
             }
 
-            if (this.game_state.square.words_found.has(first_word))
+            /* The title must be accompanied by something to be shown on the hints
+             * carousel */
+            let title_text = `[b]${length} letters[/b]\n`;
+
+            const words_of_length = Array.from(quality.words_by_length[length]);
+            words_of_length.sort();
+
+            if (this.game_state.square.words_found.has(words_of_length[0]))
             {
-                title_text += `${first_word} `;
+                title_text += `${words_of_length[0]} `;
             }
             else
             {
-                title_text += `${this.get_word_with_letter_hints(first_word)} `;
+                title_text += `${this.get_word_with_letter_hints(words_of_length[0])} `;
             }
             text.push(title_text);
 
             /* Now for the remaining words */
-            for (let i = 1; i < quality.words_by_length[length].size; i++)
+            for (let i = 1; i < words_of_length.length; i++)
             {
-                const word = quality.words_by_length[length][i];
+                const word = words_of_length[i];
                 if (this.game_state.square.words_found.has(word))
                 {
                     text.push(`${word} `);
