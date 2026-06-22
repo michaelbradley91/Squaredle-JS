@@ -3,11 +3,12 @@
  * and handles critical functions that all scenes should have
  */
 
-import RoundRectangle from "phaser3-rex-plugins/plugins/roundrectangle";
+import { Scene } from "phaser";
+import RoundRectangle from "phaser4-rex-plugins/plugins/roundrectangle";
 import { load_font_sizes } from "~/fonts";
 import { GameState, init_game_state } from "~/logic";
 
-export default abstract class BaseScene extends Phaser.Scene
+export default abstract class BaseScene extends Scene
 {
     game_state: GameState;
 

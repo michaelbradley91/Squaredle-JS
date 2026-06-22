@@ -4,11 +4,20 @@ import path from 'path';
 
 export default defineConfig({
 	plugins: [dsv()],
+	build: {
+		target: 'es2022', // or 'esnext'
+	},
 	resolve: {
 		alias: {
 			// eslint-disable-next-line no-undef
 			"~": path.resolve(__dirname, './src/'),
 		}
+	},
+	esbuild: {
+		target: 'es2022',
+		supported: {
+			'top-level-await': true
+		},
 	},
 	base: '/Squaredle-JS/',
 	server: {
@@ -17,6 +26,11 @@ export default defineConfig({
 		https: {
 			key: "crt/localhost.key",
 			cert: "crt/localhost.crt"
+		},
+	},
+	optimizeDeps: {
+		esbuildOptions: {
+			target: 'es2022',
 		},
 	},
 	clearScreen: false,

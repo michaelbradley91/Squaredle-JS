@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
-import RoundRectanglePlugin from 'phaser3-rex-plugins/plugins/roundrectangle-plugin.js';
-import BBCodeTextPlugin from 'phaser3-rex-plugins/plugins/bbcodetext-plugin.js';
+import RoundRectanglePlugin from 'phaser4-rex-plugins/plugins/roundrectangle-plugin.js';
+import BBCodeTextPlugin from 'phaser4-rex-plugins/plugins/bbcodetext-plugin.js';
 import StartScene from './StartScene'
 import SquareScene from './scenes/square/SquareScene';
 

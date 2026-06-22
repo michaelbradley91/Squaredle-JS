@@ -8,7 +8,7 @@ import SquareScene from "./SquareScene";
 import { update_rectangle } from "../BaseScene";
 import { blank_text, fit_text, FontSize } from "~/fonts";
 import { get_hint_level, get_inner_rectangle_with_padding, HintLevel } from "~/logic";
-import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
+import BBCodeText from "phaser4-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { SquareQuality } from "~/squares";
 
 export default class HintsCarouselComponent extends BaseComponent<SquareScene>

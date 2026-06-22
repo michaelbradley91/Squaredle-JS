@@ -4,6 +4,15 @@ import path from 'path';
 
 export default defineConfig({
 	plugins: [dsv()],
+	build: {
+		target: 'es2022', // or 'esnext'
+	},
+	esbuild: {
+		target: 'es2022',
+		supported: {
+			'top-level-await': true
+		},
+	},
 	resolve: {
 		alias: {
 			// eslint-disable-next-line no-undef
@@ -17,6 +26,11 @@ export default defineConfig({
 		https: {
 			key: "crt/localhost.key",
 			cert: "crt/localhost.crt"
+		},
+	},
+	optimizeDeps: {
+		esbuildOptions: {
+			target: 'es2022',
 		},
 	},
 	clearScreen: false,

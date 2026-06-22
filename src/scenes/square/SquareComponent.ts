@@ -4,7 +4,7 @@
 
 import BaseComponent from "../BaseComponent";
 import SquareScene from "./SquareScene";
-import RoundRectangle from "phaser3-rex-plugins/plugins/roundrectangle";
+import RoundRectangle from "phaser4-rex-plugins/plugins/roundrectangle";
 import { SQUARE_TEXT_BIG_FONT_FAMILY, SQUARE_TEXT_FONT_FAMILY } from "~/fonts";
 import { update_rectangle } from "../BaseScene";
 import { OuterScreenNode } from "~/layouts/SquareSceneLayout";

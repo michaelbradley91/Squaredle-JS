@@ -2,7 +2,7 @@
  * This module contains functions to help us use a sensible font size
  */
 
-import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
+import BBCodeText from "phaser4-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { GameState } from "./logic";
 
 export const SQUARE_TEXT_FONT_FAMILY = 'roboto-bold';
