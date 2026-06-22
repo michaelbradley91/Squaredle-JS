@@ -262,7 +262,7 @@ export default class StartScene extends Phaser.Scene
 		this.handle_resize(this.scale.gameSize);
 	}
 
-	update(time: number, delta: number): void 
+	update(_time: number, _delta: number): void 
 	{
 		// Update logic if needed
 		this.start_text?.setText(`Start (${this.is_persistent}) ${this.storage_estimate?.usage} / ${this.storage_estimate?.quota}`);
