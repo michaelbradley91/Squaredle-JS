@@ -105,6 +105,7 @@ export function fit_text(text: BBCodeText, bounds: { x: number, y: number, width
     {
         return { segments: 0, text };
     }
+    const base_font_size = get_base_font_size({ width: bounds.width, height: bounds.height });
     const default_style = {
         fixedWidth: bounds.width,
         fixedHeight: 0,
@@ -112,8 +113,9 @@ export function fit_text(text: BBCodeText, bounds: { x: number, y: number, width
         halign: 'left' as const,
         wrap: { mode: 'word' as const, width: bounds.width },
         fontFamily: 'roboto',
-        fontSize: `${get_base_font_size({ width: text.scene.scale.gameSize.width, height: text.scene.scale.gameSize.height })}px`,
-        color: '#000000'
+        fontSize: `${base_font_size}px`,
+        color: '#000000',
+        lineSpacing: base_font_size * 0.5
     }
     text.setStyle(default_style);
     text.setPosition(bounds.x, bounds.y);

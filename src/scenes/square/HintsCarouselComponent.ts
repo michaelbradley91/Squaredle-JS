@@ -1,5 +1,18 @@
 /**
  * The hints components manages the hints carousel for the user
+ * 
+ * #################
+ * Hint word layout:
+ * #################
+ * 
+ * The real Squardle lays out text using a grid format. This isn't something we can support with pure BBCode out of the box.
+ * Squardle calculates the width of every word in the hint block, then figures out based on the longest word how many words
+ * can fit in a line with the right spacing between words.
+ * 
+ * This then forms a grid with every word of the same length being laid out in this grid.
+ * 
+ * Unfortunately with Phaser it is very hard to set generic styling for headers line gap etc so we'll have to calculate
+ * all this ourselves... pretty painful!
  */
 
 import { OuterScreenNode } from "~/layouts/SquareSceneLayout";
@@ -216,7 +229,8 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             inner_rectangle,
             this.get_hints_text_for_carousel()
         );
-
+        const text_bounds = this.game_objects.text_left.width;
+        console.log("Hints carousel text bounds: %o", text_bounds);
         this.game_objects.text_left.setVisible(true);
         this.game_objects.text_right.setVisible(true);
     }
