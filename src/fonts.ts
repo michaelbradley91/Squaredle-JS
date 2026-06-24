@@ -107,8 +107,6 @@ export function fit_text(text: BBCodeText, bounds: { x: number, y: number, width
     }
     const base_font_size = get_base_font_size({ width: bounds.width, height: bounds.height });
     const default_style = {
-        fixedWidth: bounds.width,
-        fixedHeight: 0,
         valign: 'top' as const,
         halign: 'left' as const,
         wrap: { mode: 'word' as const, width: bounds.width },
@@ -125,17 +123,29 @@ export function fit_text(text: BBCodeText, bounds: { x: number, y: number, width
         text.setText(text_segments.slice(0, number_of_segments).join(''));
         if (text.height <= bounds.height || number_of_segments === 1)
         {
-            // It fits!
-            default_style.fixedHeight = bounds.height;
             text.setStyle(default_style);
             return { segments: number_of_segments, text };
         }
         number_of_segments--;
     }
 
-    default_style.fixedHeight = bounds.height;
     text.setStyle(default_style);
     return { segments: 0, text };
+}
+
+/**
+ * Place text within the given bounds
+ * @param bb_text - the text object to place
+ * @param bounds - the bounds to place the text within
+ * 
+ * Note: the text width and height is not actually fixed so it will overlap space if not positioned
+ *       somewhere appropriate. You can calculate the size of the text yourself to check it by looking
+ *       at the text.width and text.height properties after setting the text and style.
+ */
+export function place_text(bb_text: BBCodeText, bounds: { x: number, y: number, width: number, height: number }): void
+{
+    bb_text.setPosition(bounds.x, bounds.y);
+    bb_text.setWrapWidth(bounds.width);
 }
 
 /**
