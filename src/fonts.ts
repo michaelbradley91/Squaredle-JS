@@ -44,8 +44,9 @@ export function get_base_font_size(canvas_size: { width: number, height: number 
 {
     // Take whichever is the narrower of width and height so on extremely long displays
     // the font is not excessively large
-    const canvas_scaling = Math.min(canvas_size.width, canvas_size.height);
-    const font_size = ((15 * get_view_port_scaling()) + (0.390625 * canvas_scaling / 100))
+    let canvas_scaling = Math.min(canvas_size.width, canvas_size.height);
+    canvas_scaling += 0.5 * Math.max(canvas_size.width, canvas_size.height);
+    const font_size = ((11 * get_view_port_scaling()) + (0.390625 * canvas_scaling / 80));
     return font_size;
 }
 
@@ -105,7 +106,8 @@ export function fit_text(text: BBCodeText, bounds: { x: number, y: number, width
     {
         return { segments: 0, text };
     }
-    const base_font_size = get_base_font_size({ width: bounds.width, height: bounds.height });
+
+    const base_font_size = get_base_font_size({ width: text.scene.scale.gameSize.width, height: text.scene.scale.gameSize.height });
     const default_style = {
         valign: 'top' as const,
         halign: 'left' as const,

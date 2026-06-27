@@ -229,8 +229,6 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             inner_rectangle,
             this.get_hints_text_for_carousel()
         );
-        const text_bounds = this.game_objects.text_left.width;
-        console.log("Hints carousel text bounds: %o", text_bounds);
         this.game_objects.text_left.setVisible(true);
         this.game_objects.text_right.setVisible(true);
     }

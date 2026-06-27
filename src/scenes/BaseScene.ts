@@ -49,8 +49,6 @@ export default abstract class BaseScene extends Scene
             document.getElementById("app")?.setAttribute("style", "width: 100%; height: 100%; zoom: 1; position: relative; top: 0%; left: 0%");
         }
 
-        console.log("Resizing to:", game_size.width, game_size.height);
-
         // Update camera viewport to match new size
         this.cameras.main.setViewport(0, 0, game_size.width, game_size.height);
 
