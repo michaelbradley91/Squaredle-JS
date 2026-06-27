@@ -18,6 +18,10 @@ export enum FontSize
     HUGE
 }
 
+export const FONT_HINTS_TITLES = FontSize.MEDIUM;
+export const FONT_HINTS_WORDS = FontSize.SMALL;
+export const FONT_HINTS_WORDS_LEFT = FontSize.SMALL;
+
 /* We artificially scale the canvas to force better resolution of text on high DPI displays */
 export function get_forced_scaling(): number
 {
@@ -106,8 +110,7 @@ export function fit_text(text: BBCodeText, bounds: { x: number, y: number, width
     {
         return { segments: 0, text };
     }
-
-    const base_font_size = get_base_font_size({ width: text.scene.scale.gameSize.width, height: text.scene.scale.gameSize.height });
+    const base_font_size = get_font_size({ width: text.scene.scale.gameSize.width, height: text.scene.scale.gameSize.height }, FontSize.MEDIUM);
     const default_style = {
         valign: 'top' as const,
         halign: 'left' as const,
@@ -115,7 +118,7 @@ export function fit_text(text: BBCodeText, bounds: { x: number, y: number, width
         fontFamily: 'roboto',
         fontSize: `${base_font_size}px`,
         color: '#000000',
-        lineSpacing: base_font_size * 0.5
+        lineSpacing: base_font_size * 0.5,
     }
     text.setStyle(default_style);
     text.setPosition(bounds.x, bounds.y);
@@ -170,4 +173,28 @@ export function blank_text(scene: Phaser.Scene): BBCodeText
     const empty_text = new BBCodeText(scene, 0, 0, "", default_style);
     scene.add.existing(empty_text);
     return empty_text;
+}
+
+/**
+ * Style some text with bbcode styling.
+ * 
+ * @param text the text to style
+ * @param colour the colour of the text (foreground)
+ * @param size the size of the text in this font
+ * @param italic whether this should appear italic
+ * @param bold whether this should appear bold
+ * @returns a new bb code compliant string stylign as required
+ */
+export function style_bbcode_text(text: string, colour: string, size: number, italic: boolean = false, bold: boolean = false): string
+{
+    let style = `[color=${colour}][size=${size}]${text}[/size][/color]`;
+    if (italic)
+    {
+        style = `[i]${style}[/i]`;
+    }
+    if (bold)
+    {
+        style = `[b]${style}[/b]`;
+    }
+    return style;
 }

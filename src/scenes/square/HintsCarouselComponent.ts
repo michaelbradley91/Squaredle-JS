@@ -19,10 +19,11 @@ import { OuterScreenNode } from "~/layouts/SquareSceneLayout";
 import BaseComponent from "../BaseComponent";
 import SquareScene from "./SquareScene";
 import { update_rectangle } from "../BaseScene";
-import { blank_text, fit_text, FontSize } from "~/fonts";
+import { blank_text, fit_text, FONT_HINTS_TITLES, FONT_HINTS_WORDS_LEFT, FontSize, style_bbcode_text, style_bbcode_text } from "~/fonts";
 import { get_hint_level, get_inner_rectangle_with_padding, HintLevel } from "~/logic";
 import BBCodeText from "phaser4-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { SquareQuality } from "~/squares";
+import { COLOUR_HINTS_TITLES, COLOUR_HINTS_WORDS_LEFT } from "~/colours";
 
 export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 {
@@ -88,10 +89,13 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 
             /* The title must be accompanied by something to be shown on the hints
              * carousel */
-            let title_text = `[b]${length} letters[/b]\n`;
+            const title_font_size = this.game_state.font_sizes[FONT_HINTS_TITLES];
+            const words_left_font_size = this.game_state.font_sizes[FONT_HINTS_WORDS_LEFT];
+
+            let title_text = style_bbcode_text(`${length} letters\n`, COLOUR_HINTS_TITLES, title_font_size, false, true);
             if (words_found_at_length.length == 0)
             {
-                title_text += `${remaining_words_of_length} words left\n`;
+                title_text += style_bbcode_text(`${remaining_words_of_length} words left \n`, COLOUR_HINTS_WORDS_LEFT, words_left_font_size, true);
                 text.push(title_text);
                 continue;
             }
@@ -102,7 +106,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             {
                 text.push(`${words_found_at_length[i]} `);
             }
-            text.push(`${remaining_words_of_length} words left\n`);
+            text.push(style_bbcode_text(`${remaining_words_of_length} words left \n`, COLOUR_HINTS_WORDS_LEFT, words_left_font_size, true));
         }
         return text;
     }
@@ -150,18 +154,20 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 
             /* The title must be accompanied by something to be shown on the hints
              * carousel */
-            let title_text = `[b]${length} letters[/b]\n`;
+            const title_font_size = this.game_state.font_sizes[FONT_HINTS_TITLES];
+            const words_font_size = this.game_state.font_sizes[FONT_HINTS_WORDS_LEFT];
+            let title_text = style_bbcode_text(`${length} letters\n`, COLOUR_HINTS_TITLES, title_font_size, false, true);
 
             const words_of_length = Array.from(quality.words_by_length[length]);
             words_of_length.sort();
 
             if (this.game_state.square.words_found.has(words_of_length[0]))
             {
-                title_text += `${words_of_length[0]} `;
+                title_text += style_bbcode_text(`${words_of_length[0]} `, COLOUR_HINTS_WORDS_LEFT, words_font_size, false);
             }
             else
             {
-                title_text += `${this.get_word_with_letter_hints(words_of_length[0])} `;
+                title_text += style_bbcode_text(`${this.get_word_with_letter_hints(words_of_length[0])} `, COLOUR_HINTS_WORDS_LEFT, words_font_size, false);
             }
             text.push(title_text);
 
@@ -171,17 +177,22 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
                 const word = words_of_length[i];
                 if (this.game_state.square.words_found.has(word))
                 {
-                    text.push(`${word} `);
+                    text.push(style_bbcode_text(`${word} `, COLOUR_HINTS_WORDS_LEFT, words_font_size, false));
                 }
                 else
                 {
-                    text.push(`${this.get_word_with_letter_hints(word)} `);
+                    text.push(style_bbcode_text(`${this.get_word_with_letter_hints(word)} `, COLOUR_HINTS_WORDS_LEFT, words_font_size, false));
                 }
             }
-            text.push(`\n`);
+            text.push(style_bbcode_text(`\n`, COLOUR_HINTS_WORDS_LEFT, words_font_size, false));
         }
         return text;
     }
+
+    /**
+     * Okay, I think I'm abandoning the idea of using multiple columns in a vertical layout. It'll look too weird
+     * and be a pain to program correctly. We'll increase the font size. Sooo...
+     */
 
     /**
      * @returns the text for the hints carousel
@@ -216,7 +227,6 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             case HintLevel.USED_LETTERS:
             default:
                 return this.get_hints_text_without_letters();
-
         }
     }
 
