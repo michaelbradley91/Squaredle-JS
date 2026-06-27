@@ -19,7 +19,7 @@ import { OuterScreenNode } from "~/layouts/SquareSceneLayout";
 import BaseComponent from "../BaseComponent";
 import SquareScene from "./SquareScene";
 import { update_rectangle } from "../BaseScene";
-import { blank_text, fit_text, FONT_HINTS_TITLES, FONT_HINTS_WORDS_LEFT, FontSize, style_bbcode_text, style_bbcode_text } from "~/fonts";
+import { blank_text, fit_text, FONT_HINTS_TITLES, FONT_HINTS_WORDS_LEFT, FontSize, style_bbcode_text } from "~/fonts";
 import { get_hint_level, get_inner_rectangle_with_padding, HintLevel } from "~/logic";
 import BBCodeText from "phaser4-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { SquareQuality } from "~/squares";
