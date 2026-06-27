@@ -31,7 +31,9 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         hints_left: Phaser.GameObjects.Rectangle;
         hints_right: Phaser.GameObjects.Rectangle;
         text_left: BBCodeText;
-        text_right: BBCodeText
+        text_right: BBCodeText;
+        hints_left_camera: Phaser.Cameras.Scene2D.Camera;
+        hints_right_camera: Phaser.Cameras.Scene2D.Camera;
     }
 
     /**
@@ -44,6 +46,8 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             hints_right: this.scene.add.rectangle(455, 325, 755, 725, 0xffffff),
             text_left: blank_text(this.scene),
             text_right: blank_text(this.scene),
+            hints_left_camera: this.scene.cameras.add(0, 0, 755, 725),
+            hints_right_camera: this.scene.cameras.add(0, 0, 755, 725),
         };
     }
 
@@ -62,6 +66,8 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
     {
         this.game_objects.hints_left.setVisible(false);
         this.game_objects.hints_right.setVisible(false);
+        this.game_objects.hints_left_camera.setVisible(false);
+        this.game_objects.hints_right_camera.setVisible(false);
     }
 
     private get_hints_text_without_letters(): string[]
@@ -232,15 +238,35 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 
     public draw_hints_carousel(): void
     {
-        const rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!;
+        const left_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!;
+
+        /* Focus the camera on the correct rectangles */
+        this.game_objects.hints_left_camera.setBounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, left_rectangle.height * 2);
+        this.game_objects.hints_left_camera.setScroll(left_rectangle.x, left_rectangle.y + 350);
+        this.game_objects.hints_left_camera.setPosition(left_rectangle.x, left_rectangle.y);
+        this.game_objects.hints_left_camera.setSize(left_rectangle.width, left_rectangle.height);
+        this.game_objects.hints_left_camera.setBackgroundColor(0xff0000);
         const padding = this.game_state.font_sizes[FontSize.TINY] / 2;
-        const inner_rectangle = get_inner_rectangle_with_padding(rectangle, padding);
+        const inner_rectangle = get_inner_rectangle_with_padding(left_rectangle, padding);
         fit_text(this.game_objects.text_left,
             inner_rectangle,
             this.get_hints_text_for_carousel()
         );
         this.game_objects.text_left.setVisible(true);
         this.game_objects.text_right.setVisible(true);
+        this.game_objects.hints_left_camera.setVisible(true);
+
+        /* And the right hand camera... */
+        if (!this.game_state.layout.square_scene_layout.is_vertical())
+        {
+            const right_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsRight)!;
+            this.game_objects.hints_right_camera.setBounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, left_rectangle.height * 2);
+            this.game_objects.hints_right_camera.setScroll(left_rectangle.x, left_rectangle.y + 500);
+            this.game_objects.hints_right_camera.setPosition(right_rectangle.x, right_rectangle.y);
+            this.game_objects.hints_right_camera.setSize(right_rectangle.width, right_rectangle.height);
+            this.game_objects.hints_right_camera.setBackgroundColor(0x00ff00);
+            this.game_objects.hints_right_camera.setVisible(true);
+        }
     }
 
     public draw(): void
