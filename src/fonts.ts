@@ -19,7 +19,7 @@ export enum FontSize
 }
 
 export const FONT_HINTS_TITLES = FontSize.MEDIUM;
-export const FONT_HINTS_WORDS = FontSize.SMALL;
+export const FONT_HINTS_REGULAR = FontSize.SMALL;
 export const FONT_HINTS_WORDS_LEFT = FontSize.SMALL;
 
 /* We artificially scale the canvas to force better resolution of text on high DPI displays */
@@ -153,6 +153,17 @@ export function place_text(bb_text: BBCodeText, bounds: { x: number, y: number, 
     bb_text.setWrapWidth(bounds.width);
 }
 
+export const DEFAULT_TEXT_STYLE = {
+    fixedWidth: 0,
+    fixedHeight: 0,
+    valign: 'top' as const,
+    halign: 'left' as const,
+    wrap: { mode: 'word' as const, width: 0 },
+    fontFamily: 'roboto',
+    fontSize: '16px',
+    color: '#000000'
+};
+
 /**
  * Create a blank text object which is useful for typing when making a scene
  * @param scene add a blank text object to the current scene
@@ -161,16 +172,11 @@ export function place_text(bb_text: BBCodeText, bounds: { x: number, y: number, 
 export function blank_text(scene: Phaser.Scene): BBCodeText
 {
     const default_style = {
-        fixedWidth: 0,
-        fixedHeight: 0,
-        valign: 'top' as const,
-        halign: 'left' as const,
-        wrap: { mode: 'word' as const, width: 0 },
-        fontFamily: 'roboto',
-        fontSize: `${get_base_font_size({ width: scene.scale.gameSize.width, height: scene.scale.gameSize.height })}px`,
-        color: '#000000'
-    }
+        ...DEFAULT_TEXT_STYLE,
+        fontSize: `${get_base_font_size({ width: scene.scale.gameSize.width, height: scene.scale.gameSize.height })}px`
+    };
     const empty_text = new BBCodeText(scene, 0, 0, "", default_style);
+    empty_text.setVisible(false);
     scene.add.existing(empty_text);
     return empty_text;
 }
@@ -197,4 +203,12 @@ export function style_bbcode_text(text: string, colour: string, size: number, it
         style = `[b]${style}[/b]`;
     }
     return style;
+}
+
+/**
+ * Get the standard line spacing for the given font size.
+ */
+export function get_line_spacing_for_font_size(game_state: GameState, font_size: FontSize): number
+{
+    return game_state.font_sizes[font_size] * 0.5;
 }

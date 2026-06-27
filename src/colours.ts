@@ -2,8 +2,25 @@
  * A lot of different colours to use!
  */
 
-const COLOUR_RED_PRIMARY = "#b82828";
-const COLOUR_LIGHT_GRAY = "#3b3b3b";
+export enum Colours
+{
+    WHITE = "#ffffff",
+    BLACK = "#000000",
+    RED_PRIMARY = "#b82828",
+    LIGHT_GRAY = "#3b3b3b"
+}
 
-export const COLOUR_HINTS_TITLES = COLOUR_RED_PRIMARY;
-export const COLOUR_HINTS_WORDS_LEFT = COLOUR_LIGHT_GRAY;
+export const COLOUR_HINTS_TITLES = Colours.RED_PRIMARY;
+export const COLOUR_HINTS_WORDS_LEFT = Colours.LIGHT_GRAY;
+export const COLOUR_HINTS_REGULAR = Colours.BLACK;
+
+/* Default checkbox colours */
+export const CHECKBOX_BORDER_COLOR = Colours.LIGHT_GRAY;
+export const CHECKBOX_FILL_COLOR = Colours.RED_PRIMARY;
+export const CHECKBOX_CLEARED_COLOR = Colours.WHITE;
+export const CHECKBOX_TICK_COLOR = Colours.WHITE;
+
+export function colour_to_hex(colour: Colours): number
+{
+    return parseInt(colour.replace("#", ""), 16);
+}

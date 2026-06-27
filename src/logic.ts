@@ -83,6 +83,7 @@ export type SquareState = {
     words_found_expanded: boolean,
     words_found_carousel_index: number,
     hints_carousel_index: number
+    reveals_remaining: number
 }
 
 /*
@@ -154,7 +155,8 @@ export function init_game_state(): GameState
             words_found: new Set<string>(),
             words_found_expanded: false,
             words_found_carousel_index: 0,
-            hints_carousel_index: 0
+            hints_carousel_index: 0,
+            reveals_remaining: 1
         },
         font_sizes: {
             [FontSize.MINISCULE]: 10,

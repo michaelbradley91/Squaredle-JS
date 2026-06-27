@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import RoundRectanglePlugin from 'phaser4-rex-plugins/plugins/roundrectangle-plugin.js';
 import BBCodeTextPlugin from 'phaser4-rex-plugins/plugins/bbcodetext-plugin.js';
+import CheckboxPlugin from 'phaser4-rex-plugins/plugins/checkbox-plugin.js';
 import StartScene from './StartScene'
 import SquareScene from './scenes/square/SquareScene';
 
@@ -26,7 +27,12 @@ const config: Phaser.Types.Core.GameConfig = {
 				key: 'rexBBCodeTextPlugin',
 				plugin: BBCodeTextPlugin,
 				start: true
-			}
+			},
+			{
+				key: 'rexCheckboxPlugin',
+				plugin: CheckboxPlugin,
+				start: true
+			},
 		]
 	},
 	scale: {
