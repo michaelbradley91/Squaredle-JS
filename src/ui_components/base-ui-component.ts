@@ -80,4 +80,19 @@ export default abstract class BaseUIComponent<S extends Phaser.Scene>
         this.update();
         this.show();
     }
+
+    /**
+     * Get the actively used bounding box of this component. This is potentially
+     * less than the bounds allowed for this component.
+     */
+    public get_active_bounds(): { x: number, y: number, width: number, height: number }
+    {
+        const size = this.get_size();
+        return {
+            x: this.bounds.x,
+            y: this.bounds.y,
+            width: size.width,
+            height: size.height
+        };
+    }
 }

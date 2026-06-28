@@ -69,7 +69,9 @@ export default class TextComponent<S extends Phaser.Scene> extends BaseUICompone
             position: { x: this.bounds.x, y: this.bounds.y },
             color: this.font_color,
             padding: this.padding,
-            lineSpacing: line_spacing
+            lineSpacing: line_spacing,
+            valign: "top" as const,
+            halign: "left" as const
         };
         if (this.bounds.width !== Infinity)
         {
