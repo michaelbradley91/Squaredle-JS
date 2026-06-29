@@ -131,7 +131,7 @@ export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUI
          * The hints text always occupies the full width and is infinitely tall so we
          * don't need to adjust the height based on its content.
          */
-        this.total_size.height = current_y + this.padding.bottom;
+        this.total_size.height = (current_y - this.bounds.y) + this.padding.bottom;
         this.total_size.width = this.bounds.width;
     }
     public get_size(): { width: number; height: number; }

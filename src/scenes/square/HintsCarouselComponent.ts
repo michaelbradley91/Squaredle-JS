@@ -23,7 +23,7 @@ import { blank_text, fit_text, FONT_HINTS_TITLES, FONT_HINTS_WORDS_LEFT, FontSiz
 import { get_hint_level, get_inner_rectangle_with_padding, HintLevel } from "~/logic";
 import BBCodeText from "phaser4-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { SquareQuality } from "~/squares";
-import { COLOUR_HINTS_TITLES, COLOUR_HINTS_WORDS_LEFT } from "~/colours";
+import { COLOUR_HINTS_REGULAR, COLOUR_HINTS_TITLES, COLOUR_HINTS_WORDS_LEFT } from "~/colours";
 import HintsHeaderComponent from "~/ui_components/HintsHeaderComponent";
 import TextGridComponent from "~/ui_components/TextGridComponent";
 import TextComponent from "~/ui_components/TextComponent";
@@ -74,17 +74,15 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         this.game_objects.text_grid_test.add_text_cell(this.game_objects.text_grid_5);
 
         this.game_objects.text_grid_1.set_text("hello");
-        this.game_objects.text_grid_1.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_WORDS_LEFT);
+        this.game_objects.text_grid_1.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
         this.game_objects.text_grid_2.set_text("world");
-        this.game_objects.text_grid_2.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_WORDS_LEFT);
+        this.game_objects.text_grid_2.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
         this.game_objects.text_grid_3.set_text("mains");
-        this.game_objects.text_grid_3.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_WORDS_LEFT);
+        this.game_objects.text_grid_3.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
         this.game_objects.text_grid_4.set_text("yacht");
-        this.game_objects.text_grid_4.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_WORDS_LEFT);
+        this.game_objects.text_grid_4.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
         this.game_objects.text_grid_5.set_text("books");
-        this.game_objects.text_grid_5.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_WORDS_LEFT);
-
-        this.game_objects.text_grid_test.set_cell_padding(10, 10);
+        this.game_objects.text_grid_5.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
     }
 
     /**
@@ -288,12 +286,15 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         const padding = get_line_spacing_for_font_size(this.game_state, FONT_HINTS_TITLES);
 
         this.game_objects.hints_header.set_bounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, Infinity);
-        this.game_objects.hints_header.set_padding(padding, padding, padding, padding);
+        this.game_objects.hints_header.set_padding(padding, 0, padding, padding);
         this.game_objects.hints_header.update();
 
         const hints_header_bounds = this.game_objects.hints_header.get_active_bounds();
         // TODO figure out what's going on with the height
-        this.game_objects.text_grid_test.set_bounds(left_rectangle.x, hints_header_bounds.height, left_rectangle.width, Infinity);
+        this.game_objects.text_grid_test.set_bounds(left_rectangle.x, hints_header_bounds.y + hints_header_bounds.height, left_rectangle.width, Infinity);
+
+        const grid_line_spacing = get_line_spacing_for_font_size(this.game_state, FONT_HINTS_WORDS_LEFT);
+        this.game_objects.text_grid_test.set_cell_padding(grid_line_spacing, grid_line_spacing);
         this.game_objects.text_grid_test.set_padding(padding, padding, padding, padding);
         this.game_objects.text_grid_test.update();
 
