@@ -12,6 +12,7 @@ export enum FontSize
 {
     MINISCULE = 0,
     TINY,
+    SMALLER,
     SMALL,
     MEDIUM,
     LARGE,
@@ -20,7 +21,8 @@ export enum FontSize
 
 export const FONT_HINTS_TITLES = FontSize.MEDIUM;
 export const FONT_HINTS_REGULAR = FontSize.SMALL;
-export const FONT_HINTS_WORDS_LEFT = FontSize.SMALL;
+export const FONT_HINTS_WORDS_LEFT = FontSize.SMALLER;
+export const FONT_HINTS_WORD_HINT = FontSize.SMALL;
 
 /* We artificially scale the canvas to force better resolution of text on high DPI displays */
 export function get_forced_scaling(): number
@@ -67,6 +69,8 @@ export function get_font_size(
             return get_base_font_size(canvas_size) * 0.7;
         case FontSize.TINY:
             return get_base_font_size(canvas_size) * 0.9;
+        case FontSize.SMALLER:
+            return get_base_font_size(canvas_size) * 1.1;
         case FontSize.SMALL:
             return get_base_font_size(canvas_size) * 1.2;
         case FontSize.MEDIUM:

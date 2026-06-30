@@ -78,12 +78,13 @@ export type SquareState = {
     letters: string[][]
     computation: SquareComputationState
     line_in_progress: Position[]
-    line_end: Position | undefined,
+    line_end: Position | undefined
     words_found: Set<string>
-    words_found_expanded: boolean,
-    words_found_carousel_index: number,
+    words_found_expanded: boolean
+    words_found_carousel_index: number
     hints_carousel_index: number
     reveals_remaining: number
+    show_some_letters: boolean
 }
 
 /*

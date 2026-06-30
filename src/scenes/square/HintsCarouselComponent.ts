@@ -27,6 +27,7 @@ import { COLOUR_HINTS_REGULAR, COLOUR_HINTS_TITLES, COLOUR_HINTS_WORDS_LEFT } fr
 import HintsHeaderComponent from "~/ui_components/HintsHeaderComponent";
 import TextGridComponent from "~/ui_components/TextGridComponent";
 import TextComponent from "~/ui_components/TextComponent";
+import HintsWordsComponent from "~/ui_components/HintsWordsComponents";
 
 export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 {
@@ -38,12 +39,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         hints_left_camera: Phaser.Cameras.Scene2D.Camera;
         hints_right_camera: Phaser.Cameras.Scene2D.Camera;
         hints_header: HintsHeaderComponent<SquareScene>;
-        text_grid_test: TextGridComponent<SquareScene>;
-        text_grid_1: TextComponent<SquareScene>;
-        text_grid_2: TextComponent<SquareScene>;
-        text_grid_3: TextComponent<SquareScene>;
-        text_grid_4: TextComponent<SquareScene>;
-        text_grid_5: TextComponent<SquareScene>;
+        hints_words: HintsWordsComponent<SquareScene>[];
     }
 
     /**
@@ -59,30 +55,10 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             hints_left_camera: this.scene.cameras.add(0, 0, 755, 725),
             hints_right_camera: this.scene.cameras.add(0, 0, 755, 725),
             hints_header: new HintsHeaderComponent(this.scene, this.game_state),
-            text_grid_test: new TextGridComponent(this.scene, this.game_state),
-            text_grid_1: new TextComponent(this.scene, this.game_state),
-            text_grid_2: new TextComponent(this.scene, this.game_state),
-            text_grid_3: new TextComponent(this.scene, this.game_state),
-            text_grid_4: new TextComponent(this.scene, this.game_state),
-            text_grid_5: new TextComponent(this.scene, this.game_state),
+            hints_words: [new HintsWordsComponent(this.scene, this.game_state)],
         };
-
-        this.game_objects.text_grid_test.add_text_cell(this.game_objects.text_grid_1);
-        this.game_objects.text_grid_test.add_text_cell(this.game_objects.text_grid_2);
-        this.game_objects.text_grid_test.add_text_cell(this.game_objects.text_grid_3);
-        this.game_objects.text_grid_test.add_text_cell(this.game_objects.text_grid_4);
-        this.game_objects.text_grid_test.add_text_cell(this.game_objects.text_grid_5);
-
-        this.game_objects.text_grid_1.set_text("hello");
-        this.game_objects.text_grid_1.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
-        this.game_objects.text_grid_2.set_text("world");
-        this.game_objects.text_grid_2.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
-        this.game_objects.text_grid_3.set_text("mains");
-        this.game_objects.text_grid_3.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
-        this.game_objects.text_grid_4.set_text("yacht");
-        this.game_objects.text_grid_4.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
-        this.game_objects.text_grid_5.set_text("books");
-        this.game_objects.text_grid_5.set_style(FONT_HINTS_WORDS_LEFT, COLOUR_HINTS_REGULAR);
+        this.game_objects.hints_words[0].set_word_length(5);
+        this.game_objects.hints_words[0].update();
     }
 
     /**
@@ -103,7 +79,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         this.game_objects.hints_left_camera.setVisible(false);
         this.game_objects.hints_right_camera.setVisible(false);
         this.game_objects.hints_header.setVisible(false);
-        this.game_objects.text_grid_test.setVisible(false);
+        this.game_objects.hints_words.forEach(word_component => word_component.setVisible(false));
     }
 
     private get_hints_text_without_letters(): string[]
@@ -290,19 +266,17 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         this.game_objects.hints_header.update();
 
         const hints_header_bounds = this.game_objects.hints_header.get_active_bounds();
-        // TODO figure out what's going on with the height
-        this.game_objects.text_grid_test.set_bounds(left_rectangle.x, hints_header_bounds.y + hints_header_bounds.height, left_rectangle.width, Infinity);
 
-        const grid_line_spacing = get_line_spacing_for_font_size(this.game_state, FONT_HINTS_WORDS_LEFT);
-        this.game_objects.text_grid_test.set_cell_padding(grid_line_spacing, grid_line_spacing);
-        this.game_objects.text_grid_test.set_padding(padding, padding, padding, padding);
-        this.game_objects.text_grid_test.update();
+        this.game_objects.hints_words[0].set_bounds(left_rectangle.x, hints_header_bounds.y + hints_header_bounds.height, left_rectangle.width, Infinity);
+
+        this.game_objects.hints_words[0].set_padding(padding, padding, padding, padding);
+        this.game_objects.hints_words[0].update();
 
         this.game_objects.text_left.setVisible(true);
         this.game_objects.text_right.setVisible(true);
         this.game_objects.hints_header.setVisible(true);
         this.game_objects.hints_left_camera.setVisible(true);
-        this.game_objects.text_grid_test.setVisible(true);
+        this.game_objects.hints_words[0].setVisible(true);
 
         /* And the right hand camera... */
         if (!this.game_state.layout.square_scene_layout.is_vertical())

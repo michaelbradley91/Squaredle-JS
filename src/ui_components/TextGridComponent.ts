@@ -36,16 +36,49 @@ export default class TextGridComponent<S extends Phaser.Scene> extends BaseUICom
         this.text_components.push(text_component);
     }
 
-    public remove_text_cell(text_component: TextComponent<S>): void
+    public remove_text_cell(text_component: TextComponent<S>): TextComponent<S>
     {
         const index = this.text_components.indexOf(text_component);
         if (index !== -1)
         {
             this.text_components.splice(index, 1);
         }
+        return text_component;
     }
 
-    update(): void
+    /**
+     * Removes or adds cells to ensure the grid has the specified number of cells.
+     * @param count the number of cells this grid should have
+     * @param create_cell a function to create a new cell if needed
+     * 
+     * @returns any cells removed from the grid
+     */
+    public fix_cell_count(count: number, create_cell: () => TextComponent<S>): TextComponent<S>[]
+    {
+        const removed_cells: TextComponent<S>[] = [];
+        if (this.text_components.length > count)
+        {
+            while (this.text_components.length > count)
+            {
+                const text_component = this.text_components.pop();
+                if (text_component)
+                {
+                    removed_cells.push(text_component);
+                }
+            }
+        }
+        else if (this.text_components.length < count)
+        {
+            while (this.text_components.length < count)
+            {
+                const text_component = create_cell();
+                this.add_text_cell(text_component);
+            }
+        }
+        return removed_cells;
+    }
+
+    public update(): void
     {
         /* Update all text components first */
         for (const text_component of this.text_components)
@@ -146,6 +179,18 @@ export default class TextGridComponent<S extends Phaser.Scene> extends BaseUICom
         for (const text_component of this.text_components)
         {
             text_component.hide();
+        }
+    }
+
+    /**
+     * Destroying the grid destroys all the text components within it. If you want to keep them, remove them first.
+     */
+    public destroy(): void
+    {
+        this.hide();
+        for (const text_component of this.text_components)
+        {
+            text_component.destroy();
         }
     }
 }

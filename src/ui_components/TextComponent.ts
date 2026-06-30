@@ -52,7 +52,7 @@ export default class TextComponent<S extends Phaser.Scene> extends BaseUICompone
         this.text_string = text;
     }
 
-    update(): void
+    public update(): void
     {
         let line_spacing: number;
         if (this.line_spacing === "default")
@@ -97,13 +97,19 @@ export default class TextComponent<S extends Phaser.Scene> extends BaseUICompone
         };
     }
 
-    show(): void
+    public show(): void
     {
         this.text.setVisible(true);
     }
 
-    hide(): void
+    public hide(): void
     {
         this.text.setVisible(false);
+    }
+
+    public destroy(): void
+    {
+        this.hide();
+        this.text.destroy();
     }
 }

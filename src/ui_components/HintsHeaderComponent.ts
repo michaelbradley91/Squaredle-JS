@@ -3,7 +3,6 @@
  * 
  * Hints
  * 
- * ? Sort words
  * ? Show letters
  * 
  * Reveals remaining: 1
@@ -27,8 +26,6 @@ import { COLOUR_HINTS_REGULAR, COLOUR_HINTS_TITLES } from "~/colours";
 export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUIComponent<S>
 {
     public title_text: TextComponent<S>;
-    public sort_words_text: TextComponent<S>;
-    public sort_words_checkbox: CheckboxComponent<S>;
     public show_letters_text: TextComponent<S>;
     public show_letters_checkbox: CheckboxComponent<S>;
     public reveals_remaining_text: TextComponent<S>;
@@ -41,8 +38,6 @@ export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUI
     {
         super(scene, game_state);
         this.title_text = new TextComponent(scene, game_state);
-        this.sort_words_text = new TextComponent(scene, game_state);
-        this.sort_words_checkbox = new CheckboxComponent(scene, game_state);
         this.show_letters_text = new TextComponent(scene, game_state);
         this.show_letters_checkbox = new CheckboxComponent(scene, game_state);
         this.reveals_remaining_text = new TextComponent(scene, game_state);
@@ -51,7 +46,6 @@ export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUI
 
         // Set default text
         this.title_text.set_text("Hints");
-        this.sort_words_text.set_text("Sort words");
         this.show_letters_text.set_text("Reveal some letters");
         this.earn_hints_text.set_text("Earn more hints by completing the puzzle!");
         this.fixed_height_text.set_text("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
@@ -59,13 +53,11 @@ export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUI
 
         // Set default styles
         this.title_text.set_style(FONT_HINTS_TITLES, COLOUR_HINTS_TITLES);
-        this.sort_words_text.set_style(FONT_HINTS_REGULAR, COLOUR_HINTS_REGULAR);
         this.show_letters_text.set_style(FONT_HINTS_REGULAR, COLOUR_HINTS_REGULAR);
         this.earn_hints_text.set_style(FONT_HINTS_REGULAR, COLOUR_HINTS_REGULAR);
         this.reveals_remaining_text.set_style(FONT_HINTS_REGULAR, COLOUR_HINTS_REGULAR);
         this.fixed_height_text.set_style(FONT_HINTS_REGULAR, COLOUR_HINTS_REGULAR);
 
-        this.sort_words_checkbox.set_alignment("middle", "left");
         this.show_letters_checkbox.set_alignment("middle", "left");
     }
 
@@ -102,15 +94,6 @@ export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUI
         this.fixed_height_text.update();
         const single_line_height = this.fixed_height_text.get_size().height;
 
-        this.sort_words_checkbox.set_bounds(left_x, current_y, Infinity, single_line_height);
-        this.sort_words_checkbox.update();
-        const sort_words_checkbox_size = this.sort_words_checkbox.get_size();
-
-        this.sort_words_text.set_bounds(left_x + sort_words_checkbox_size.width, current_y, actual_width - sort_words_checkbox_size.width, Infinity);
-        this.sort_words_text.update();
-        const sort_words_text_size = this.sort_words_text.get_size();
-        current_y += Math.max(sort_words_checkbox_size.height, sort_words_text_size.height);
-
         /* Repeat for the show letters checkbox and text */
         this.show_letters_checkbox.set_bounds(left_x, current_y, Infinity, single_line_height);
         this.show_letters_checkbox.update();
@@ -141,8 +124,6 @@ export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUI
     public show(): void
     {
         this.title_text.show();
-        this.sort_words_text.show();
-        this.sort_words_checkbox.show();
         this.show_letters_text.show();
         this.show_letters_checkbox.show();
         this.reveals_remaining_text.show();
@@ -153,11 +134,18 @@ export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUI
     public hide(): void
     {
         this.title_text.hide();
-        this.sort_words_text.hide();
-        this.sort_words_checkbox.hide();
         this.show_letters_text.hide();
         this.show_letters_checkbox.hide();
         this.reveals_remaining_text.hide();
         this.earn_hints_text.hide();
+    }
+
+    public destroy(): void
+    {
+        this.title_text.destroy();
+        this.show_letters_text.destroy();
+        this.show_letters_checkbox.destroy();
+        this.reveals_remaining_text.destroy();
+        this.earn_hints_text.destroy();
     }
 }

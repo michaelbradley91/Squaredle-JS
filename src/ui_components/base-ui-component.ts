@@ -60,6 +60,11 @@ export default abstract class BaseUIComponent<S extends Phaser.Scene>
      */
     public abstract hide(): void;
 
+    /**
+     * Destroy this component, freeing up resources
+     */
+    public abstract destroy(): void;
+
     public setVisible(visible: boolean): void
     {
         if (visible)

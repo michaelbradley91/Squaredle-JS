@@ -29,7 +29,7 @@ export default class CheckboxComponent<S extends Phaser.Scene> extends BaseUICom
         scene.add.existing(this.checkbox);
     }
 
-    update(): void
+    public update(): void
     {
         /* Work out the corresponding size of the square */
         const square_width = this.bounds.width - this.padding.left - this.padding.right;
@@ -103,5 +103,11 @@ export default class CheckboxComponent<S extends Phaser.Scene> extends BaseUICom
     public hide(): void
     {
         this.checkbox.setVisible(false);
+    }
+
+    public destroy(): void
+    {
+        this.hide();
+        this.checkbox.destroy();
     }
 }
