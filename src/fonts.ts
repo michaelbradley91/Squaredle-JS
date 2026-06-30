@@ -4,6 +4,7 @@
 
 import BBCodeText from "phaser4-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { GameState } from "./logic";
+import { COLOUR_HINTS_REVEAL_LINK } from "./colours";
 
 export const SQUARE_TEXT_FONT_FAMILY = 'roboto-bold';
 export const SQUARE_TEXT_BIG_FONT_FAMILY = 'roboto-bold-big';
@@ -92,6 +93,7 @@ export function load_font_sizes(game_state: GameState, scene: Phaser.Scene): voi
         [FontSize.MINISCULE]: get_font_size(canvas_size, FontSize.MINISCULE),
         [FontSize.TINY]: get_font_size(canvas_size, FontSize.TINY),
         [FontSize.SMALL]: get_font_size(canvas_size, FontSize.SMALL),
+        [FontSize.SMALLER]: get_font_size(canvas_size, FontSize.SMALLER),
         [FontSize.MEDIUM]: get_font_size(canvas_size, FontSize.MEDIUM),
         [FontSize.LARGE]: get_font_size(canvas_size, FontSize.LARGE),
         [FontSize.HUGE]: get_font_size(canvas_size, FontSize.HUGE),
@@ -165,7 +167,12 @@ export const DEFAULT_TEXT_STYLE = {
     wrap: { mode: 'word' as const, width: 0 },
     fontFamily: 'roboto',
     fontSize: '16px',
-    color: '#000000'
+    color: '#000000',
+    underline: {
+        color: COLOUR_HINTS_REVEAL_LINK,
+        thickness: 2,
+        offset: 7
+    },
 };
 
 /**

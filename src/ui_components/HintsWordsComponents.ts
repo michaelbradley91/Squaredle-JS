@@ -3,7 +3,7 @@
  * for words remaining on the square.
  */
 
-import { GameState, SquareState } from "~/logic";
+import { GameState, get_some_letters_for_word } from "~/logic";
 import BaseUIComponent from "./base-ui-component";
 import TextComponent from "./TextComponent";
 import TextGridComponent from "./TextGridComponent";
@@ -72,32 +72,6 @@ export default class HintsWordsComponent<S extends Phaser.Scene> extends BaseUIC
         return text_cell;
     }
 
-    /**
-     * Generate some letters for the given word according to the rules based on the length of the word.
-     * @param word the word to show some letters from
-     * @returns the starred version of the word. I.e.: a****, ab******cd
-     */
-    private get_some_letters_for_word(word: string): string
-    {
-        if (word.length <= 4)
-        {
-            return "*".repeat(word.length);
-        }
-        if (word.length == 5)
-        {
-            return word[0] + "*".repeat(word.length - 1);
-        }
-        if (word.length == 6)
-        {
-            return word[0] + word[1] + "*".repeat(word.length - 2);
-        }
-        if (word.length == 7)
-        {
-            return word[0] + word[1] + "*".repeat(word.length - 3) + word[word.length - 1];
-        }
-        return word[0] + word[1] + "*".repeat(word.length - 4) + word[word.length - 2] + word[word.length - 1];
-    }
-
     update(): void
     {
         /* Fix the text first */
@@ -121,7 +95,7 @@ export default class HintsWordsComponent<S extends Phaser.Scene> extends BaseUIC
         /* Do we show the reveal text? */
         if (this.game_state.square.reveals_remaining > 0 && this.word_length < 7)
         {
-            words_text += `[u]- [color=${COLOUR_HINTS_REVEAL_LINK}]Reveal a random word[/color][/u]`;
+            words_text += `- [u][color=${COLOUR_HINTS_REVEAL_LINK}]Reveal a random word[/color][/u]`;
         }
         else
         {
@@ -141,7 +115,7 @@ export default class HintsWordsComponent<S extends Phaser.Scene> extends BaseUIC
         {
             number_of_words_to_put_in_grid = words_found.length;
         }
-        this.words_grid.fix_cell_count(number_of_words_to_put_in_grid, this.make_text_cell);
+        this.words_grid.fix_cell_count(number_of_words_to_put_in_grid, () => this.make_text_cell());
 
         /* Now show each word */
         for (let i = 0; i < words_found.length; i++)
@@ -153,7 +127,7 @@ export default class HintsWordsComponent<S extends Phaser.Scene> extends BaseUIC
             }
             else if (this.game_state.square.show_some_letters)
             {
-                this.words_grid_text_cells[i].set_text(this.get_some_letters_for_word(word));
+                this.words_grid_text_cells[i].set_text(get_some_letters_for_word(word));
             }
         }
 

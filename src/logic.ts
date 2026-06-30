@@ -82,6 +82,8 @@ export type SquareState = {
     words_found: Set<string>
     words_found_expanded: boolean
     words_found_carousel_index: number
+    bonus_words_found: Set<string>
+    bonus_word_of_the_day: string
     hints_carousel_index: number
     reveals_remaining: number
     show_some_letters: boolean
@@ -95,6 +97,7 @@ export type GameState = {
         [FontSize.MINISCULE]: number;
         [FontSize.TINY]: number;
         [FontSize.SMALL]: number;
+        [FontSize.SMALLER]: number;
         [FontSize.MEDIUM]: number;
         [FontSize.LARGE]: number;
         [FontSize.HUGE]: number;
@@ -156,13 +159,17 @@ export function init_game_state(): GameState
             words_found: new Set<string>(),
             words_found_expanded: false,
             words_found_carousel_index: 0,
+            bonus_words_found: new Set<string>(),
+            bonus_word_of_the_day: "testing",
             hints_carousel_index: 0,
-            reveals_remaining: 1
+            reveals_remaining: 1,
+            show_some_letters: true
         },
         font_sizes: {
             [FontSize.MINISCULE]: 10,
             [FontSize.TINY]: 12,
             [FontSize.SMALL]: 14,
+            [FontSize.SMALLER]: 16,
             [FontSize.MEDIUM]: 18,
             [FontSize.LARGE]: 24,
             [FontSize.HUGE]: 36
@@ -307,4 +314,30 @@ export function get_hint_level(game_state: GameState): HintLevel
         return HintLevel.START_LETTERS;
     }
     return HintLevel.NONE;
+}
+
+/**
+ * Generate some letters for the given word according to the rules based on the length of the word.
+ * @param word the word to show some letters from
+ * @returns the starred version of the word. I.e.: a****, ab******cd
+ */
+export function get_some_letters_for_word(word: string): string
+{
+    if (word.length <= 4)
+    {
+        return "*".repeat(word.length);
+    }
+    if (word.length == 5)
+    {
+        return word[0] + "*".repeat(word.length - 1);
+    }
+    if (word.length == 6)
+    {
+        return word[0] + word[1] + "*".repeat(word.length - 2);
+    }
+    if (word.length == 7)
+    {
+        return word[0] + word[1] + "*".repeat(word.length - 3) + word[word.length - 1];
+    }
+    return word[0] + word[1] + "*".repeat(word.length - 4) + word[word.length - 2] + word[word.length - 1];
 }

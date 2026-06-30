@@ -46,7 +46,7 @@ export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUI
 
         // Set default text
         this.title_text.set_text("Hints");
-        this.show_letters_text.set_text("Reveal some letters");
+        this.show_letters_text.set_text("Show some letters");
         this.earn_hints_text.set_text("Earn more hints by completing the puzzle!");
         this.fixed_height_text.set_text("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         this.fixed_height_text.set_bounds(0, 0, Infinity, Infinity);
@@ -71,8 +71,6 @@ export default class HintsHeaderComponent<S extends Phaser.Scene> extends BaseUI
 
         // Update the padding and line spacing
         this.title_text.set_padding(0, title_padding, 0, 0);
-        this.sort_words_checkbox.set_padding(0, 0, 0, regular_padding / 2);
-        this.sort_words_text.set_padding(0, regular_padding, 0, 0);
         this.show_letters_checkbox.set_padding(0, 0, 0, regular_padding / 2);
         this.show_letters_text.set_padding(0, regular_padding, 0, 0);
         this.earn_hints_text.set_padding(0, regular_padding, 0, 0);

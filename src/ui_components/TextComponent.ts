@@ -4,7 +4,7 @@
 
 import { blank_text, DEFAULT_TEXT_STYLE, FontSize, get_line_spacing_for_font_size } from "~/fonts";
 import BaseUIComponent from "./base-ui-component";
-import { Colours } from "~/colours";
+import { COLOUR_LINK, Colours } from "~/colours";
 import BBCodeText from "phaser4-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { GameState } from "~/logic";
 
@@ -15,6 +15,9 @@ export default class TextComponent<S extends Phaser.Scene> extends BaseUICompone
     public font_color: Colours = Colours.BLACK;
     public line_spacing: number | "default" = "default";
     public text_string: string = "";
+    public underline_color: Colours = COLOUR_LINK;
+    public underline_thickness: number = 2;
+    public underline_offset: number = 7;
 
     /* We do expose this publically for convenience, but it should not be used directly */
     public text!: BBCodeText;
@@ -39,6 +42,22 @@ export default class TextComponent<S extends Phaser.Scene> extends BaseUICompone
         if (line_spacing !== undefined)
         {
             this.line_spacing = line_spacing;
+        }
+    }
+
+    public set_underline(color?: Colours, thickness?: number, offset?: number)
+    {
+        if (color !== undefined)
+        {
+            this.underline_color = color;
+        }
+        if (thickness !== undefined)
+        {
+            this.underline_thickness = thickness;
+        }
+        if (offset !== undefined)
+        {
+            this.underline_offset = offset;
         }
     }
 
@@ -71,7 +90,12 @@ export default class TextComponent<S extends Phaser.Scene> extends BaseUICompone
             padding: this.padding,
             lineSpacing: line_spacing,
             valign: "top" as const,
-            halign: "left" as const
+            halign: "left" as const,
+            underline: {
+                color: this.underline_color,
+                thickness: this.underline_thickness,
+                offset: this.underline_offset
+            }
         };
         if (this.bounds.width !== Infinity)
         {
