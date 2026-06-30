@@ -24,6 +24,7 @@ export const FONT_HINTS_TITLES = FontSize.MEDIUM;
 export const FONT_HINTS_REGULAR = FontSize.SMALL;
 export const FONT_HINTS_WORDS_LEFT = FontSize.SMALLER;
 export const FONT_HINTS_WORD_HINT = FontSize.SMALL;
+export const FONT_HINTS_BONUS_REVEAL_EXPLANATION = FontSize.SMALLER;
 
 /* We artificially scale the canvas to force better resolution of text on high DPI displays */
 export function get_forced_scaling(): number

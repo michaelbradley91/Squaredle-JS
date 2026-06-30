@@ -29,6 +29,7 @@ import TextGridComponent from "~/ui_components/TextGridComponent";
 import TextComponent from "~/ui_components/TextComponent";
 import HintsWordsComponent from "~/ui_components/HintsWordsComponents";
 import HintsBonusWordsFoundComponent from "~/ui_components/HintsBonusWordsFoundComponent";
+import HintsBonusWordOfTheDayComponent from "~/ui_components/HintsBonusWordOfTheDayComponent";
 
 export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 {
@@ -41,6 +42,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         hints_right_camera: Phaser.Cameras.Scene2D.Camera;
         hints_header: HintsHeaderComponent<SquareScene>;
         hints_words: HintsWordsComponent<SquareScene>[];
+        bonus_word_of_the_day: HintsBonusWordOfTheDayComponent<SquareScene>;
         bonus_words_found: HintsBonusWordsFoundComponent<SquareScene>;
     }
 
@@ -58,6 +60,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             hints_right_camera: this.scene.cameras.add(0, 0, 755, 725),
             hints_header: new HintsHeaderComponent(this.scene, this.game_state),
             hints_words: [new HintsWordsComponent(this.scene, this.game_state)],
+            bonus_word_of_the_day: new HintsBonusWordOfTheDayComponent(this.scene, this.game_state),
             bonus_words_found: new HintsBonusWordsFoundComponent(this.scene, this.game_state)
         };
         this.game_objects.hints_words[0].set_word_length(5);
@@ -83,6 +86,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         this.game_objects.hints_right_camera.setVisible(false);
         this.game_objects.hints_header.setVisible(false);
         this.game_objects.hints_words.forEach(word_component => word_component.setVisible(false));
+        this.game_objects.bonus_word_of_the_day.setVisible(false);
         this.game_objects.bonus_words_found.setVisible(false);
     }
 
@@ -272,12 +276,16 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         const hints_header_bounds = this.game_objects.hints_header.get_active_bounds();
 
         this.game_objects.hints_words[0].set_bounds(left_rectangle.x, hints_header_bounds.y + hints_header_bounds.height, left_rectangle.width, Infinity);
-
         this.game_objects.hints_words[0].set_padding(padding, 0, padding, padding);
         this.game_objects.hints_words[0].update();
 
         const hints_words_bounds = this.game_objects.hints_words[0].get_active_bounds();
-        this.game_objects.bonus_words_found.set_bounds(left_rectangle.x, hints_words_bounds.y + hints_words_bounds.height, left_rectangle.width, Infinity);
+        this.game_objects.bonus_word_of_the_day.set_bounds(left_rectangle.x, hints_words_bounds.y + hints_words_bounds.height, left_rectangle.width, Infinity);
+        this.game_objects.bonus_word_of_the_day.set_padding(padding, 0, padding, padding);
+        this.game_objects.bonus_word_of_the_day.update();
+
+        const bonus_word_of_the_day_bounds = this.game_objects.bonus_word_of_the_day.get_active_bounds();
+        this.game_objects.bonus_words_found.set_bounds(left_rectangle.x, bonus_word_of_the_day_bounds.y + bonus_word_of_the_day_bounds.height, left_rectangle.width, Infinity);
         this.game_objects.bonus_words_found.set_padding(padding, padding, padding, padding);
         this.game_objects.bonus_words_found.update();
 
@@ -286,6 +294,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         this.game_objects.hints_header.setVisible(true);
         this.game_objects.hints_left_camera.setVisible(true);
         this.game_objects.hints_words[0].setVisible(true);
+        this.game_objects.bonus_word_of_the_day.setVisible(true);
         this.game_objects.bonus_words_found.setVisible(true);
 
         /* And the right hand camera... */

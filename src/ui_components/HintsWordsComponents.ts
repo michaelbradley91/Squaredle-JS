@@ -40,6 +40,8 @@ export default class HintsWordsComponent<S extends Phaser.Scene> extends BaseUIC
             return [];
         }
         const quality = this.game_state.square.computation.square.get_quality(this.game_state.words);
+
+        /* Note that we are only interested in the official words here, so use the words in the square analysis */
         const words = quality.words_by_length[this.word_length];
         const words_found: { word: string, found: boolean }[] = [];
         for (const word of words) 

@@ -16,6 +16,7 @@ export const COLOUR_LINK = Colours.RED_PRIMARY
 export const COLOUR_HINTS_REGULAR = Colours.BLACK;
 export const COLOUR_HINTS_WORD_HINT = Colours.BLACK;
 export const COLOUR_HINTS_REVEAL_LINK = Colours.RED_PRIMARY;
+export const COLOUR_HINTS_BONUS_REVEAL_EXPLANATION = Colours.LIGHT_GRAY;
 
 /* Default checkbox colours */
 export const CHECKBOX_BORDER_COLOR = Colours.LIGHT_GRAY;

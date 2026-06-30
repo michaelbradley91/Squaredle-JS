@@ -28,6 +28,7 @@ export default class HintsBonusWordsFoundComponent<S extends Phaser.Scene> exten
         this.words_grid = new TextGridComponent(scene, game_state);
 
         this.title_text.set_style(FONT_HINTS_TITLES, COLOUR_HINTS_TITLES);
+        this.title_text.set_text("Bonus words found");
 
         this.game_state.square.bonus_words_found.add("hello");
         this.game_state.square.bonus_words_found.add("world");
@@ -51,9 +52,6 @@ export default class HintsBonusWordsFoundComponent<S extends Phaser.Scene> exten
 
     update(): void
     {
-        /* Title */
-        this.title_text.set_text("Bonus words found");
-
         /* Text grid */
         const bonus_words_found = [...this.game_state.square.bonus_words_found];
 
