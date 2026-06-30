@@ -19,31 +19,21 @@ import { OuterScreenNode } from "~/layouts/SquareSceneLayout";
 import BaseComponent from "../BaseComponent";
 import SquareScene from "./SquareScene";
 import { update_rectangle } from "../BaseScene";
-import { blank_text, fit_text, FONT_HINTS_TITLES, FONT_HINTS_WORDS_LEFT, FontSize, get_line_spacing_for_font_size, style_bbcode_text } from "~/fonts";
-import { get_hint_level, get_inner_rectangle_with_padding, HintLevel } from "~/logic";
-import BBCodeText from "phaser4-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import { SquareQuality } from "~/squares";
-import { COLOUR_HINTS_REGULAR, COLOUR_HINTS_TITLES, COLOUR_HINTS_WORDS_LEFT } from "~/colours";
+import { FONT_HINTS_TITLES, get_line_spacing_for_font_size } from "~/fonts";
 import HintsHeaderComponent from "~/ui_components/HintsHeaderComponent";
-import TextGridComponent from "~/ui_components/TextGridComponent";
-import TextComponent from "~/ui_components/TextComponent";
 import HintsWordsComponent from "~/ui_components/HintsWordsComponents";
 import HintsBonusWordsFoundComponent from "~/ui_components/HintsBonusWordsFoundComponent";
 import HintsBonusWordOfTheDayComponent from "~/ui_components/HintsBonusWordOfTheDayComponent";
+import HintsComponent from "~/ui_components/HintsComponent";
 
 export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 {
     game_objects!: {
         hints_left: Phaser.GameObjects.Rectangle;
         hints_right: Phaser.GameObjects.Rectangle;
-        text_left: BBCodeText;
-        text_right: BBCodeText;
         hints_left_camera: Phaser.Cameras.Scene2D.Camera;
         hints_right_camera: Phaser.Cameras.Scene2D.Camera;
-        hints_header: HintsHeaderComponent<SquareScene>;
-        hints_words: HintsWordsComponent<SquareScene>[];
-        bonus_word_of_the_day: HintsBonusWordOfTheDayComponent<SquareScene>;
-        bonus_words_found: HintsBonusWordsFoundComponent<SquareScene>;
+        hints_text: HintsComponent<SquareScene>;
     }
 
     /**
@@ -54,25 +44,10 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         this.game_objects = {
             hints_left: this.scene.add.rectangle(455, 325, 755, 725, 0x00ffff),
             hints_right: this.scene.add.rectangle(455, 325, 755, 725, 0xffffff),
-            text_left: blank_text(this.scene),
-            text_right: blank_text(this.scene),
             hints_left_camera: this.scene.cameras.add(0, 0, 755, 725),
             hints_right_camera: this.scene.cameras.add(0, 0, 755, 725),
-            hints_header: new HintsHeaderComponent(this.scene, this.game_state),
-            hints_words: [new HintsWordsComponent(this.scene, this.game_state)],
-            bonus_word_of_the_day: new HintsBonusWordOfTheDayComponent(this.scene, this.game_state),
-            bonus_words_found: new HintsBonusWordsFoundComponent(this.scene, this.game_state)
+            hints_text: new HintsComponent(this.scene, this.game_state),
         };
-        this.game_objects.hints_words[0].set_word_length(5);
-        this.game_objects.hints_words[0].update();
-    }
-
-    /**
-     * Shortcut to get the quality assessment of a square
-     */
-    private square_quality(): SquareQuality
-    {
-        return this.game_state.square.computation.square!.get_quality(this.game_state.words);
     }
 
     /**
@@ -84,176 +59,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         this.game_objects.hints_right.setVisible(false);
         this.game_objects.hints_left_camera.setVisible(false);
         this.game_objects.hints_right_camera.setVisible(false);
-        this.game_objects.hints_header.setVisible(false);
-        this.game_objects.hints_words.forEach(word_component => word_component.setVisible(false));
-        this.game_objects.bonus_word_of_the_day.setVisible(false);
-        this.game_objects.bonus_words_found.setVisible(false);
-    }
-
-    private get_hints_text_without_letters(): string[]
-    {
-        const text: string[] = [];
-        const quality = this.square_quality();
-        for (const length in quality.words_by_length)
-        {
-            /* Check how many words are left to find */
-            let remaining_words_of_length = quality.words_by_length[length].size;
-            if (remaining_words_of_length <= 0)
-            {
-                continue
-            }
-            const words_found_at_length: string[] = []
-            for (const word in this.game_state.square.words_found)
-            {
-                if (word.length.toString() === length)
-                {
-                    remaining_words_of_length--;
-                    words_found_at_length.push(word);
-                }
-            }
-            words_found_at_length.sort();
-
-            /* The title must be accompanied by something to be shown on the hints
-             * carousel */
-            const title_font_size = this.game_state.font_sizes[FONT_HINTS_TITLES];
-            const words_left_font_size = this.game_state.font_sizes[FONT_HINTS_WORDS_LEFT];
-
-            let title_text = style_bbcode_text(`${length} letters\n`, COLOUR_HINTS_TITLES, title_font_size, false, true);
-            if (words_found_at_length.length == 0)
-            {
-                title_text += style_bbcode_text(`${remaining_words_of_length} words left \n`, COLOUR_HINTS_WORDS_LEFT, words_left_font_size, true);
-                text.push(title_text);
-                continue;
-            }
-            title_text += `${words_found_at_length[0]} `;
-            text.push(title_text);
-            /* Add the remaining words as individual segments */
-            for (let i = 1; i < words_found_at_length.length; i++)
-            {
-                text.push(`${words_found_at_length[i]} `);
-            }
-            text.push(style_bbcode_text(`${remaining_words_of_length} words left \n`, COLOUR_HINTS_WORDS_LEFT, words_left_font_size, true));
-        }
-        return text;
-    }
-
-    /**
-     * Get the hinted version of a word with some letters revealed
-     * @param word the word to get the hinted text for
-     * @returns the word in its hint form
-     */
-    private get_word_with_letter_hints(word: string): string
-    {
-        if (word.length <= 4)
-        {
-            return "*".repeat(word.length);
-        }
-        if (word.length == 5)
-        {
-            return word[0] + "*".repeat(word.length - 1);
-        }
-        if (word.length == 6)
-        {
-            return word[0] + word[1] + "*".repeat(word.length - 2);
-        }
-        if (word.length == 7)
-        {
-            return word[0] + word[1] + "*".repeat(word.length - 3) + word[word.length - 1];
-        }
-        return word[0] + word[1] + "*".repeat(word.length - 4) + word[word.length - 2] + word[word.length - 1];
-    }
-
-    /**
-     * @returns the hints carousel text when letter hints are shown
-     */
-    private get_hints_text_with_letters(): string[]
-    {
-        const text: string[] = [];
-        const quality = this.square_quality();
-
-        for (const length in quality.words_by_length)
-        {
-            if (quality.words_by_length[length].size <= 0)
-            {
-                continue;
-            }
-
-            /* The title must be accompanied by something to be shown on the hints
-             * carousel */
-            const title_font_size = this.game_state.font_sizes[FONT_HINTS_TITLES];
-            const words_font_size = this.game_state.font_sizes[FONT_HINTS_WORDS_LEFT];
-            let title_text = style_bbcode_text(`${length} letters\n`, COLOUR_HINTS_TITLES, title_font_size, false, true);
-
-            const words_of_length = Array.from(quality.words_by_length[length]);
-            words_of_length.sort();
-
-            if (this.game_state.square.words_found.has(words_of_length[0]))
-            {
-                title_text += style_bbcode_text(`${words_of_length[0]} `, COLOUR_HINTS_WORDS_LEFT, words_font_size, false);
-            }
-            else
-            {
-                title_text += style_bbcode_text(`${this.get_word_with_letter_hints(words_of_length[0])} `, COLOUR_HINTS_WORDS_LEFT, words_font_size, false);
-            }
-            text.push(title_text);
-
-            /* Now for the remaining words */
-            for (let i = 1; i < words_of_length.length; i++)
-            {
-                const word = words_of_length[i];
-                if (this.game_state.square.words_found.has(word))
-                {
-                    text.push(style_bbcode_text(`${word} `, COLOUR_HINTS_WORDS_LEFT, words_font_size, false));
-                }
-                else
-                {
-                    text.push(style_bbcode_text(`${this.get_word_with_letter_hints(word)} `, COLOUR_HINTS_WORDS_LEFT, words_font_size, false));
-                }
-            }
-            text.push(style_bbcode_text(`\n`, COLOUR_HINTS_WORDS_LEFT, words_font_size, false));
-        }
-        return text;
-    }
-
-    /**
-     * Okay, I think I'm abandoning the idea of using multiple columns in a vertical layout. It'll look too weird
-     * and be a pain to program correctly. We'll increase the font size. Sooo...
-     */
-
-    /**
-     * @returns the text for the hints carousel
-     */
-    private get_hints_text_for_carousel(): string[]
-    {
-        if (!this.game_state.square.computation.square)
-        {
-            console.log("No square available, no hints to show");
-            return [];
-        }
-        /**
-         * Figuring out the hints text is tricky. We have to assume both portions of the hints
-         * carousel are the same size (which they should be). Then we simulate the hints
-         * text to fit inside each rectangle and figure what eventually appears on the hints
-         * carousel whereever the user has scrolled to.
-         * 
-         * What's tricky is that the hints carousel can show a bit more than just the two
-         * hints rectangles while it scrolls... we'll worry about that later.
-         */
-
-        /* Firstly, figure out the entire hints text to display */
-
-        const hint_level = get_hint_level(this.game_state);
-
-        switch (hint_level)
-        {
-            case HintLevel.WORD_HINTS:
-                return this.get_hints_text_with_letters();
-            case HintLevel.NONE:
-            case HintLevel.START_LETTERS:
-            case HintLevel.USED_LETTERS:
-            default:
-                return this.get_hints_text_without_letters();
-        }
+        this.game_objects.hints_text.setVisible(false);
     }
 
     public draw_hints_carousel(): void
@@ -269,40 +75,17 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 
         const padding = get_line_spacing_for_font_size(this.game_state, FONT_HINTS_TITLES);
 
-        this.game_objects.hints_header.set_bounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, Infinity);
-        this.game_objects.hints_header.set_padding(padding, 0, padding, padding);
-        this.game_objects.hints_header.update();
-
-        const hints_header_bounds = this.game_objects.hints_header.get_active_bounds();
-
-        this.game_objects.hints_words[0].set_bounds(left_rectangle.x, hints_header_bounds.y + hints_header_bounds.height, left_rectangle.width, Infinity);
-        this.game_objects.hints_words[0].set_padding(padding, 0, padding, padding);
-        this.game_objects.hints_words[0].update();
-
-        const hints_words_bounds = this.game_objects.hints_words[0].get_active_bounds();
-        this.game_objects.bonus_word_of_the_day.set_bounds(left_rectangle.x, hints_words_bounds.y + hints_words_bounds.height, left_rectangle.width, Infinity);
-        this.game_objects.bonus_word_of_the_day.set_padding(padding, 0, padding, padding);
-        this.game_objects.bonus_word_of_the_day.update();
-
-        const bonus_word_of_the_day_bounds = this.game_objects.bonus_word_of_the_day.get_active_bounds();
-        this.game_objects.bonus_words_found.set_bounds(left_rectangle.x, bonus_word_of_the_day_bounds.y + bonus_word_of_the_day_bounds.height, left_rectangle.width, Infinity);
-        this.game_objects.bonus_words_found.set_padding(padding, padding, padding, padding);
-        this.game_objects.bonus_words_found.update();
-
-        this.game_objects.text_left.setVisible(true);
-        this.game_objects.text_right.setVisible(true);
-        this.game_objects.hints_header.setVisible(true);
-        this.game_objects.hints_left_camera.setVisible(true);
-        this.game_objects.hints_words[0].setVisible(true);
-        this.game_objects.bonus_word_of_the_day.setVisible(true);
-        this.game_objects.bonus_words_found.setVisible(true);
+        this.game_objects.hints_text.set_bounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, Infinity);
+        this.game_objects.hints_text.set_padding(padding, padding, padding, padding);
+        this.game_objects.hints_text.update();
+        this.game_objects.hints_text.setVisible(true);
 
         /* And the right hand camera... */
         if (!this.game_state.layout.square_scene_layout.is_vertical())
         {
             const right_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsRight)!;
             this.game_objects.hints_right_camera.setBounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, left_rectangle.height * 2);
-            this.game_objects.hints_right_camera.setScroll(left_rectangle.x, left_rectangle.y);
+            this.game_objects.hints_right_camera.setScroll(left_rectangle.x, left_rectangle.y + left_rectangle.height);
             this.game_objects.hints_right_camera.setPosition(right_rectangle.x, right_rectangle.y);
             this.game_objects.hints_right_camera.setSize(right_rectangle.width, right_rectangle.height);
             this.game_objects.hints_right_camera.setBackgroundColor(0x00ff00);
