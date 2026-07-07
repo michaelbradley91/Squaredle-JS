@@ -20,19 +20,21 @@ export type ScrollParameters = {
     scroll_delay_milliseconds: number
     /* How far the mouse must move over the scrollable area before it is considered to be scrolling */
     scroll_min_distance: number
+    /* The bounds should be "real" pixel bounds */
+    scroll_bounds: { min: number, max: number },
+    /* The direction of the scroll, either horizontal or vertical */
+    scroll_direction: "vertical" | "horizontal",
 }
 
 export const SCROLL_PARAMETERS_DEFAULTS: ScrollParameters = {
     scroll_delay_milliseconds: 200,
     scroll_min_distance: 5,
+    scroll_bounds: { min: 0, max: 0 },
+    scroll_direction: "vertical",
 }
 
 /* Only supports scrolling in one direction */
 export type ScrollState = {
-    scroll_direction: "horizontal" | "vertical",
-
-    /* The bounds should be "real" pixel bounds */
-    scroll_bounds: { min: number, max: number },
     scroll_position: number,
     touch_points: TouchPoint[],
     last_dragged_time_milliseconds: number,
@@ -46,13 +48,9 @@ export class ScrollManager
     public scroll_state: ScrollState;
     public scroll_parameters: ScrollParameters;
 
-    public constructor(scroll_direction: "horizontal" | "vertical" = "vertical",
-        scroll_bounds: { min: number, max: number } = { min: 0, max: 1 },
-        scroll_parameters: ScrollParameters = SCROLL_PARAMETERS_DEFAULTS)
+    public constructor(scroll_parameters: ScrollParameters = SCROLL_PARAMETERS_DEFAULTS)
     {
         this.scroll_state = {
-            scroll_direction: scroll_direction,
-            scroll_bounds: scroll_bounds,
             scroll_position: 0,
             touch_points: [],
             is_scrolling: false,
@@ -61,6 +59,27 @@ export class ScrollManager
             last_dragged_time_milliseconds: 0,
         }
         this.scroll_parameters = scroll_parameters;
+    }
+
+    public reset(): void
+    {
+        this.scroll_state.scroll_position = 0;
+        this.scroll_state.touch_points = [];
+        this.scroll_state.is_scrolling = false;
+        this.scroll_state.is_dragging = false;
+        this.scroll_state.scroll_velocity = 0;
+        this.scroll_state.last_dragged_time_milliseconds = 0;
+    }
+
+    /**
+     * If the parameters need changing, stop scroll immediately and reset the scroll
+     * position to zero.
+     * @param scroll_parameters the new parameters to use
+     */
+    public update_parameters(scroll_parameters: ScrollParameters): void
+    {
+        this.scroll_parameters = scroll_parameters;
+        this.reset();
     }
 
     /**
@@ -118,9 +137,20 @@ export class ScrollManager
             const first_touch_point = recent_touch_points[0];
             const last_touch_point = recent_touch_points[recent_touch_points.length - 1];
             const time_difference = last_touch_point.time_milliseconds - first_touch_point.time_milliseconds;
-            const distance_difference = last_touch_point[this.scroll_state.scroll_direction === "horizontal" ? "x" : "y"] - first_touch_point[this.scroll_state.scroll_direction === "horizontal" ? "x" : "y"];
+            const distance_difference = last_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"] - first_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"];
             this.scroll_state.scroll_velocity = distance_difference / time_difference;
         }
+    }
+
+    /* Register an update in the mouse / touch position */
+    public pointer_update(touch_point: TouchPoint): void
+    {
+        /* If the user is not actively scrolling, ignore */
+        if (!this.scroll_state.is_scrolling)
+        {
+            return;
+        }
+        this.scroll_state.touch_points.push(touch_point);
     }
 
     /**
@@ -148,14 +178,14 @@ export class ScrollManager
             const first_touch_point = this.scroll_state.touch_points[0];
             const last_touch_point = this.scroll_state.touch_points[this.scroll_state.touch_points.length - 1];
             const time_difference = last_touch_point.time_milliseconds - first_touch_point.time_milliseconds;
-            const distance_difference = Math.abs(last_touch_point[this.scroll_state.scroll_direction === "horizontal" ? "x" : "y"] - first_touch_point[this.scroll_state.scroll_direction === "horizontal" ? "x" : "y"]);
+            const distance_difference = Math.abs(last_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"] - first_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"]);
             if (time_difference >= this.scroll_parameters.scroll_delay_milliseconds || distance_difference >= this.scroll_parameters.scroll_min_distance)
             {
                 this.scroll_state.is_dragging = true;
             }
 
             /* Adjust the scroll position according to the last and first points immediately */
-            const scroll_distance = last_touch_point[this.scroll_state.scroll_direction === "horizontal" ? "x" : "y"] - first_touch_point[this.scroll_state.scroll_direction === "horizontal" ? "x" : "y"];
+            const scroll_distance = last_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"] - first_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"];
             this.scroll_state.scroll_position += scroll_distance;
             this.scroll_state.last_dragged_time_milliseconds = Math.max(last_touch_point.time_milliseconds, time_milliseconds);
             return;
@@ -173,7 +203,7 @@ export class ScrollManager
             /* Adjust the scroll position according to the change from the last considered touch point and the latest one */
             const last_touch_point = new_touch_points[new_touch_points.length - 1];
             const last_considered_touch_point = this.scroll_state.touch_points.filter(tp => tp.time_milliseconds <= this.scroll_state.last_dragged_time_milliseconds).slice(-1)[0];
-            const scroll_distance = last_touch_point[this.scroll_state.scroll_direction === "horizontal" ? "x" : "y"] - last_considered_touch_point[this.scroll_state.scroll_direction === "horizontal" ? "x" : "y"];
+            const scroll_distance = last_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"] - last_considered_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"];
             this.scroll_state.scroll_position += scroll_distance;
             this.scroll_state.last_dragged_time_milliseconds = Math.max(last_touch_point.time_milliseconds, time_milliseconds);
             return;

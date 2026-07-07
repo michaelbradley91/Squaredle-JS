@@ -50,6 +50,7 @@ export default class SquareScene extends BaseScene
     update_layout()
     {
         this.game_state.layout.square_scene_layout.update_layout({ width: this.game.canvas.width, height: this.game.canvas.height }, this.game_state);
+        this.game_objects.hints_carousel_component.handle_resize();
         this.draw();
     }
 
@@ -75,11 +76,13 @@ export default class SquareScene extends BaseScene
     handle_pointer_down(pointer: Phaser.Input.Pointer)
     {
         this.game_objects.square_component.handle_pointer_down(pointer);
+        this.game_objects.hints_carousel_component.handle_pointer_down(pointer);
     }
 
     handle_pointer_up(pointer: Phaser.Input.Pointer)
     {
         this.game_objects.square_component.handle_pointer_up(pointer);
+        this.game_objects.hints_carousel_component.handle_pointer_up(pointer);
     }
 
     update(_time: number, _delta: number): void
