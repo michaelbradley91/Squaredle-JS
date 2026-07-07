@@ -99,6 +99,8 @@ export class ScrollManager
         }
         this.scroll_state.touch_points.push(touch_point);
         this.scroll_state.is_scrolling = true;
+
+        console.log(`ScrollManager.touched: touch_point=${JSON.stringify(touch_point)}, scroll_position=${this.scroll_state.scroll_position}, is_scrolling=${this.scroll_state.is_scrolling}, is_dragging=${this.scroll_state.is_dragging}, scroll_velocity=${this.scroll_state.scroll_velocity}`);
     }
 
     /**
@@ -113,6 +115,8 @@ export class ScrollManager
     {
         this.scroll_state.touch_points.push(touch_point);
         this.scroll_state.is_scrolling = false;
+
+        console.log(`ScrollManager.released: touch_point=${JSON.stringify(touch_point)}, scroll_position=${this.scroll_state.scroll_position}, is_scrolling=${this.scroll_state.is_scrolling}, is_dragging=${this.scroll_state.is_dragging}, scroll_velocity=${this.scroll_state.scroll_velocity}`);
 
         /* On release, if the user was dragging, apply an initial velocity */
         if (this.scroll_state.is_dragging)
@@ -153,13 +157,7 @@ export class ScrollManager
         this.scroll_state.touch_points.push(touch_point);
     }
 
-    /**
-     * Update the scrollable area based on the current time. If the area is moving
-     * on its own it will slow down slowly.
-     * 
-     * @param time_milliseconds the current time in milliseconds
-     */
-    public update(time_milliseconds: number): void
+    private update_scroll_without_bounds(time_milliseconds: number)
     {
         /* Clear out all the old touch points */
         this.scroll_state.touch_points = this.scroll_state.touch_points.filter(tp => time_milliseconds - tp.time_milliseconds <= MAX_TOUCH_POINT_AGE);
@@ -173,8 +171,10 @@ export class ScrollManager
                 return;
             }
 
-            /* Check if the user has moved enough to start dragging or held
-             * the mouse down long enough to start dragging */
+            /*
+             * Check if the user has moved enough to start dragging or held
+             * the mouse down long enough to start dragging
+             */
             const first_touch_point = this.scroll_state.touch_points[0];
             const last_touch_point = this.scroll_state.touch_points[this.scroll_state.touch_points.length - 1];
             const time_difference = last_touch_point.time_milliseconds - first_touch_point.time_milliseconds;
@@ -182,12 +182,14 @@ export class ScrollManager
             if (time_difference >= this.scroll_parameters.scroll_delay_milliseconds || distance_difference >= this.scroll_parameters.scroll_min_distance)
             {
                 this.scroll_state.is_dragging = true;
-            }
 
-            /* Adjust the scroll position according to the last and first points immediately */
-            const scroll_distance = last_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"] - first_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"];
-            this.scroll_state.scroll_position += scroll_distance;
-            this.scroll_state.last_dragged_time_milliseconds = Math.max(last_touch_point.time_milliseconds, time_milliseconds);
+                console.log(`ScrollManager.update: User started dragging, time_difference=${time_difference}, distance_difference=${distance_difference}, scroll_position=${this.scroll_state.scroll_position}, is_scrolling=${this.scroll_state.is_scrolling}, is_dragging=${this.scroll_state.is_dragging}, scroll_velocity=${this.scroll_state.scroll_velocity}`);
+
+                /* Adjust the scroll position according to the last and first points immediately */
+                const scroll_distance = last_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"] - first_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"];
+                this.scroll_state.scroll_position -= scroll_distance;
+                this.scroll_state.last_dragged_time_milliseconds = Math.max(last_touch_point.time_milliseconds, time_milliseconds);
+            }
             return;
         }
 
@@ -200,29 +202,60 @@ export class ScrollManager
             {
                 return;
             }
+
             /* Adjust the scroll position according to the change from the last considered touch point and the latest one */
             const last_touch_point = new_touch_points[new_touch_points.length - 1];
             const last_considered_touch_point = this.scroll_state.touch_points.filter(tp => tp.time_milliseconds <= this.scroll_state.last_dragged_time_milliseconds).slice(-1)[0];
             const scroll_distance = last_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"] - last_considered_touch_point[this.scroll_parameters.scroll_direction === "horizontal" ? "x" : "y"];
-            this.scroll_state.scroll_position += scroll_distance;
+            this.scroll_state.scroll_position -= scroll_distance;
             this.scroll_state.last_dragged_time_milliseconds = Math.max(last_touch_point.time_milliseconds, time_milliseconds);
+
+            if (scroll_distance !== 0)
+            {
+                console.log(`ScrollManager.update: User is dragging, scroll_distance=${scroll_distance}, scroll_position=${this.scroll_state.scroll_position}, is_scrolling=${this.scroll_state.is_scrolling}, is_dragging=${this.scroll_state.is_dragging}, scroll_velocity=${this.scroll_state.scroll_velocity}`);
+            }
             return;
         }
 
         /* Finally, if the user is not actively scrolling, we can apply a velocity to the scroll position and slow it down over time */
         if (!this.scroll_state.is_scrolling && this.scroll_state.is_dragging)
         {
+            console.log(`ScrollManager.update: User stopped dragging, scroll_position=${this.scroll_state.scroll_position}, is_scrolling=${this.scroll_state.is_scrolling}, is_dragging=${this.scroll_state.is_dragging}, scroll_velocity=${this.scroll_state.scroll_velocity}`);
             /* Apply a change in velocity based on how much time has passed */
             const time_difference = time_milliseconds - this.scroll_state.last_dragged_time_milliseconds;
-            this.scroll_state.scroll_position += this.scroll_state.scroll_velocity * time_difference;
+            this.scroll_state.scroll_position -= this.scroll_state.scroll_velocity * time_difference;
             this.scroll_state.scroll_velocity *= Math.pow(SCROLL_VELOCITY_DECAY, time_difference / 16.6667);
 
             /* If the velocity is very small, stop scrolling */
             if (Math.abs(this.scroll_state.scroll_velocity) < 0.01)
             {
+                console.log(`ScrollManager.update: User stopped dragging and stopped scroll velocity, scroll_position=${this.scroll_state.scroll_position}, is_scrolling=${this.scroll_state.is_scrolling}, is_dragging=${this.scroll_state.is_dragging}, scroll_velocity=${this.scroll_state.scroll_velocity}`);
                 this.scroll_state.is_dragging = false;
                 this.scroll_state.scroll_velocity = 0;
             }
+        }
+    }
+
+    /**
+     * Update the scrollable area based on the current time. If the area is moving
+     * on its own it will slow down slowly.
+     * 
+     * @param time_milliseconds the current time in milliseconds
+     */
+    public update(time_milliseconds: number): void
+    {
+        this.update_scroll_without_bounds(time_milliseconds);
+
+        /* Clamp the scroll position to the bounds */
+        if (this.scroll_state.scroll_position < this.scroll_parameters.scroll_bounds.min)
+        {
+            this.scroll_state.scroll_position = this.scroll_parameters.scroll_bounds.min;
+            this.scroll_state.scroll_velocity = 0;
+        }
+        else if (this.scroll_state.scroll_position > this.scroll_parameters.scroll_bounds.max)
+        {
+            this.scroll_state.scroll_position = this.scroll_parameters.scroll_bounds.max;
+            this.scroll_state.scroll_velocity = 0;
         }
     }
 }
