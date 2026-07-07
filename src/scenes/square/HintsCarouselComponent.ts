@@ -172,7 +172,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
          * If the pointer goes outside the screen while held down and is then released, the release event does not fire.
          * Compensate for this by detecting the release by checking the current status
          */
-        if (!this.scene.input.activePointer.isDown)
+        if (!this.scene.input.activePointer.isDown && (this.hints_scroll_left.scroll_state.is_dragging || this.hints_scroll_left.scroll_state.is_scrolling))
         {
             this.handle_pointer_up(this.scene.input.activePointer);
         }
