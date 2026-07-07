@@ -34,6 +34,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
     }
 
     hints_scroll_left!: ScrollManager;
+    private scroll_position_initialised = 0;
 
     /**
      * Initialise all the objects needed to display the square
@@ -56,7 +57,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 
         const scroll_left_parameters = SCROLL_PARAMETERS_DEFAULTS;
         scroll_left_parameters.scroll_direction = "vertical";
-        scroll_left_parameters.scroll_bounds = { min: left_rectangle.y, max: left_rectangle.y + left_rectangle.height };
+        scroll_left_parameters.scroll_bounds = { min: left_rectangle.y, max: left_rectangle.y + left_rectangle.height * 2 };
         this.hints_scroll_left = new ScrollManager(scroll_left_parameters);
     }
 
@@ -81,18 +82,18 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         this.game_objects.hints_left_camera.setScroll(left_rectangle.x, this.hints_scroll_left.scroll_state.scroll_position);
         this.game_objects.hints_left_camera.setPosition(left_rectangle.x, left_rectangle.y);
         this.game_objects.hints_left_camera.setSize(left_rectangle.width, left_rectangle.height);
-        this.game_objects.hints_left_camera.setBackgroundColor(0xff0000);
+        this.game_objects.hints_left_camera.setBackgroundColor(0x00ffff);
         this.game_objects.hints_left_camera.setVisible(true);
 
         const padding = get_line_spacing_for_font_size(this.game_state, FONT_HINTS_TITLES);
 
-        this.game_objects.hints_text.set_bounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, Infinity);
+        this.game_objects.hints_text.set_bounds(left_rectangle.x, left_rectangle.y + left_rectangle.height, left_rectangle.width, Infinity);
         this.game_objects.hints_text.set_padding(padding, padding, padding, padding);
         this.game_objects.hints_text.update();
         this.game_objects.hints_text.setVisible(true);
 
         const new_scroll_bounds = {
-            min: left_rectangle.y, max: left_rectangle.y + this.game_objects.hints_text.get_size().height - left_rectangle.height
+            min: left_rectangle.y, max: left_rectangle.y + this.game_objects.hints_text.get_size().height
         };
 
         this.hints_scroll_left.scroll_parameters.scroll_bounds.max = new_scroll_bounds.max;
@@ -107,6 +108,13 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             this.game_objects.hints_right_camera.setSize(right_rectangle.width, right_rectangle.height);
             this.game_objects.hints_right_camera.setBackgroundColor(0x00ff00);
             this.game_objects.hints_right_camera.setVisible(true);
+        }
+
+        /* I have no idea why this works... */
+        if (this.scroll_position_initialised < 2)
+        {
+            this.handle_resize();
+            this.scroll_position_initialised += 1;
         }
     }
 
@@ -158,12 +166,16 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
     handle_resize()
     {
         /* Ensure scrolling corrects for the new size */
+        const left_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!;
         this.hints_scroll_left.scroll_parameters.scroll_bounds = {
-            min: this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!.y,
-            max: this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!.y + this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!.height
+            min: left_rectangle.y,
+            max: left_rectangle.y + left_rectangle.height * 2
         };
 
         this.hints_scroll_left.update_parameters(this.hints_scroll_left.scroll_parameters);
+        this.hints_scroll_left.scroll_state.scroll_position = left_rectangle.y + left_rectangle.height;
+
+        console.log(`HintsCarouselComponent.handle_resize: scroll_position=${this.hints_scroll_left.scroll_state.scroll_position}, scroll_bounds=${JSON.stringify(this.hints_scroll_left.scroll_parameters.scroll_bounds)}`);
     }
 
     update(): void
