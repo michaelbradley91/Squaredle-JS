@@ -20,10 +20,6 @@ import BaseComponent from "../BaseComponent";
 import SquareScene from "./SquareScene";
 import { update_rectangle } from "../BaseScene";
 import { FONT_HINTS_TITLES, get_line_spacing_for_font_size } from "~/fonts";
-import HintsHeaderComponent from "~/ui_components/HintsHeaderComponent";
-import HintsWordsComponent from "~/ui_components/HintsWordsComponents";
-import HintsBonusWordsFoundComponent from "~/ui_components/HintsBonusWordsFoundComponent";
-import HintsBonusWordOfTheDayComponent from "~/ui_components/HintsBonusWordOfTheDayComponent";
 import HintsComponent from "~/ui_components/HintsComponent";
 import { SCROLL_PARAMETERS_DEFAULTS, ScrollManager } from "~/scroll";
 
@@ -38,7 +34,6 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
     }
 
     hints_scroll_left!: ScrollManager;
-    hints_scroll_right!: ScrollManager;
 
     /**
      * Initialise all the objects needed to display the square
@@ -59,20 +54,10 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             left_rectangle = { x: 0, y: 0, width: 0, height: 0 };
         }
 
-        let right_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsRight);
-        if (!right_rectangle || this.game_state.layout.square_scene_layout.is_vertical())
-        {
-            right_rectangle = { x: 0, y: 0, width: 0, height: 0 };
-        }
-
         const scroll_left_parameters = SCROLL_PARAMETERS_DEFAULTS;
         scroll_left_parameters.scroll_direction = "vertical";
         scroll_left_parameters.scroll_bounds = { min: left_rectangle.y, max: left_rectangle.y + left_rectangle.height };
         this.hints_scroll_left = new ScrollManager(scroll_left_parameters);
-
-        const scroll_right_parameters = SCROLL_PARAMETERS_DEFAULTS;
-        scroll_right_parameters.scroll_bounds = { min: right_rectangle.y, max: right_rectangle.y + right_rectangle.height };
-        this.hints_scroll_right = new ScrollManager(scroll_right_parameters);
     }
 
     /**
@@ -92,7 +77,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         const left_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!;
 
         /* Focus the camera on the correct rectangles */
-        this.game_objects.hints_left_camera.setBounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, left_rectangle.height * 100);
+        this.game_objects.hints_left_camera.setBounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, Infinity);
         this.game_objects.hints_left_camera.setScroll(left_rectangle.x, this.hints_scroll_left.scroll_state.scroll_position);
         this.game_objects.hints_left_camera.setPosition(left_rectangle.x, left_rectangle.y);
         this.game_objects.hints_left_camera.setSize(left_rectangle.width, left_rectangle.height);
@@ -106,12 +91,18 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         this.game_objects.hints_text.update();
         this.game_objects.hints_text.setVisible(true);
 
+        const new_scroll_bounds = {
+            min: left_rectangle.y, max: left_rectangle.y + this.game_objects.hints_text.get_size().height - left_rectangle.height
+        };
+
+        this.hints_scroll_left.scroll_parameters.scroll_bounds.max = new_scroll_bounds.max;
+
         /* And the right hand camera... */
         if (!this.game_state.layout.square_scene_layout.is_vertical())
         {
             const right_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsRight)!;
-            this.game_objects.hints_right_camera.setBounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, left_rectangle.height * 100);
-            this.game_objects.hints_right_camera.setScroll(left_rectangle.x, left_rectangle.y + left_rectangle.height);
+            this.game_objects.hints_right_camera.setBounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, Infinity);
+            this.game_objects.hints_right_camera.setScroll(left_rectangle.x, left_rectangle.y + left_rectangle.height - padding * 4 + this.hints_scroll_left.scroll_state.scroll_position);
             this.game_objects.hints_right_camera.setPosition(right_rectangle.x, right_rectangle.y);
             this.game_objects.hints_right_camera.setSize(right_rectangle.width, right_rectangle.height);
             this.game_objects.hints_right_camera.setBackgroundColor(0x00ff00);
@@ -153,7 +144,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
                 pointer.y >= right_rectangle.y && pointer.y <= right_rectangle.y + right_rectangle.height)
             {
                 const touch_point = { x: pointer.x, y: pointer.y, time_milliseconds: this.scene.time.now };
-                this.hints_scroll_right.touched(touch_point);
+                this.hints_scroll_left.touched(touch_point);
             }
         }
     }
@@ -162,7 +153,6 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
     {
         /* Update the scroll managers with the current mouse / touch position */
         this.hints_scroll_left.released({ x: pointer.x, y: pointer.y, time_milliseconds: this.scene.time.now });
-        this.hints_scroll_right.released({ x: pointer.x, y: pointer.y, time_milliseconds: this.scene.time.now });
     }
 
     handle_resize()
@@ -174,30 +164,22 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         };
 
         this.hints_scroll_left.update_parameters(this.hints_scroll_left.scroll_parameters);
-
-        if (this.game_state.layout.square_scene_layout.is_vertical())
-        {
-            this.hints_scroll_right.scroll_parameters.scroll_bounds = { min: 0, max: 0 };
-            this.hints_scroll_right.update_parameters(this.hints_scroll_right.scroll_parameters);
-        }
-        else
-        {
-            this.hints_scroll_right.scroll_parameters.scroll_bounds = {
-                min: this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsRight)!.y,
-                max: this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsRight)!.y + this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsRight)!.height
-            };
-            this.hints_scroll_right.update_parameters(this.hints_scroll_right.scroll_parameters);
-        }
     }
 
     update(): void
     {
+        /*
+         * If the pointer goes outside the screen while held down and is then released, the release event does not fire.
+         * Compensate for this by detecting the release by checking the current status
+         */
+        if (!this.scene.input.activePointer.isDown)
+        {
+            this.handle_pointer_up(this.scene.input.activePointer);
+        }
+
         /* Update the scroll managers with the current mouse / touch position */
         this.hints_scroll_left.pointer_update({ x: this.scene.input.activePointer.x, y: this.scene.input.activePointer.y, time_milliseconds: this.scene.time.now });
-        this.hints_scroll_right.pointer_update({ x: this.scene.input.activePointer.x, y: this.scene.input.activePointer.y, time_milliseconds: this.scene.time.now });
-
         this.hints_scroll_left.update(this.scene.time.now);
-        this.hints_scroll_right.update(this.scene.time.now);
 
         /* Update the hints positions */
         this.draw();
