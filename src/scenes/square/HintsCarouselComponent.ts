@@ -87,7 +87,14 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
 
         const padding = get_line_spacing_for_font_size(this.game_state, FONT_HINTS_TITLES);
 
-        this.game_objects.hints_text.set_bounds(left_rectangle.x, left_rectangle.y + left_rectangle.height, left_rectangle.width, Infinity);
+        if (!this.game_state.layout.square_scene_layout.is_vertical())
+        {
+            this.game_objects.hints_text.set_bounds(left_rectangle.x, left_rectangle.y + left_rectangle.height, left_rectangle.width, Infinity);
+        }
+        else
+        {
+            this.game_objects.hints_text.set_bounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, Infinity);
+        }
         this.game_objects.hints_text.set_padding(padding, padding, padding, padding);
         this.game_objects.hints_text.update();
         this.game_objects.hints_text.setVisible(true);
@@ -96,7 +103,14 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
             min: left_rectangle.y, max: left_rectangle.y + this.game_objects.hints_text.get_size().height
         };
 
-        this.hints_scroll_left.scroll_parameters.scroll_bounds.max = new_scroll_bounds.max;
+        if (!this.game_state.layout.square_scene_layout.is_vertical())
+        {
+            this.hints_scroll_left.scroll_parameters.scroll_bounds.max = new_scroll_bounds.max;
+        }
+        else
+        {
+            this.hints_scroll_left.scroll_parameters.scroll_bounds.max = new_scroll_bounds.max - left_rectangle.height;
+        }
 
         /* And the right hand camera... */
         if (!this.game_state.layout.square_scene_layout.is_vertical())
@@ -167,13 +181,33 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
     {
         /* Ensure scrolling corrects for the new size */
         const left_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsLeft)!;
-        this.hints_scroll_left.scroll_parameters.scroll_bounds = {
-            min: left_rectangle.y,
-            max: left_rectangle.y + left_rectangle.height * 2
-        };
+
+        /* If horizontal the height is added twice to allow fully scrolling on either side */
+        if (!this.game_state.layout.square_scene_layout.is_vertical())
+        {
+            this.hints_scroll_left.scroll_parameters.scroll_bounds = {
+                min: left_rectangle.y,
+                max: left_rectangle.y + left_rectangle.height * 2
+            };
+        }
+        else
+        {
+            this.hints_scroll_left.scroll_parameters.scroll_bounds = {
+                min: left_rectangle.y,
+                max: left_rectangle.y + left_rectangle.height
+            };
+        }
 
         this.hints_scroll_left.update_parameters(this.hints_scroll_left.scroll_parameters);
-        this.hints_scroll_left.scroll_state.scroll_position = left_rectangle.y + left_rectangle.height;
+
+        if (!this.game_state.layout.square_scene_layout.is_vertical())
+        {
+            this.hints_scroll_left.scroll_state.scroll_position = left_rectangle.y + left_rectangle.height;
+        }
+        else
+        {
+            this.hints_scroll_left.scroll_state.scroll_position = left_rectangle.y;
+        }
 
         console.log(`HintsCarouselComponent.handle_resize: scroll_position=${this.hints_scroll_left.scroll_state.scroll_position}, scroll_bounds=${JSON.stringify(this.hints_scroll_left.scroll_parameters.scroll_bounds)}`);
     }
