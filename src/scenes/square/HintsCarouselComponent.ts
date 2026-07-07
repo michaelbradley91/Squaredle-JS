@@ -102,7 +102,7 @@ export default class HintsCarouselComponent extends BaseComponent<SquareScene>
         {
             const right_rectangle = this.game_state.layout.square_scene_layout.get_layout_rectangle(OuterScreenNode.HintsRight)!;
             this.game_objects.hints_right_camera.setBounds(left_rectangle.x, left_rectangle.y, left_rectangle.width, Infinity);
-            this.game_objects.hints_right_camera.setScroll(left_rectangle.x, left_rectangle.y + left_rectangle.height - padding * 4 + this.hints_scroll_left.scroll_state.scroll_position);
+            this.game_objects.hints_right_camera.setScroll(left_rectangle.x, left_rectangle.height + this.hints_scroll_left.scroll_state.scroll_position);
             this.game_objects.hints_right_camera.setPosition(right_rectangle.x, right_rectangle.y);
             this.game_objects.hints_right_camera.setSize(right_rectangle.width, right_rectangle.height);
             this.game_objects.hints_right_camera.setBackgroundColor(0x00ff00);
